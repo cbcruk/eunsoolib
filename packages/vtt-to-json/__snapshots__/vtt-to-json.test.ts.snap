@@ -1,0 +1,131 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`vttToJson 1`] = `
+[
+  {
+    "seconds": 2.63,
+    "text": "[Music]",
+    "timestamp": "00:00:02.630",
+  },
+  {
+    "seconds": 12.15,
+    "text": "Yeah, I love you. I'm in a funk, so I",
+    "timestamp": "00:00:12.150",
+  },
+  {
+    "seconds": 13.83,
+    "text": "bought a bouquet of roses and cut them",
+    "timestamp": "00:00:13.830",
+  },
+  {
+    "seconds": 15.03,
+    "text": "up at your doorstep. Your new",
+    "timestamp": "00:00:15.030",
+  },
+  {
+    "seconds": 16.95,
+    "text": "neighborhood is gorgeous. I paid a lot",
+    "timestamp": "00:00:16.950",
+  },
+  {
+    "seconds": 19.029,
+    "text": "of money for the fragrances you were",
+    "timestamp": "00:00:19.029",
+  },
+  {
+    "seconds": 20.87,
+    "text": "dating, and I sold some lemonade just to",
+    "timestamp": "00:00:20.870",
+  },
+  {
+    "seconds": 22.71,
+    "text": "afford them. I know it's not a really",
+    "timestamp": "00:00:22.710",
+  },
+  {
+    "seconds": 24.79,
+    "text": "good occasion to be barging in. I",
+    "timestamp": "00:00:24.790",
+  },
+  {
+    "seconds": 26.31,
+    "text": "couldn't help but watch you kiss her by",
+    "timestamp": "00:00:26.310",
+  },
+  {
+    "seconds": 28.39,
+    "text": "the kitchen sink. I swung the door open,",
+    "timestamp": "00:00:28.390",
+  },
+  {
+    "seconds": 30.47,
+    "text": "tippy toeed, farther in. I wasn't",
+    "timestamp": "00:00:30.470",
+  },
+  {
+    "seconds": 32.15,
+    "text": "crying, I was staring and forgot to",
+    "timestamp": "00:00:32.150",
+  },
+  {
+    "seconds": 34.31,
+    "text": "blink. She saw me standing by the TV and",
+    "timestamp": "00:00:34.310",
+  },
+  {
+    "seconds": 36.069,
+    "text": "she wouldn't stop screaming. So I tried",
+    "timestamp": "00:00:36.069",
+  },
+  {
+    "seconds": 37.59,
+    "text": "to be discreet and told her, "Calm your",
+    "timestamp": "00:00:37.590",
+  },
+  {
+    "seconds": 39.59,
+    "text": "tits." She grabbed the kitchen knife. So",
+    "timestamp": "00:00:39.590",
+  },
+  {
+    "seconds": 41.43,
+    "text": "I pulled out the blick and got it all",
+    "timestamp": "00:00:41.430",
+  },
+  {
+    "seconds": 43.59,
+    "text": "the time. Thank God I did for this cuz",
+    "timestamp": "00:00:43.590",
+  },
+  {
+    "seconds": 45.67,
+    "text": "she was seeing bread and all I saw was",
+    "timestamp": "00:00:45.670",
+  },
+  {
+    "seconds": 47.99,
+    "text": "you. It happened in the flash. When she",
+    "timestamp": "00:00:47.990",
+  },
+  {
+    "seconds": 50.069,
+    "text": "charged at me, y'all crisscross, saw her",
+    "timestamp": "00:00:50.069",
+  },
+  {
+    "seconds": 51.91,
+    "text": "fall to the floor. Then you paused and",
+    "timestamp": "00:00:51.910",
+  },
+  {
+    "seconds": 53.95,
+    "text": "in horror that shot wasn't",
+    "timestamp": "00:00:53.950",
+  },
+  {
+    "seconds": 58.37,
+    "text": "[Music]",
+    "timestamp": "00:00:58.370",
+  },
+]
+`;
