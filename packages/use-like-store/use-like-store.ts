@@ -1,17 +1,6 @@
-import { z } from 'zod'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-const ItemSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  image: z.string(),
-  price: z.number(),
-})
-
-export const ItemListSchema = z.array(ItemSchema)
-
-export type Item = z.infer<typeof ItemSchema>
+import { type Item } from './like-manager'
 
 export type LikesItem = Item
 export type LikesItemId = LikesItem['id']
@@ -24,33 +13,12 @@ export type LikesState = {
   clear: () => void
 }
 
-export const useLikesStore = create<LikesState>()((set) => ({
+export const useLikesStore = create<LikesState>()((_set) => ({
   likes: [],
-  addItem: (item) =>
-    set((state) =>
-      state.likes.some((i) => i.id === item.id)
-        ? state
-        : { likes: [...state.likes, item] }
-    ),
-  toggleItem: (item: LikesItem) =>
-    set((state) => {
-      const exists = state.likes.some((i) => i.id === item.id)
-
-      return {
-        likes: exists
-          ? state.likes.filter((i) => i.id !== item.id)
-          : [...state.likes, item],
-      }
-    }),
-  removeItem: (id) =>
-    set((state) => ({
-      likes: state.likes.filter((item) => item.id !== id),
-    })),
-  removeItems: (ids) =>
-    set((state) => ({
-      likes: state.likes.filter((item) => !ids.includes(item.id)),
-    })),
-  clear: () => set({ likes: [] }),
+  addItem: (_item) => {},
+  removeItem: (_id) => {},
+  removeItems(_ids) {},
+  clear: () => {},
 }))
 
 export const useLikesStoreWith = persist(useLikesStore, {
