@@ -32,6 +32,9 @@ importers:
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
+      xstate:
+        specifier: ^5.19.3
+        version: 5.19.3
       zod:
         specifier: ^3.24.3
         version: 3.24.3
@@ -1215,6 +1218,9 @@ packages:
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
+  xstate@5.19.3:
+    resolution: {integrity: sha512-q6sqD7LuontFVxQoGB7D6NkQRDLzs87qzQhUKvI0osKKK8xxktZBT7uwfisjh7Yi5VB2cN9NOpCSxJNpUPQCeg==}
+
   zod@3.24.3:
     resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
 
@@ -2222,6 +2228,8 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xmlchars@2.2.0: {}
+
+  xstate@5.19.3: {}
 
   zod@3.24.3: {}
 
