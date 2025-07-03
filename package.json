@@ -22,6 +22,7 @@
     "@effect/platform-node": "^0.77.6",
     "@types/node": "^22.15.3",
     "dayjs": "^1.11.13",
+    "dexie": "^4.0.11",
     "effect": "^3.14.18",
     "file-type": "^20.5.0",
     "image-size": "^2.0.2",
