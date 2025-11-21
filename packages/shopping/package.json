@@ -1,0 +1,13 @@
+{
+  "name": "@eunsoolib/shopping",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "xstate": "^5.19.3"
+  }
+}

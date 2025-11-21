@@ -1,4 +1,4 @@
-class LocalStorageManager<T> {
+export class LocalStorageManager<T> {
   constructor(private storageKey: string) {}
 
   load(): T | null {

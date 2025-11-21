@@ -1,4 +1,4 @@
-import { useRef, RefObject, CSSProperties } from 'react'
+import { useRef, RefObject } from 'react'
 import { useSize } from 'ahooks'
 
 export type OverflowDetection<T extends HTMLElement = HTMLElement> = {
@@ -46,49 +46,43 @@ export function OverflowDemo({
     <div
       ref={ref}
       style={{
-        ...styles.container,
         width: containerWidth,
         height: showVerticalDemo ? containerHeight : 'auto',
       }}
+      className="overflow-hidden border border-gray-300 p-2 rounded bg-white"
     >
       <div>
-        <span style={styles.tags}>
+        <span className="flex gap-1 flex-wrap">
           {Array.from({ length: 20 }).map((_, i) => (
-            <span key={i}>Item{i}</span>
+            <span
+              key={i}
+              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+            >
+              Item{i}
+            </span>
           ))}
         </span>
         {showVerticalDemo && (
-          <div>
+          <div className="mt-2">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i}>Line {i + 1}</div>
+              <div key={i} className="text-sm py-1">
+                Line {i + 1}
+              </div>
             ))}
           </div>
         )}
       </div>
-      <div style={styles.debug}>
-        {hasHorizontalOverflow && <div>Horizontal overflow detected</div>}
-        {hasVerticalOverflow && <div>Vertical overflow detected</div>}
+      <div className="mt-2 text-xs text-gray-600 font-medium">
+        {hasHorizontalOverflow && (
+          <div className="text-orange-600">⚠️ Horizontal overflow detected</div>
+        )}
+        {hasVerticalOverflow && (
+          <div className="text-orange-600">⚠️ Vertical overflow detected</div>
+        )}
         {!hasHorizontalOverflow && !hasVerticalOverflow && (
-          <div>Content fits</div>
+          <div className="text-green-600">✓ Content fits</div>
         )}
       </div>
     </div>
   )
 }
-
-const styles = {
-  container: {
-    overflow: 'hidden',
-    border: '1px solid #ccc',
-    padding: '8px',
-  },
-  tags: {
-    display: 'flex',
-    gap: 4,
-  },
-  debug: {
-    marginTop: 8,
-    fontSize: 12,
-    color: '#666',
-  },
-} as Record<'container' | 'tags' | 'debug', CSSProperties>
