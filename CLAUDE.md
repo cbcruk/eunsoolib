@@ -68,3 +68,8 @@ Each package follows the same pattern:
 - Clean up meaningless tests (e.g., `expect(true).toBe(true)`)
 
 When working on this codebase, follow the existing patterns and ensure all new functionality includes comprehensive tests.
+
+## Git Commit Convention
+
+- **Prefix 사용**: `fix:`, `feat:`, `refactor:`, `docs:`, `chore:` 등 commitlint 규칙 준수
+- **한국어 메시지**: 커밋 메시지는 한국어로 작성
