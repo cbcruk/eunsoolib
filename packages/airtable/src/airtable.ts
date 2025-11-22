@@ -1,38 +1,36 @@
-export type Records<TFields> = Array<{
+export type AirtableRecord<TFields> = {
   id: string
   createdTime?: string
   fields: TFields
-}>
+}
 
 export type AirtableResponse<TFields> = {
-  records: Records<TFields>
+  records: AirtableRecord<TFields>[]
   offset?: string
 }
 
 export type Params = Record<string, unknown>
 
-export class AirtableClient {
-  private apiKey: string
-  private baseUrl: string
-  private pageSize: number
+export type AirtableClientOptions = {
+  apiKey: string
+  baseUrl: string
+  pageSize?: number
+}
 
-  constructor({
-    apiKey = process.env.AIRTABLE_API_KEY || '',
-    baseUrl = process.env.AIRTABLE_URL || '',
-    pageSize = 20,
-  }: {
-    apiKey: string
-    baseUrl: string
-    pageSize?: number
-  }) {
-    this.apiKey = apiKey
-    this.baseUrl = baseUrl
-    this.pageSize = pageSize
+export class AirtableClient {
+  private options: Required<AirtableClientOptions>
+
+  constructor(options: AirtableClientOptions) {
+    this.options = {
+      apiKey: options.apiKey ?? process.env.AIRTABLE_API_KEY ?? '',
+      baseUrl: options.baseUrl ?? process.env.AIRTABLE_URL ?? '',
+      pageSize: options.pageSize ?? 20,
+    }
   }
 
   private get headers() {
     return {
-      Authorization: `Bearer ${this.apiKey}`,
+      Authorization: `Bearer ${this.options.apiKey}`,
     }
   }
 
@@ -63,11 +61,11 @@ export class AirtableClient {
     params: Params
   ): Promise<AirtableResponse<TFields>> {
     const query = this.buildQuery({
-      pageSize: this.pageSize,
+      pageSize: this.options.pageSize,
       ...params,
     })
 
-    const fullUrl = `${this.baseUrl}${url}?${query}`
+    const fullUrl = `${this.options.baseUrl}${url}?${query}`
     const response = await fetch(fullUrl, { headers: this.headers })
 
     if (!response.ok) {
@@ -97,6 +95,6 @@ export class AirtableClient {
   }
 
   getLastPage(total: number) {
-    return Math.ceil(total / this.pageSize)
+    return Math.ceil(total / this.options.pageSize)
   }
 }
