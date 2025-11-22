@@ -12,13 +12,13 @@ export type AirtableResponse<TFields> = {
 export type Params = Record<string, unknown>
 
 export type AirtableClientOptions = {
-  apiKey: string
-  baseUrl: string
+  apiKey?: string
+  baseUrl?: string
   pageSize?: number
 }
 
 export class AirtableClient {
-  private options: Required<AirtableClientOptions>
+  protected options: Required<AirtableClientOptions>
 
   constructor(options: AirtableClientOptions) {
     this.options = {
@@ -69,12 +69,14 @@ export class AirtableClient {
     const response = await fetch(fullUrl, { headers: this.headers })
 
     if (!response.ok) {
-      throw new Error(`실패: ${response.statusText}`)
+      throw new Error(`Airtable API 실패 (${response.status}): ${response.statusText}`)
     }
 
-    return await response.json()
+    return response.json()
   }
+}
 
+export class PaginatedAirtableClient extends AirtableClient {
   async getLastIndex(url: string): Promise<number | undefined> {
     const result = await this.fetchList<{ index: number }>(url, {
       sort: [{ field: 'index', direction: 'desc' }],
