@@ -1,6 +1,8 @@
 export {
   AirtableClient,
-  type Records,
+  PaginatedAirtableClient,
+  type AirtableRecord,
   type AirtableResponse,
+  type AirtableClientOptions,
   type Params,
 } from './airtable'
