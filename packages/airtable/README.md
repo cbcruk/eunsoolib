@@ -1,21 +1,23 @@
 # @eunsoolib/airtable
 
-Airtable API를 위한 TypeScript 클라이언트 라이브러리
+Effect 기반 Airtable API 클라이언트 라이브러리
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/airtable
+pnpm add @eunsoolib/airtable effect
 ```
 
 ## 사용법
 
-### 기본 클라이언트
+### 기본 사용
 
 ```typescript
-import { AirtableClient } from '@eunsoolib/airtable'
+import { Effect } from 'effect'
+import { fetchList, makeAirtableConfigLayer } from '@eunsoolib/airtable'
 
-const client = new AirtableClient({
+// Layer 생성
+const ConfigLayer = makeAirtableConfigLayer({
   apiKey: 'your-api-key',
   baseUrl: 'https://api.airtable.com/v0/your-base-id',
   pageSize: 20, // 선택사항, 기본값: 20
@@ -24,65 +26,91 @@ const client = new AirtableClient({
 // 레코드 조회
 type MyRecord = { name: string; status: string }
 
-const result = await client.fetchList<MyRecord>('/TableName', {
+const program = fetchList<MyRecord>('/TableName', {
   filterByFormula: '{status} = "active"',
   sort: [{ field: 'name', direction: 'asc' }],
   fields: ['name', 'status'],
 })
 
-console.log(result.records) // AirtableRecord<MyRecord>[]
+// 실행
+Effect.runPromise(program.pipe(Effect.provide(ConfigLayer)))
+  .then((result) => console.log(result.records))
+  .catch((error) => console.error(error))
 ```
 
-### 페이지네이션 클라이언트
-
-index/status 필드 기반 페이지네이션이 필요한 경우:
+### 페이지네이션 유틸리티
 
 ```typescript
-import { PaginatedAirtableClient } from '@eunsoolib/airtable'
+import {
+  getLastIndex,
+  releaseFormula,
+  paginationFormula,
+  getLastPage,
+  makeAirtableConfigLayer,
+} from '@eunsoolib/airtable'
+import { Effect } from 'effect'
 
-const client = new PaginatedAirtableClient({
+const ConfigLayer = makeAirtableConfigLayer({
   apiKey: 'your-api-key',
   baseUrl: 'https://api.airtable.com/v0/your-base-id',
 })
 
 // 마지막 index 조회
-const lastIndex = await client.getLastIndex('/TableName')
+const lastIndex = await Effect.runPromise(
+  getLastIndex('/TableName').pipe(Effect.provide(ConfigLayer))
+)
 
-// 페이지네이션 포뮬라 생성
-const formula = client.paginationFormula({ start: 1, end: 10 })
+// 포뮬라 생성 (순수 함수)
+const formula = paginationFormula({ start: 1, end: 10 })
 // => "AND(AND({status}, 'release'), AND({index} >= 1, {index} <= 10))"
 
-// 마지막 페이지 계산
-const lastPage = client.getLastPage(100) // totalCount
+// 마지막 페이지 계산 (순수 함수)
+const lastPage = getLastPage(100, 20) // => 5
 ```
 
-## 환경 변수
+### 에러 처리
 
-옵션을 생략하면 환경 변수에서 값을 가져옵니다:
+```typescript
+import { Effect } from 'effect'
+import { fetchList, AirtableError, makeAirtableConfigLayer } from '@eunsoolib/airtable'
 
-```env
-AIRTABLE_API_KEY=your-api-key
-AIRTABLE_URL=https://api.airtable.com/v0/your-base-id
+const ConfigLayer = makeAirtableConfigLayer({
+  apiKey: 'your-api-key',
+  baseUrl: 'https://api.airtable.com/v0/your-base-id',
+})
+
+const program = fetchList('/TableName', {}).pipe(
+  Effect.provide(ConfigLayer),
+  Effect.catchTag('AirtableError', (error) => {
+    console.error(`API 에러 (${error.status}): ${error.message}`)
+    return Effect.succeed({ records: [], offset: undefined })
+  })
+)
 ```
 
 ## API
 
-### AirtableClient
+### Effects
 
-| 메서드                      | 설명             |
-| --------------------------- | ---------------- |
-| `fetchList<T>(url, params)` | 레코드 목록 조회 |
+| 함수                        | 설명                    |
+| --------------------------- | ----------------------- |
+| `fetchList<T>(url, params)` | 레코드 목록 조회        |
+| `getLastIndex(url)`         | 마지막 index 값 조회    |
 
-### PaginatedAirtableClient
+### Utils (순수 함수)
 
-`AirtableClient`를 상속하며 추가 메서드 제공:
-
-| 메서드                              | 설명                          |
-| ----------------------------------- | ----------------------------- |
-| `getLastIndex(url)`                 | 마지막 index 값 조회          |
-| `releaseFormula(status?)`           | release 상태 필터 포뮬라 생성 |
+| 함수                              | 설명                          |
+| --------------------------------- | ----------------------------- |
+| `buildQuery(params)`              | 쿼리 파라미터를 문자열로 변환 |
+| `releaseFormula(status?)`         | release 상태 필터 포뮬라 생성 |
 | `paginationFormula({ start, end })` | 페이지네이션 필터 포뮬라 생성 |
-| `getLastPage(total)`                | 마지막 페이지 번호 계산       |
+| `getLastPage(total, pageSize)`    | 마지막 페이지 번호 계산       |
+
+### Layers
+
+| 함수                           | 설명                     |
+| ------------------------------ | ------------------------ |
+| `makeAirtableConfigLayer(options)` | AirtableConfig Layer 생성 |
 
 ### Types
 
@@ -98,9 +126,19 @@ type AirtableResponse<TFields> = {
   offset?: string
 }
 
-type AirtableClientOptions = {
-  apiKey?: string
-  baseUrl?: string
+type AirtableConfigOptions = {
+  apiKey: string
+  baseUrl: string
   pageSize?: number
 }
+```
+
+### Errors
+
+```typescript
+class AirtableError extends Data.TaggedError('AirtableError')<{
+  readonly message: string
+  readonly status?: number
+  readonly cause?: unknown
+}>
 ```

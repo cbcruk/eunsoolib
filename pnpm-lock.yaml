@@ -85,7 +85,11 @@ importers:
         specifier: latest
         version: 4.0.12(@types/node@22.15.3)(@vitest/browser-playwright@4.0.10)(@vitest/ui@4.0.12)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)
 
-  packages/airtable: {}
+  packages/airtable:
+    dependencies:
+      effect:
+        specifier: ^3.14.18
+        version: 3.14.18
 
   packages/audio-components:
     dependencies:
