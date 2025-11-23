@@ -1,4 +1,7 @@
 import { Context, Data, Effect, Layer } from 'effect'
+import { buildQuery, type Params } from './build-query'
+
+export { buildQuery, type Params } from './build-query'
 
 /**
  * Airtable 레코드 타입
@@ -18,9 +21,6 @@ export type AirtableResponse<TFields> = {
   records: AirtableRecord<TFields>[]
   offset?: string
 }
-
-/** Airtable API 쿼리 파라미터 타입 */
-export type Params = Record<string, unknown>
 
 /** AirtableConfig 옵션 */
 export type AirtableConfigOptions = {
@@ -48,31 +48,6 @@ export class AirtableConfig extends Context.Tag('AirtableConfig')<
     readonly pageSize: number
   }
 >() {}
-
-/**
- * 쿼리 파라미터를 URL 쿼리 스트링으로 변환합니다.
- */
-export const buildQuery = (params: Params): string => {
-  const searchParams = new URLSearchParams()
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach((v, i) => {
-        if (typeof v === 'object') {
-          Object.entries(v).forEach(([k, val]) => {
-            searchParams.append(`${key}[${i}][${k}]`, `${val}`)
-          })
-        } else {
-          searchParams.append(`${key}[]`, `${v}`)
-        }
-      })
-    } else {
-      searchParams.append(key, `${value}`)
-    }
-  })
-
-  return searchParams.toString()
-}
 
 /**
  * release 상태 필터 포뮬라를 생성합니다.
