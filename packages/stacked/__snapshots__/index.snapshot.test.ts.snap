@@ -1,0 +1,60 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`시각적 회귀 (render 트랜스크립트) > init → submit → navigate → merge 전체 흐름 1`] = `
+"── init ──
+→ feat/frontend  (base: feat/api-endpoints)  (no PR)
+  │
+  feat/api-endpoints  (base: feat/auth-layer)  (no PR)
+  │
+  feat/auth-layer  (base: main)  (no PR)
+  │
+  main  (trunk)
+
+── submit (PR 연결) ──
+→ feat/frontend  (base: feat/api-endpoints)  PR #3 [draft]
+  │
+  feat/api-endpoints  (base: feat/auth-layer)  PR #2 [open]
+  │
+  feat/auth-layer  (base: main)  PR #1 [open]
+  │
+  main  (trunk)
+
+── bottom; up (커서 이동) ──
+  feat/frontend  (base: feat/api-endpoints)  PR #3 [draft]
+  │
+→ feat/api-endpoints  (base: feat/auth-layer)  PR #2 [open]
+  │
+  feat/auth-layer  (base: main)  PR #1 [open]
+  │
+  main  (trunk)
+
+── merge feat/auth-layer (#1만 병합, 나머지 rebase) ──
+  feat/frontend  (base: feat/api-endpoints)  PR #3 [draft]
+  │
+→ feat/api-endpoints  (base: main)  PR #2 [open]
+  │
+  main  (trunk)"
+`;
+
+exports[`시각적 회귀 (render 트랜스크립트) > 맨 위에 브랜치 추가 후 중간 병합으로 bottom-up 병합 1`] = `
+"── init ──
+→ b  (base: a)  (no PR)
+  │
+  a  (base: main)  (no PR)
+  │
+  main  (trunk)
+
+── add c (top에 추가) ──
+→ c  (base: b)  (no PR)
+  │
+  b  (base: a)  (no PR)
+  │
+  a  (base: main)  (no PR)
+  │
+  main  (trunk)
+
+── merge b (a, b 함께 병합) ──
+→ c  (base: main)  (no PR)
+  │
+  main  (trunk)"
+`;
