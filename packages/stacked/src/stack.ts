@@ -1,41 +1,5 @@
-export type PRStatus = 'draft' | 'open' | 'merged' | 'closed'
-
-export interface PullRequest {
-  readonly number: number
-  readonly title: string
-  readonly status: PRStatus
-}
-
-export interface Layer {
-  readonly branch: string
-  /** trunk(layers[0]의 경우) 또는 바로 아래 브랜치. */
-  readonly base: string
-  readonly pr?: PullRequest
-}
-
-/** 태그된 Result — 예외를 던지지 않고 성공/실패를 명시적으로 표현. */
-export type Result<T, E> =
-  | { readonly ok: true; readonly value: T }
-  | { readonly ok: false; readonly error: E }
-
-export type StackError =
-  /** 커서가 top 브랜치에 있지 않은 상태에서 `add()`를 호출함. */
-  | {
-      readonly type: 'NotOnTop'
-      readonly current: string
-      readonly top: string
-    }
-  /** 이미 스택에 존재하는 브랜치 이름으로 `add()`를 호출함. */
-  | { readonly type: 'BranchExists'; readonly branch: string }
-  /** 스택에 없는 브랜치를 참조함. */
-  | { readonly type: 'BranchNotFound'; readonly branch: string }
-  /** layer가 없는 스택에서 이동/병합 연산을 시도함. */
-  | { readonly type: 'EmptyStack' }
-  /** 커서가 이미 끝에 있어 `up`/`down` 이동이 불가능함. */
-  | { readonly type: 'BoundaryReached'; readonly direction: 'up' | 'down' }
-
-const ok = <T>(value: T): Result<T, never> => ({ ok: true, value })
-const err = <E>(error: E): Result<never, E> => ({ ok: false, error })
+import { ok, err } from './result'
+import type { Layer, PullRequest, Result, StackError } from './types'
 
 export class Stack {
   /** Trunk 브랜치 — 예: `main`. */
@@ -224,43 +188,5 @@ export class Stack {
     const trunkHere = this.cursor === this.trunk ? '→' : ' '
     lines.push(`${trunkHere} ${this.trunk}  (trunk)`)
     return lines.join('\n')
-  }
-}
-
-/** gh-stack 개요 페이지의 예제를 그대로 재현. */
-export function demo(): void {
-  const stack = Stack.from('main', [
-    'feat/auth-layer',
-    'feat/api-endpoints',
-    'feat/frontend',
-  ])
-
-  stack.attachPR('feat/auth-layer', {
-    number: 1,
-    title: 'Auth layer',
-    status: 'open',
-  })
-  stack.attachPR('feat/api-endpoints', {
-    number: 2,
-    title: 'API routes',
-    status: 'open',
-  })
-  stack.attachPR('feat/frontend', { number: 3, title: 'UI', status: 'draft' })
-
-  console.log('── initial ──')
-  console.log(stack.render())
-
-  // gh stack bottom; gh stack up
-  stack.bottom()
-  stack.up()
-  console.log('\n── after `bottom` then `up` ──')
-  console.log(`cursor = ${stack.current}`)
-
-  // 맨 아래 PR 병합. #1 direct merge → #1만 병합되고 #2는 main 위로 rebase.
-  const r = stack.mergeUpTo('feat/auth-layer')
-  if (r.ok) {
-    console.log('\n── after merging feat/auth-layer ──')
-    console.log(`merged: ${r.value.merged.map((l) => l.branch).join(', ')}`)
-    console.log(stack.render())
   }
 }
