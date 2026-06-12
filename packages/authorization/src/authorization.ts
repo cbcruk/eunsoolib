@@ -7,7 +7,10 @@ export interface AuthStrategy {
 }
 
 export class BasicAuthStrategy implements AuthStrategy {
-  constructor(private username: string, private password: string) {}
+  constructor(
+    private username: string,
+    private password: string,
+  ) {}
 
   authorize(request: Request) {
     const authorization = request.headers.get('authorization')

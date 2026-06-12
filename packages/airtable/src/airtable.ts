@@ -3,7 +3,11 @@ import { buildQuery, type Params } from './build-query'
 import type { AirtableResponse, AirtableConfigOptions } from './types'
 
 export { buildQuery, type Params } from './build-query'
-export type { AirtableRecord, AirtableResponse, AirtableConfigOptions } from './types'
+export type {
+  AirtableRecord,
+  AirtableResponse,
+  AirtableConfigOptions,
+} from './types'
 
 /** Airtable API 에러 */
 export class AirtableError extends Data.TaggedError('AirtableError')<{
@@ -96,7 +100,7 @@ export const fetchList = <TFields>(url: string, params: Params = {}) =>
         new AirtableError({
           message: `Airtable API 실패: ${response.statusText}`,
           status: response.status,
-        })
+        }),
       )
     }
 

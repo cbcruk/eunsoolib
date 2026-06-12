@@ -7,7 +7,7 @@ const mockItem = (id: number) =>
     name: `상품${id}`,
     image: `image-${id}.jpg`,
     price: 1000 * id,
-  } satisfies Item)
+  }) satisfies Item
 
 describe('LikeManager', () => {
   let manager: LikeManager

@@ -16,9 +16,7 @@ describe('assignLanesWeekly', () => {
   })
 
   it('단일 이벤트에 주별 레인 할당', () => {
-    const events: CalendarEvent[] = [
-      { start: '2022-03-05', end: '2022-03-07' },
-    ]
+    const events: CalendarEvent[] = [{ start: '2022-03-05', end: '2022-03-07' }]
 
     const result = assignLanesWeekly(events)
 

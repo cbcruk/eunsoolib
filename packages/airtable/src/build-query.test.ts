@@ -6,7 +6,9 @@ describe('buildQuery', () => {
     it('문자열 값을 쿼리 스트링으로 변환', () => {
       const result = buildQuery({ filterByFormula: '{status} = "active"' })
       // URLSearchParams는 공백을 +로 인코딩
-      expect(decodeURIComponent(result)).toBe('filterByFormula={status}+=+"active"')
+      expect(decodeURIComponent(result)).toBe(
+        'filterByFormula={status}+=+"active"',
+      )
     })
 
     it('숫자 값을 쿼리 스트링으로 변환', () => {
@@ -38,7 +40,7 @@ describe('buildQuery', () => {
         sort: [{ field: 'name', direction: 'asc' }],
       })
       expect(decodeURIComponent(result)).toBe(
-        'sort[0][field]=name&sort[0][direction]=asc'
+        'sort[0][field]=name&sort[0][direction]=asc',
       )
     })
 

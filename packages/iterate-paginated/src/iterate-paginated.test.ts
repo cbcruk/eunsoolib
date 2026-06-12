@@ -11,7 +11,7 @@ test('iteratePaginated', async () => {
 
   for await (const item of iteratePaginated<number, 'next' | undefined>(
     fetchMock,
-    undefined
+    undefined,
   )) {
     result.push(item)
   }
@@ -30,7 +30,7 @@ test('`nextState`가 `undefined`일 경우', async () => {
   const result: number[] = []
 
   for await (const item of iteratePaginated<number, 'next' | undefined>(
-    fetchMock
+    fetchMock,
   )) {
     result.push(item)
   }

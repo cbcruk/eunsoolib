@@ -14,7 +14,7 @@ describe('parsePhoneNumber', () => {
 
   it('유효하지 않은 전화번호를 입력하면 예외를 던진다', () => {
     expect(() => parsePhoneNumber('0101234567')).toThrowError(
-      '유효하지 않은 전화번호 형식입니다'
+      '유효하지 않은 전화번호 형식입니다',
     )
 
     expect(() => parsePhoneNumber('abcdefghijk')).toThrow()

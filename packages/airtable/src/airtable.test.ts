@@ -77,7 +77,9 @@ describe('Effects', () => {
   })
 
   it('getLastIndex가 마지막 인덱스를 반환해야 함', async () => {
-    const program = getLastIndex('/Table%201').pipe(Effect.provide(TestConfigLayer))
+    const program = getLastIndex('/Table%201').pipe(
+      Effect.provide(TestConfigLayer),
+    )
 
     const result = await Effect.runPromise(program)
 
@@ -93,7 +95,7 @@ describe('Effects', () => {
 
     const program = fetchList('/Table%201', {}).pipe(
       Effect.provide(TestConfigLayer),
-      Effect.flip // 에러를 성공값으로 변환
+      Effect.flip, // 에러를 성공값으로 변환
     )
 
     const error = await Effect.runPromise(program)

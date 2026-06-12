@@ -239,12 +239,12 @@ $$
 
 정렬 모드 `alignBy`가 어느 축을 쓸지 정한다.
 
-| `alignBy` | useX | useY |
-| --- | :---: | :---: |
-| `bounds` | — | — (보정 없음) |
-| `visual-center` | ✓ | ✓ |
-| `visual-center-x` | ✓ | |
-| `visual-center-y` (기본) | | ✓ |
+| `alignBy`                | useX |     useY      |
+| ------------------------ | :--: | :-----------: |
+| `bounds`                 |  —   | — (보정 없음) |
+| `visual-center`          |  ✓   |       ✓       |
+| `visual-center-x`        |  ✓   |               |
+| `visual-center-y` (기본) |      |       ✓       |
 
 0.5px 미만의 미세 이동은 불필요한 리페인트를 막기 위해 무시하고, 그 이상이면 소수 첫째 자리로 반올림해 출력한다.
 

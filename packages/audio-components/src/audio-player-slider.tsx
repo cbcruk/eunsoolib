@@ -29,7 +29,7 @@ export function AudioPlayerSlider({
     {
       filterTaps: true,
       axis: 'x',
-    }
+    },
   )
 
   const percentage = value * 100

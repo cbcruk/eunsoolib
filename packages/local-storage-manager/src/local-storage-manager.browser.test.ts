@@ -18,7 +18,9 @@ describe('LocalStorageManager (browser)', () => {
     })
 
     it('객체를 JSON으로 저장', () => {
-      const storage = new LocalStorageManager<{ name: string; age: number }>(TEST_KEY)
+      const storage = new LocalStorageManager<{ name: string; age: number }>(
+        TEST_KEY,
+      )
 
       storage.save({ name: 'John', age: 30 })
 
@@ -45,7 +47,9 @@ describe('LocalStorageManager (browser)', () => {
     })
 
     it('저장된 객체를 파싱하여 반환', () => {
-      const storage = new LocalStorageManager<{ id: number; active: boolean }>(TEST_KEY)
+      const storage = new LocalStorageManager<{ id: number; active: boolean }>(
+        TEST_KEY,
+      )
       localStorage.setItem(TEST_KEY, '{"id":1,"active":true}')
 
       const result = storage.load()

@@ -4,7 +4,7 @@ import { fileTypeFromBuffer } from 'file-type'
 type GetfileTypeFromBufferParam = Buffer
 
 export class FileTypeFromBufferError extends Data.TaggedError(
-  'FileTypeFromBufferError'
+  'FileTypeFromBufferError',
 )<{
   readonly message: string
   readonly cause?: unknown
@@ -28,8 +28,8 @@ export const getfileTypeFromBuffer = (buffer: GetfileTypeFromBufferParam) =>
           Effect.fail(
             new FileTypeFromBufferError({
               message: '파일 형식을 식별할 수 없습니다.',
-            })
+            }),
           ),
-      })
+      }),
     )
   })

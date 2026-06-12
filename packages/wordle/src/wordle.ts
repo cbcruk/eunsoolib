@@ -21,7 +21,7 @@ export class Wordle {
 
   static async create(
     answer?: Word,
-    validate: DictionaryValidator = hasWordDefinitions
+    validate: DictionaryValidator = hasWordDefinitions,
   ) {
     if (!answer) {
       throw new Error(MESSAGES.REQUIRED_ERROR)
@@ -60,7 +60,7 @@ export class Wordle {
     const guessChars = guess.split('')
 
     const matchedAnswer = answerChars.map((char, i) =>
-      guessChars[i] === char ? null : char
+      guessChars[i] === char ? null : char,
     )
 
     const matchedFlags = guessChars.map((char, i) => {

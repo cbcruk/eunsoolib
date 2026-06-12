@@ -41,6 +41,6 @@ export const downloadImage = ({ url, dest }: DownloadImageParams) => {
         console.error('❌', error.message)
       },
     }),
-    Effect.runPromise
+    Effect.runPromise,
   )
 }

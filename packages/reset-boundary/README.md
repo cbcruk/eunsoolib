@@ -13,7 +13,7 @@ pnpm add @eunsoolib/reset-boundary
 ## 사용법
 
 ```tsx
-import { ResetBoundary, Resettable } from "@eunsoolib/reset-boundary";
+import { ResetBoundary, Resettable } from '@eunsoolib/reset-boundary'
 
 function ProductReview({ productId }: { productId: string }) {
   return (
@@ -24,7 +24,7 @@ function ProductReview({ productId }: { productId: string }) {
         )}
       </Resettable>
     </ResetBoundary>
-  );
+  )
 }
 ```
 
@@ -40,19 +40,19 @@ function ProductReview({ productId }: { productId: string }) {
 
 ### `<ResetBoundary deps={...}>`
 
-| Prop       | Type             | Description                                                     |
-| ---------- | ---------------- | -------------------------------------------------------------- |
+| Prop       | Type                 | Description                                                   |
+| ---------- | -------------------- | ------------------------------------------------------------- |
 | `deps`     | `readonly unknown[]` | 변경되면 경계 안의 모든 `<Resettable>`을 리셋하는 의존성 배열 |
-| `children` | `ReactNode`      | 경계 내부 트리                                                 |
+| `children` | `ReactNode`          | 경계 내부 트리                                                |
 
 deps 비교는 길이가 다르거나 한 원소라도 `Object.is`로 다르면 변경으로 간주합니다. (`[1, 2]` → `[1, 2, 3]`도 리셋)
 
 ### `<Resettable initial={...}>`
 
-| Prop       | Type                                                      | Description                              |
-| ---------- | -------------------------------------------------------- | ---------------------------------------- |
-| `initial`  | `T \| (() => T)`                                         | `useState`와 동일한 값 또는 lazy initializer |
-| `children` | `(state: T, setState: Dispatch<SetStateAction<T>>) => ReactNode` | render prop                              |
+| Prop       | Type                                                             | Description                                  |
+| ---------- | ---------------------------------------------------------------- | -------------------------------------------- |
+| `initial`  | `T \| (() => T)`                                                 | `useState`와 동일한 값 또는 lazy initializer |
+| `children` | `(state: T, setState: Dispatch<SetStateAction<T>>) => ReactNode` | render prop                                  |
 
 `<ResetBoundary>` 밖에서 렌더하면 에러를 던집니다.
 

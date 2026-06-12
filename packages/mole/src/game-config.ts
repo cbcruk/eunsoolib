@@ -20,7 +20,7 @@ export class GameConfig {
   constructor(row: number, col: number, moleCount: number) {
     if (!GameConfig.isValidSize(row, col)) {
       throw new Error(
-        `행/열은 ${GameConfig.MIN_SIZE} ~ ${GameConfig.MAX_SIZE} 사이여야 합니다.`
+        `행/열은 ${GameConfig.MIN_SIZE} ~ ${GameConfig.MAX_SIZE} 사이여야 합니다.`,
       )
     }
 
@@ -28,7 +28,7 @@ export class GameConfig {
 
     if (moleCount < 1 || moleCount >= maxMoleCount) {
       throw new Error(
-        `두더지는 1마리 이상, 전체 굴 수의 절반 미만이어야 합니다.`
+        `두더지는 1마리 이상, 전체 굴 수의 절반 미만이어야 합니다.`,
       )
     }
 

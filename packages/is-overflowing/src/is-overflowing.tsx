@@ -8,7 +8,7 @@ export type OverflowDetection<T extends HTMLElement = HTMLElement> = {
 }
 
 export function useOverflowDetection<
-  T extends HTMLElement = HTMLDivElement
+  T extends HTMLElement = HTMLDivElement,
 >(): OverflowDetection<T> {
   const ref = useRef<T>(null)
   const scrollWidth = ref.current?.scrollWidth ?? 0

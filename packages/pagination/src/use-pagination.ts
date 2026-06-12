@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
-import { getPaginationRange } from "./pagination.utils";
-import type { PaginationInstance, UsePaginationOptions } from "./types";
+import { useCallback, useMemo, useState } from 'react'
+import { getPaginationRange } from './pagination.utils'
+import type { PaginationInstance, UsePaginationOptions } from './types'
 
 /**
  * Instance Hook Pattern으로 동작하는 pagination 훅.
@@ -18,46 +18,46 @@ export function usePagination({
   onChange,
   pagination,
 }: UsePaginationOptions = {}): PaginationInstance {
-  const [page, setPage] = useState(initialPage);
-  const [pageSize, setPageSizeState] = useState(initialPageSize);
+  const [page, setPage] = useState(initialPage)
+  const [pageSize, setPageSizeState] = useState(initialPageSize)
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   const goTo = useCallback(
     (p: number) => {
       const clamped = Math.max(
         1,
-        Math.min(p, Math.max(1, Math.ceil(total / pageSize)))
-      );
-      setPage(clamped);
-      onChange?.(clamped);
+        Math.min(p, Math.max(1, Math.ceil(total / pageSize))),
+      )
+      setPage(clamped)
+      onChange?.(clamped)
     },
-    [total, pageSize, onChange]
-  );
+    [total, pageSize, onChange],
+  )
 
-  const next = useCallback(() => goTo(page + 1), [goTo, page]);
-  const prev = useCallback(() => goTo(page - 1), [goTo, page]);
+  const next = useCallback(() => goTo(page + 1), [goTo, page])
+  const prev = useCallback(() => goTo(page - 1), [goTo, page])
 
   const setPageSize = useCallback(
     (size: number) => {
-      setPageSizeState(size);
-      setPage(1);
-      onChange?.(1);
+      setPageSizeState(size)
+      setPage(1)
+      onChange?.(1)
     },
-    [onChange]
-  );
+    [onChange],
+  )
 
   return useMemo<PaginationInstance>(() => {
-    if (pagination) return pagination;
+    if (pagination) return pagination
 
     const items = getPaginationRange({
       page,
       totalPages,
       siblingCount,
       boundaryCount,
-    });
-    const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
-    const end = Math.min(page * pageSize, total);
+    })
+    const start = total === 0 ? 0 : (page - 1) * pageSize + 1
+    const end = Math.min(page * pageSize, total)
 
     return {
       page,
@@ -72,7 +72,7 @@ export function usePagination({
       prev,
       goTo,
       setPageSize,
-    };
+    }
   }, [
     pagination,
     page,
@@ -85,5 +85,5 @@ export function usePagination({
     prev,
     goTo,
     setPageSize,
-  ]);
+  ])
 }

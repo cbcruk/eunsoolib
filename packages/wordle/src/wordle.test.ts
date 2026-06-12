@@ -20,13 +20,13 @@ describe('Wordle', () => {
 
     it('단어가 없으면 예외를 던져야 한다', async () => {
       await expect(() =>
-        Wordle.create(undefined, mockValidator)
+        Wordle.create(undefined, mockValidator),
       ).rejects.toThrow(MESSAGES.REQUIRED_ERROR)
     })
 
     it('5글자가 아닌 경우 예외를 던져야 한다', async () => {
       await expect(() => Wordle.create('app', mockValidator)).rejects.toThrow(
-        MESSAGES.LENGTH_ERROR
+        MESSAGES.LENGTH_ERROR,
       )
     })
 
@@ -34,7 +34,7 @@ describe('Wordle', () => {
       mockValidator = vi.fn(async () => false)
 
       await expect(() => Wordle.create('zxcvb', mockValidator)).rejects.toThrow(
-        MESSAGES.DEFINITION_ERROR
+        MESSAGES.DEFINITION_ERROR,
       )
     })
   })
@@ -69,7 +69,7 @@ describe('Wordle', () => {
       }
 
       expect(() => game.addGuessItem('again')).toThrow(
-        '더 이상 입력할 수 없습니다.'
+        '더 이상 입력할 수 없습니다.',
       )
     })
   })

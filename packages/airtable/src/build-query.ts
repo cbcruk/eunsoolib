@@ -21,7 +21,11 @@ const appendObjectArray = ({ searchParams, key, arr }: AppendArrayParams) => {
   })
 }
 
-const appendPrimitiveArray = ({ searchParams, key, arr }: AppendArrayParams) => {
+const appendPrimitiveArray = ({
+  searchParams,
+  key,
+  arr,
+}: AppendArrayParams) => {
   arr.forEach((item) => {
     if (item == null) return
     searchParams.append(`${key}[]`, String(item))

@@ -1,1 +1,1 @@
-export { ResetBoundary, Resettable } from "./reset-boundary";
+export { ResetBoundary, Resettable } from './reset-boundary'

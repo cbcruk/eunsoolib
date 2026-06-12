@@ -34,11 +34,14 @@ function CheckboxForm({ list, onSubmit }: CheckboxFormProps) {
     >
       <div className="space-y-2">
         {list.map((item) => (
-          <label key={item.key} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+          <label
+            key={item.key}
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+          >
             <input
               type="checkbox"
               checked={selected.some(
-                (selectedItem) => selectedItem.key === item.key
+                (selectedItem) => selectedItem.key === item.key,
               )}
               onChange={() => toggle(item)}
               className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
@@ -74,11 +77,14 @@ export function CheckboxGroup({ list, defaultSelected }: CheckboxGroupProps) {
 
   return (
     <div className="w-full max-w-md space-y-4">
-      <pre data-testid="selected" className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs overflow-auto">
+      <pre
+        data-testid="selected"
+        className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs overflow-auto"
+      >
         {JSON.stringify(
           { selected, noneSelected, allSelected, partiallySelected },
           null,
-          2
+          2,
         )}
       </pre>
       <CheckboxForm

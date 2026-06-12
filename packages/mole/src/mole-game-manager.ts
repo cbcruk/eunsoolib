@@ -30,7 +30,7 @@ export class MoleGameManager {
       () => {
         this.end()
         this.options.onTimeout?.()
-      }
+      },
     )
 
     this.spawner = new MoleSpawner({
@@ -96,7 +96,7 @@ export class MoleGameManager {
     this.scoreManager.add(points)
     this.options.onScoreUpdate?.(
       this.scoreManager.getScore(),
-      this.scoreManager.getRankName()
+      this.scoreManager.getRankName(),
     )
   }
 

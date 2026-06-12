@@ -24,7 +24,7 @@ export interface GeneratedPuzzle {
  * @returns 생성된 퍼즐 정보
  */
 export function generatePuzzle(
-  difficulty: Difficulty = 'medium'
+  difficulty: Difficulty = 'medium',
 ): GeneratedPuzzle {
   const solution = generateSolvedBoard()
   const puzzle = cloneBoard(solution)
@@ -101,7 +101,7 @@ function generateSymmetricPositions(): Position[] {
  * @returns 생성된 퍼즐 정보
  */
 export function generateQuickPuzzle(
-  difficulty: Difficulty = 'medium'
+  difficulty: Difficulty = 'medium',
 ): GeneratedPuzzle {
   const solution = generateSolvedBoard()
   const puzzle = cloneBoard(solution)

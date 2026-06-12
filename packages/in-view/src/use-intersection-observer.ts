@@ -32,7 +32,7 @@ export const useIntersectionObserver = ({
       },
       {
         threshold,
-      }
+      },
     )
 
     observer.observe(target)

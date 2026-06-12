@@ -23,7 +23,10 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/**/*.test.{ts,tsx}'],
-          exclude: ['packages/**/*.browser.test.{ts,tsx}', '**/node_modules/**'],
+          exclude: [
+            'packages/**/*.browser.test.{ts,tsx}',
+            '**/node_modules/**',
+          ],
           environment: 'jsdom',
           setupFiles: ['./test/setup.ts'],
           globals: true,

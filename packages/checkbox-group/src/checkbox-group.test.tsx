@@ -13,7 +13,7 @@ describe('CheckboxGroup', () => {
       render(<CheckboxGroup list={mockList} defaultSelected={[]} />)
 
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.selected).toEqual([])
       expect(selectedData.noneSelected).toBe(true)
@@ -25,7 +25,7 @@ describe('CheckboxGroup', () => {
       render(<CheckboxGroup list={mockList} defaultSelected={['1', '2']} />)
 
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.selected).toHaveLength(2)
       expect(selectedData.selected.map((item: any) => item.key)).toEqual([
@@ -39,11 +39,11 @@ describe('CheckboxGroup', () => {
 
     it('모든 항목이 선택된 상태일 때 allSelected가 true여야 함', () => {
       render(
-        <CheckboxGroup list={mockList} defaultSelected={['1', '2', '3']} />
+        <CheckboxGroup list={mockList} defaultSelected={['1', '2', '3']} />,
       )
 
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.allSelected).toBe(true)
       expect(selectedData.noneSelected).toBe(false)
@@ -60,7 +60,7 @@ describe('CheckboxGroup', () => {
 
       // CheckboxGroup의 상태는 변경되지 않아야 함
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.selected).toEqual([])
       expect(selectedData.noneSelected).toBe(true)
@@ -103,7 +103,7 @@ describe('CheckboxGroup', () => {
       fireEvent.click(submitButton)
 
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.partiallySelected).toBe(true)
       expect(selectedData.noneSelected).toBe(false)
@@ -123,7 +123,7 @@ describe('CheckboxGroup', () => {
       fireEvent.click(submitButton)
 
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.allSelected).toBe(true)
       expect(selectedData.noneSelected).toBe(false)
@@ -143,7 +143,7 @@ describe('CheckboxGroup', () => {
       fireEvent.click(submitButton)
 
       const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!
+        screen.getByTestId('selected').textContent!,
       )
       expect(selectedData.noneSelected).toBe(true)
       expect(selectedData.allSelected).toBe(false)

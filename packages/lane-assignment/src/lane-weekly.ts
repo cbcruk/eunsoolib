@@ -43,7 +43,7 @@ function getWeekKey(date: dayjs.Dayjs, weekStartsOn: WeekStartsOn): string {
 /** 주의 시작일과 종료일 계산 */
 function getWeekRange(
   weekKey: string,
-  weekStartsOn: WeekStartsOn
+  weekStartsOn: WeekStartsOn,
 ): { start: dayjs.Dayjs; end: dayjs.Dayjs } {
   const [yearStr, weekStr] = weekKey.split('-W')
   const year = parseInt(yearStr, 10)
@@ -77,7 +77,7 @@ function getWeekRange(
  */
 export function assignLanesWeekly(
   events: CalendarEvent[],
-  weekStartsOn: WeekStartsOn = 'Sunday'
+  weekStartsOn: WeekStartsOn = 'Sunday',
 ): WeeklyLaneAssignmentResult {
   if (!events || events.length === 0) {
     return { events: [], weekLaneCounts: new Map() }
@@ -129,12 +129,8 @@ export function assignLanesWeekly(
           return aStart.valueOf() - bStart.valueOf()
         }
 
-        const aEnd = a.end
-          ? dayjs.min(dayjs(a.end), weekRange.end)!
-          : aStart
-        const bEnd = b.end
-          ? dayjs.min(dayjs(b.end), weekRange.end)!
-          : bStart
+        const aEnd = a.end ? dayjs.min(dayjs(a.end), weekRange.end)! : aStart
+        const bEnd = b.end ? dayjs.min(dayjs(b.end), weekRange.end)! : bStart
 
         return aEnd.valueOf() - bEnd.valueOf()
       })
@@ -191,7 +187,7 @@ export function assignLanesWeekly(
 export function getLaneForDate(
   event: EventWithWeeklyLane,
   date: dayjs.Dayjs,
-  weekStartsOn: WeekStartsOn = 'Sunday'
+  weekStartsOn: WeekStartsOn = 'Sunday',
 ): number {
   const weekKey = getWeekKey(date, weekStartsOn)
   return event.weeklyLanes.get(weekKey) ?? 0
@@ -205,7 +201,7 @@ export function getLaneForDate(
  */
 export function groupEventsByDateWeekly(
   eventsWithLanes: EventWithWeeklyLane[],
-  weekStartsOn: WeekStartsOn = 'Sunday'
+  weekStartsOn: WeekStartsOn = 'Sunday',
 ): Map<string, EventWithWeeklyLane[]> {
   const map = new Map<string, EventWithWeeklyLane[]>()
 

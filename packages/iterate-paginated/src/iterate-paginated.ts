@@ -1,10 +1,10 @@
 export type PagedFetch<T, S> = (
-  state?: S
+  state?: S,
 ) => Promise<{ items: T[]; nextState?: S }>
 
 export async function* iteratePaginated<T, S>(
   fetcher: PagedFetch<T, S>,
-  initialState?: S
+  initialState?: S,
 ): AsyncGenerator<T> {
   let state = initialState
 

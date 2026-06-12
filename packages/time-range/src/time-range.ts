@@ -46,7 +46,7 @@ export class TimeRange {
         this.toDatetime(this.startTime),
         this.toDatetime(this.endTime),
         undefined,
-        '[)'
+        '[)',
       )
     } catch {
       return false

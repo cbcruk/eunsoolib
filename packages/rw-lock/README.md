@@ -12,12 +12,12 @@ pnpm add @eunsoolib/rw-lock
 
 ## 핵심 동작
 
-| 동작              | 규칙                                                            |
-| ----------------- | --------------------------------------------------------------- |
-| Reader 병렬성     | 여러 reader가 동시에 lock을 hold 할 수 있음                      |
-| Writer 배타성     | writer는 단독으로만 lock을 hold (다른 reader/writer 모두 차단)   |
-| Write-preferring  | (디폴트) writer가 대기 중이면 새 reader도 차단 → writer 기아 방지 |
-| Read-preferring   | writer가 active일 때만 reader 차단 → 동시성 최대화               |
+| 동작             | 규칙                                                              |
+| ---------------- | ----------------------------------------------------------------- |
+| Reader 병렬성    | 여러 reader가 동시에 lock을 hold 할 수 있음                       |
+| Writer 배타성    | writer는 단독으로만 lock을 hold (다른 reader/writer 모두 차단)    |
+| Write-preferring | (디폴트) writer가 대기 중이면 새 reader도 차단 → writer 기아 방지 |
+| Read-preferring  | writer가 active일 때만 reader 차단 → 동시성 최대화                |
 
 ## 사용법
 
@@ -100,38 +100,38 @@ interface RWLockOptions {
 }
 ```
 
-| 메서드               | 반환            | 설명                                       |
-| -------------------- | --------------- | ------------------------------------------ |
-| `acquireRead()`      | `Promise<void>` | read lock 획득 (가능하면 즉시, 아니면 대기) |
-| `releaseRead()`      | `void`          | read lock 반환                             |
-| `acquireWrite()`     | `Promise<void>` | write lock 획득 (단독 점유까지 대기)        |
-| `releaseWrite()`     | `void`          | write lock 반환                            |
-| `withRead(fn)`       | `Promise<T>`    | read lock 안에서 `fn` 실행 후 자동 release |
-| `withWrite(fn)`      | `Promise<T>`    | write lock 안에서 `fn` 실행 후 자동 release |
-| `inspect()`          | snapshot        | 디버깅용 내부 상태 스냅샷                  |
+| 메서드           | 반환            | 설명                                        |
+| ---------------- | --------------- | ------------------------------------------- |
+| `acquireRead()`  | `Promise<void>` | read lock 획득 (가능하면 즉시, 아니면 대기) |
+| `releaseRead()`  | `void`          | read lock 반환                              |
+| `acquireWrite()` | `Promise<void>` | write lock 획득 (단독 점유까지 대기)        |
+| `releaseWrite()` | `void`          | write lock 반환                             |
+| `withRead(fn)`   | `Promise<T>`    | read lock 안에서 `fn` 실행 후 자동 release  |
+| `withWrite(fn)`  | `Promise<T>`    | write lock 안에서 `fn` 실행 후 자동 release |
+| `inspect()`      | snapshot        | 디버깅용 내부 상태 스냅샷                   |
 
 ## 동작 검증 (src/rw-lock.test.ts)
 
-| 테스트 | 시나리오                                                                 | 기대 결과                                       |
-| ------ | ------------------------------------------------------------------------ | ----------------------------------------------- |
-| 1      | 세 reader 동시 진입                                                       | 모두 0ms에 start, 50ms 후 동시 종료             |
-| 2      | 세 writer 경합                                                           | W1 → W2 → W3 순차 (30ms씩, 총 ~90ms)            |
-| 3      | write-preferring: writer 대기 중 R3 새로 요청                            | R3는 writer 뒤로 밀림 (starvation 방지)         |
-| 4      | read-preferring: writer 대기 중 R2 새로 요청                             | R2가 W보다 먼저 acquire (동시성 최대화)         |
-| 5      | `withWrite` 내부 `throw`                                                 | `finally`로 release되어 state가 완전히 깨끗함   |
+| 테스트 | 시나리오                                      | 기대 결과                                     |
+| ------ | --------------------------------------------- | --------------------------------------------- |
+| 1      | 세 reader 동시 진입                           | 모두 0ms에 start, 50ms 후 동시 종료           |
+| 2      | 세 writer 경합                                | W1 → W2 → W3 순차 (30ms씩, 총 ~90ms)          |
+| 3      | write-preferring: writer 대기 중 R3 새로 요청 | R3는 writer 뒤로 밀림 (starvation 방지)       |
+| 4      | read-preferring: writer 대기 중 R2 새로 요청  | R2가 W보다 먼저 acquire (동시성 최대화)       |
+| 5      | `withWrite` 내부 `throw`                      | `finally`로 release되어 state가 완전히 깨끗함 |
 
 ## Wikipedia 의사코드 → JS 매핑
 
 write-preferring을 디폴트로 채택했습니다 (read-preferring은 writer starvation 위험이 있어 일반적으로 write-preferring이 안전한 디폴트).
 
-| 의사코드                     | JS 구현                                                                                  |
-| ---------------------------- | --------------------------------------------------------------------------------------- |
-| `num_readers_active`         | `this.readersActive` — 현재 lock을 hold 중인 reader 수                                   |
-| `num_writers_waiting`        | `this.writersWaiting` — 대기 중인 writer 수 (write-preferring 차단 판정의 기준)          |
-| `writer_active`              | `this.writerActive` — writer가 단독 점유 중인지 여부                                     |
-| `Lock g`                     | 불필요 — JS는 single-threaded라 `acquireXxx` 함수 본문이 이미 atomic                     |
-| `cond + while (...) wait`    | `new Promise(resolve => queue.push(resolve))` — resolver를 queue에 넣고 release 측에서 호출 |
-| `Notify cond (broadcast)`    | reader queue(`readerQueue`)를 `splice(0)`으로 통째로 drain                               |
+| 의사코드                  | JS 구현                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------- |
+| `num_readers_active`      | `this.readersActive` — 현재 lock을 hold 중인 reader 수                                      |
+| `num_writers_waiting`     | `this.writersWaiting` — 대기 중인 writer 수 (write-preferring 차단 판정의 기준)             |
+| `writer_active`           | `this.writerActive` — writer가 단독 점유 중인지 여부                                        |
+| `Lock g`                  | 불필요 — JS는 single-threaded라 `acquireXxx` 함수 본문이 이미 atomic                        |
+| `cond + while (...) wait` | `new Promise(resolve => queue.push(resolve))` — resolver를 queue에 넣고 release 측에서 호출 |
+| `Notify cond (broadcast)` | reader queue(`readerQueue`)를 `splice(0)`으로 통째로 drain                                  |
 
 JS는 함수 본문이 microtask 경계 사이에서 끊기지 않으므로 mutex `g` 자체가 필요 없는 게 핵심 단순화 포인트입니다. Pthread / Java 의사코드의 condition variable wait/notify가 그대로 Promise queue(`readerQueue` / `writerQueue`)로 1:1 매핑됩니다.
 

@@ -8,8 +8,8 @@ test.skip('getfileTypeFromBuffer', async () => {
   const file = await readFile('packages/download-image/assets/image.jpg')
   const fileType = await Effect.runPromise(
     getfileTypeFromBuffer(Buffer.from(file)).pipe(
-      Effect.provide(NodeContext.layer)
-    )
+      Effect.provide(NodeContext.layer),
+    ),
   )
 
   expect(fileType).toEqual({ ext: 'jpg', mime: 'image/jpeg' })

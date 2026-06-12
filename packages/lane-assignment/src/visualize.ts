@@ -21,7 +21,7 @@ import { getLaneForDate, type WeekStartsOn } from './lane-weekly'
  */
 export function visualizeLanes(
   events: EventWithLane[],
-  options: { showTitle?: boolean } = {}
+  options: { showTitle?: boolean } = {},
 ): string {
   const { showTitle = true } = options
 
@@ -124,7 +124,7 @@ export function visualizeLanes(
 export function visualizeWeeklyLanes(
   events: EventWithWeeklyLane[],
   weekStartsOn: WeekStartsOn = 'Sunday',
-  options: { showTitle?: boolean } = {}
+  options: { showTitle?: boolean } = {},
 ): string {
   const { showTitle = true } = options
 

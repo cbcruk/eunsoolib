@@ -130,7 +130,7 @@ interface EventWithLane extends CalendarEvent {
 ```typescript
 function assignLanesWeekly(
   events: CalendarEvent[],
-  weekStartsOn?: 'Monday' | 'Sunday'
+  weekStartsOn?: 'Monday' | 'Sunday',
 ): WeeklyLaneAssignmentResult
 
 interface WeeklyLaneAssignmentResult {

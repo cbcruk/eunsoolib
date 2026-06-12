@@ -102,7 +102,7 @@ export function hasUniqueSolution(board: Board): boolean {
  * @returns 힌트 정보 (위치와 값) 또는 null
  */
 export function getHint(
-  board: Board
+  board: Board,
 ): { position: Position; value: number } | null {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
@@ -139,7 +139,7 @@ export function getHint(
 export function generateSolvedBoard(): Board {
   const board: Board = Array.from(
     { length: 9 },
-    () => Array(9).fill(0) as CellValue[]
+    () => Array(9).fill(0) as CellValue[],
   )
 
   const firstRow = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])

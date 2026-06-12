@@ -14,7 +14,7 @@ function createPropertyManager() {
   function saveOriginalProperty(propertyName: string) {
     originalProps[propertyName] = Object.getOwnPropertyDescriptor(
       HTMLElement.prototype,
-      propertyName
+      propertyName,
     )
   }
 
@@ -106,7 +106,7 @@ describe('OverflowDemo 컴포넌트', () => {
 
     expect(screen.getByText('Horizontal overflow detected')).toBeInTheDocument()
     expect(
-      screen.queryByText('Vertical overflow detected')
+      screen.queryByText('Vertical overflow detected'),
     ).not.toBeInTheDocument()
   })
 
@@ -124,7 +124,7 @@ describe('OverflowDemo 컴포넌트', () => {
 
     expect(screen.getByText('Vertical overflow detected')).toBeInTheDocument()
     expect(
-      screen.queryByText('Horizontal overflow detected')
+      screen.queryByText('Horizontal overflow detected'),
     ).not.toBeInTheDocument()
   })
 
@@ -142,10 +142,10 @@ describe('OverflowDemo 컴포넌트', () => {
 
     expect(screen.getByText('Content fits')).toBeInTheDocument()
     expect(
-      screen.queryByText('Horizontal overflow detected')
+      screen.queryByText('Horizontal overflow detected'),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByText('Vertical overflow detected')
+      screen.queryByText('Vertical overflow detected'),
     ).not.toBeInTheDocument()
   })
 
@@ -155,7 +155,7 @@ describe('OverflowDemo 컴포넌트', () => {
         containerWidth={200}
         containerHeight={100}
         showVerticalDemo={true}
-      />
+      />,
     )
 
     const container = screen.getByText('Item0').closest('div')?.parentElement

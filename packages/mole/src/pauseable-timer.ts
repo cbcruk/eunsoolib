@@ -8,7 +8,7 @@ export class PauseableTimer {
   constructor(
     totalSeconds: number,
     onTick?: (seconds: number) => void,
-    onTimeout?: () => void
+    onTimeout?: () => void,
   ) {
     this.totalSeconds = totalSeconds
     this.remainingSeconds = totalSeconds

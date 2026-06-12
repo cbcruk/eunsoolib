@@ -18,7 +18,9 @@ pnpm add @eunsoolib/local-storage-manager
 import { LocalStorageManager } from '@eunsoolib/local-storage-manager'
 
 // 타입 지정
-const storage = new LocalStorageManager<{ theme: string; fontSize: number }>('settings')
+const storage = new LocalStorageManager<{ theme: string; fontSize: number }>(
+  'settings',
+)
 
 // 저장
 storage.save({ theme: 'dark', fontSize: 14 })
@@ -66,26 +68,26 @@ userStore.clear()         // 전체 삭제
 
 ### LocalStorageManager<T>
 
-| 메서드 | 반환 타입 | 설명 |
-|--------|-----------|------|
-| `load()` | `T \| null` | 저장된 데이터 조회 |
-| `save(value)` | `void` | 데이터 저장 |
-| `remove()` | `void` | 데이터 삭제 |
+| 메서드        | 반환 타입   | 설명               |
+| ------------- | ----------- | ------------------ |
+| `load()`      | `T \| null` | 저장된 데이터 조회 |
+| `save(value)` | `void`      | 데이터 저장        |
+| `remove()`    | `void`      | 데이터 삭제        |
 
 ### LocalStorageMapManager<K, V>
 
-| 메서드 | 반환 타입 | 설명 |
-|--------|-----------|------|
-| `set(key, value)` | `this` | 값 저장 (chaining 가능) |
-| `get(key)` | `V \| undefined` | 값 조회 |
-| `has(key)` | `boolean` | 키 존재 여부 |
-| `delete(key)` | `boolean` | 값 삭제 |
-| `clear()` | `void` | 전체 삭제 |
-| `size` | `number` | 저장된 항목 수 |
-| `keys()` | `IterableIterator<K>` | 모든 키 |
-| `values()` | `IterableIterator<V>` | 모든 값 |
-| `entries()` | `IterableIterator<[K, V]>` | 모든 [키, 값] 쌍 |
-| `toArray()` | `[K, V][]` | 배열로 변환 |
+| 메서드            | 반환 타입                  | 설명                    |
+| ----------------- | -------------------------- | ----------------------- |
+| `set(key, value)` | `this`                     | 값 저장 (chaining 가능) |
+| `get(key)`        | `V \| undefined`           | 값 조회                 |
+| `has(key)`        | `boolean`                  | 키 존재 여부            |
+| `delete(key)`     | `boolean`                  | 값 삭제                 |
+| `clear()`         | `void`                     | 전체 삭제               |
+| `size`            | `number`                   | 저장된 항목 수          |
+| `keys()`          | `IterableIterator<K>`      | 모든 키                 |
+| `values()`        | `IterableIterator<V>`      | 모든 값                 |
+| `entries()`       | `IterableIterator<[K, V]>` | 모든 [키, 값] 쌍        |
+| `toArray()`       | `[K, V][]`                 | 배열로 변환             |
 
 ## 특징
 

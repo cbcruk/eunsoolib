@@ -162,10 +162,10 @@ export const useAudioStore = create<AudioState>()(
           volume: state.volume,
           isLooping: state.isLooping,
         }),
-      }
+      },
     ),
     {
       name: 'AudioStore',
-    }
-  )
+    },
+  ),
 )

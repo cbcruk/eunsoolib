@@ -57,7 +57,7 @@ const ConfigLayer = makeAirtableConfigLayer({
 
 // 마지막 index 조회
 const lastIndex = await Effect.runPromise(
-  getLastIndex('/TableName').pipe(Effect.provide(ConfigLayer))
+  getLastIndex('/TableName').pipe(Effect.provide(ConfigLayer)),
 )
 
 // 포뮬라 생성 (순수 함수)
@@ -72,7 +72,11 @@ const lastPage = getLastPage(100, 20) // => 5
 
 ```typescript
 import { Effect } from 'effect'
-import { fetchList, AirtableError, makeAirtableConfigLayer } from '@eunsoolib/airtable'
+import {
+  fetchList,
+  AirtableError,
+  makeAirtableConfigLayer,
+} from '@eunsoolib/airtable'
 
 const ConfigLayer = makeAirtableConfigLayer({
   apiKey: 'your-api-key',
@@ -84,7 +88,7 @@ const program = fetchList('/TableName', {}).pipe(
   Effect.catchTag('AirtableError', (error) => {
     console.error(`API 에러 (${error.status}): ${error.message}`)
     return Effect.succeed({ records: [], offset: undefined })
-  })
+  }),
 )
 ```
 
@@ -92,24 +96,24 @@ const program = fetchList('/TableName', {}).pipe(
 
 ### Effects
 
-| 함수                        | 설명                    |
-| --------------------------- | ----------------------- |
-| `fetchList<T>(url, params)` | 레코드 목록 조회        |
-| `getLastIndex(url)`         | 마지막 index 값 조회    |
+| 함수                        | 설명                 |
+| --------------------------- | -------------------- |
+| `fetchList<T>(url, params)` | 레코드 목록 조회     |
+| `getLastIndex(url)`         | 마지막 index 값 조회 |
 
 ### Utils (순수 함수)
 
-| 함수                              | 설명                          |
-| --------------------------------- | ----------------------------- |
-| `buildQuery(params)`              | 쿼리 파라미터를 문자열로 변환 |
-| `releaseFormula(status?)`         | release 상태 필터 포뮬라 생성 |
+| 함수                                | 설명                          |
+| ----------------------------------- | ----------------------------- |
+| `buildQuery(params)`                | 쿼리 파라미터를 문자열로 변환 |
+| `releaseFormula(status?)`           | release 상태 필터 포뮬라 생성 |
 | `paginationFormula({ start, end })` | 페이지네이션 필터 포뮬라 생성 |
-| `getLastPage(total, pageSize)`    | 마지막 페이지 번호 계산       |
+| `getLastPage(total, pageSize)`      | 마지막 페이지 번호 계산       |
 
 ### Layers
 
-| 함수                           | 설명                     |
-| ------------------------------ | ------------------------ |
+| 함수                               | 설명                      |
+| ---------------------------------- | ------------------------- |
 | `makeAirtableConfigLayer(options)` | AirtableConfig Layer 생성 |
 
 ### Types

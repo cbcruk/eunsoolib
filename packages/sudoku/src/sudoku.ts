@@ -253,7 +253,7 @@ export class SudokuEngine {
     return this.setValue(
       hint.position.row,
       hint.position.col,
-      hint.value as CellValue
+      hint.value as CellValue,
     )
   }
 
@@ -284,7 +284,7 @@ export class SudokuEngine {
       row.map((cell) => ({
         ...cell,
         memos: new Set(cell.memos),
-      }))
+      })),
     )
   }
 
@@ -439,7 +439,7 @@ export class SudokuEngine {
         value,
         isFixed: value !== 0,
         memos: new Set<number>(),
-      }))
+      })),
     )
   }
 

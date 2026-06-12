@@ -55,7 +55,7 @@ export function isValidInBox(
   board: Board,
   row: number,
   col: number,
-  num: number
+  num: number,
 ): boolean {
   const boxStartRow = Math.floor(row / 3) * 3
   const boxStartCol = Math.floor(col / 3) * 3
@@ -81,7 +81,7 @@ export function isValidPlacement(
   board: Board,
   row: number,
   col: number,
-  num: number
+  num: number,
 ): boolean {
   return (
     isValidInRow(board, row, num) &&
@@ -100,7 +100,7 @@ export function isValidPlacement(
 export function getPossibleNumbers(
   board: Board,
   row: number,
-  col: number
+  col: number,
 ): number[] {
   if (board[row][col] !== 0) return []
 
@@ -213,7 +213,7 @@ export function isBoardSolved(board: Board): boolean {
 export function getConflictingCells(
   board: Board,
   row: number,
-  col: number
+  col: number,
 ): Position[] {
   const value = board[row][col]
 

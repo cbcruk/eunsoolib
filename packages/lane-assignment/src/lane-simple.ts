@@ -31,7 +31,7 @@ export interface LaneAssignmentResult {
  * @returns 레인이 할당된 이벤트와 메타데이터
  */
 export function assignLanesSimple(
-  events: CalendarEvent[]
+  events: CalendarEvent[],
 ): LaneAssignmentResult {
   if (!events || events.length === 0) {
     return { events: [], totalLanes: 0 }
@@ -91,7 +91,7 @@ export function assignLanesSimple(
  * @returns 날짜별 이벤트 맵 (key: YYYY-MM-DD)
  */
 export function groupEventsByDate(
-  eventsWithLanes: EventWithLane[]
+  eventsWithLanes: EventWithLane[],
 ): Map<string, EventWithLane[]> {
   const map = new Map<string, EventWithLane[]>()
 
