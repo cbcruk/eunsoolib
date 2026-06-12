@@ -162,7 +162,9 @@ export function assignLanesWeekly(
         eventLaneMaps.get(event)!.set(weekKey, assignedLane)
       })
 
-      weekLaneCounts.set(weekKey, laneTracks.length)
+      if (laneTracks.length > 0) {
+        weekLaneCounts.set(weekKey, laneTracks.length)
+      }
     })
 
   const result: EventWithWeeklyLane[] = events.map((event, index) => ({

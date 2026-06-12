@@ -1,8 +1,9 @@
-export function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = Math.floor(seconds % 60)
-
-  return `${String(minutes).padStart(2, '0')}:${String(
-    remainingSeconds,
-  ).padStart(2, '0')}`
+export function formatCount(count: number): string {
+  if (count >= 1_000_000) {
+    return `${(count / 1_000_000).toFixed(1)}M`
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K`
+  }
+  return String(count)
 }

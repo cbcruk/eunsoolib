@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import { formatCount } from './format-count'
 
 describe('formatCount', () => {
   test('1000 미만의 숫자를 그대로 반환한다', () => {
@@ -37,6 +38,3 @@ describe('formatCount', () => {
     expect(formatCount(1567890)).toBe('1.6M')
   })
 })
-function formatCount(arg0: number): any {
-  throw new Error('Function not implemented.')
-}

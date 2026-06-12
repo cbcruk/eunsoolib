@@ -1,4 +1,4 @@
-import { Data, Effect, Option } from 'effect/index'
+import { Data, Effect, Option } from 'effect'
 import { fileTypeFromBuffer } from 'file-type'
 
 type GetfileTypeFromBufferParam = Buffer

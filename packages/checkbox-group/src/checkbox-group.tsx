@@ -14,14 +14,16 @@ type CheckboxGroupProps = {
 }
 
 type CheckboxFormProps = Pick<CheckboxGroupProps, 'list'> & {
+  defaultSelected: OptionItem[]
   onSubmit: (selected: OptionItem[]) => void
 }
 
-function CheckboxForm({ list, onSubmit }: CheckboxFormProps) {
+function CheckboxForm({ list, defaultSelected, onSubmit }: CheckboxFormProps) {
   const { selected, toggle } = useSelections(list, {
     itemKey(item) {
       return item.key
     },
+    defaultSelected,
   })
 
   return (
@@ -89,6 +91,7 @@ export function CheckboxGroup({ list, defaultSelected }: CheckboxGroupProps) {
       </pre>
       <CheckboxForm
         list={list}
+        defaultSelected={selected}
         onSubmit={(selectedItems) => {
           setSelected(selectedItems)
         }}

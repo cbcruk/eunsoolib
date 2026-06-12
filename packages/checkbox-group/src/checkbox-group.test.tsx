@@ -80,7 +80,7 @@ describe('CheckboxGroup', () => {
       expect(selectedData.selected).toEqual([])
 
       // 저장 버튼 클릭
-      const submitButton = screen.getByRole('button', { name: 'submit' })
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       // 이제 CheckboxGroup 상태가 동기화됨
@@ -99,7 +99,7 @@ describe('CheckboxGroup', () => {
       const checkbox1 = screen.getByLabelText('옵션 1')
       fireEvent.click(checkbox1)
 
-      const submitButton = screen.getByRole('button', { name: 'submit' })
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       const selectedData = JSON.parse(
@@ -119,7 +119,7 @@ describe('CheckboxGroup', () => {
         fireEvent.click(checkbox)
       })
 
-      const submitButton = screen.getByRole('button', { name: 'submit' })
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       const selectedData = JSON.parse(
@@ -139,7 +139,7 @@ describe('CheckboxGroup', () => {
       fireEvent.click(checkbox1)
       fireEvent.click(checkbox2)
 
-      const submitButton = screen.getByRole('button', { name: 'submit' })
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       const selectedData = JSON.parse(
@@ -168,7 +168,7 @@ describe('CheckboxGroup', () => {
       expect(selectedData.selected.map((item: any) => item.key)).toEqual(['1'])
 
       // 저장 후에만 동기화
-      const submitButton = screen.getByRole('button', { name: 'submit' })
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       selectedData = JSON.parse(screen.getByTestId('selected').textContent!)

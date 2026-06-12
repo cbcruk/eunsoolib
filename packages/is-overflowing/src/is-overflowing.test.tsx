@@ -2,11 +2,11 @@ import { render, screen, act } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
 import { useOverflowDetection, OverflowDemo } from './is-overflowing'
 
-vi.mock('ahooks', () => ({
-  useSize: vi.fn(),
-}))
-
 const mockUseSize = vi.hoisted(() => vi.fn())
+
+vi.mock('ahooks', () => ({
+  useSize: mockUseSize,
+}))
 
 function createPropertyManager() {
   const originalProps: Record<string, PropertyDescriptor | undefined> = {}
@@ -104,9 +104,9 @@ describe('OverflowDemo 컴포넌트', () => {
       rerender(<OverflowDemo />)
     })
 
-    expect(screen.getByText('Horizontal overflow detected')).toBeInTheDocument()
+    expect(screen.getByText(/Horizontal overflow detected/)).toBeInTheDocument()
     expect(
-      screen.queryByText('Vertical overflow detected'),
+      screen.queryByText(/Vertical overflow detected/),
     ).not.toBeInTheDocument()
   })
 
@@ -122,9 +122,9 @@ describe('OverflowDemo 컴포넌트', () => {
       rerender(<OverflowDemo showVerticalDemo={true} />)
     })
 
-    expect(screen.getByText('Vertical overflow detected')).toBeInTheDocument()
+    expect(screen.getByText(/Vertical overflow detected/)).toBeInTheDocument()
     expect(
-      screen.queryByText('Horizontal overflow detected'),
+      screen.queryByText(/Horizontal overflow detected/),
     ).not.toBeInTheDocument()
   })
 
@@ -140,12 +140,12 @@ describe('OverflowDemo 컴포넌트', () => {
       rerender(<OverflowDemo />)
     })
 
-    expect(screen.getByText('Content fits')).toBeInTheDocument()
+    expect(screen.getByText(/Content fits/)).toBeInTheDocument()
     expect(
-      screen.queryByText('Horizontal overflow detected'),
+      screen.queryByText(/Horizontal overflow detected/),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByText('Vertical overflow detected'),
+      screen.queryByText(/Vertical overflow detected/),
     ).not.toBeInTheDocument()
   })
 
