@@ -53,6 +53,14 @@ Each package follows the same pattern:
 - Zustand stores for React state management
 - Effect library for functional composition
 
+#### Framework-agnostic core + `useSyncExternalStore` layer
+
+새 상태 관리 유틸리티를 설계할 때는 `react-*` 형태로 core를 만들지 말고, **UI 프레임워크를 모르는 싱글턴 core를 먼저 만들고 그 위에 얇은 React 레이어를 얹는다.** (참고 구현: `packages/sync-store`)
+
+- **Core는 framework-agnostic**: `getState` / `setState` / `subscribe` 같은 원시 연산만 노출하는 싱글턴으로 구성하고, React 등 특정 UI 라이브러리를 import하지 않는다. 이렇게 하면 core를 React 없이 단독 테스트할 수 있고, 바닐라 JS나 다른 프레임워크에서도 재사용할 수 있다.
+- **React 바인딩은 `useSyncExternalStore`로**: 구독/스냅샷 처리는 직접 `useState` + `useEffect`로 짜지 말고 React가 공식 지원하는 `useSyncExternalStore`에 위임한다 (tearing 방지, SSR 안전). selector로 slice를 선택할 때는 이전 참조를 `isEqual`(기본 `Object.is`)로 재사용해 불필요한 리렌더/무한 루프를 막고, `getServerSnapshot`도 함께 넘긴다.
+- **도메인 동작은 core 밖에서**: store 인스턴스는 모듈 스코프 싱글턴으로 한 번만 생성하고, 도메인 액션(`increment`, `reset` 등)은 core를 얇게 유지하기 위해 store 바깥에서 정의한다.
+
 ## Code Review and Refactoring Guidelines
 
 ### When Reviewing Code
