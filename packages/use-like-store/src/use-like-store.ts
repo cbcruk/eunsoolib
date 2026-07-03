@@ -1,30 +1,18 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { type Item } from './like-manager'
+import { useStore } from '@eunsoolib/sync-store'
+import { likeStore } from './like-store'
+import type { Item, LikeItemId } from './like-item'
 
-export type LikesItem = Item
-export type LikesItemId = LikesItem['id']
-
-export type LikesState = {
-  likes: Item[]
-  addItem: (item: LikesItem) => void
-  removeItem: (id: LikesItemId) => void
-  removeItems: (ids: LikesItemId[]) => void
-  clear: () => void
+/**
+ * 찜 목록 core를 React에 연결하는 얇은 레이어.
+ * 구독/스냅샷은 sync-store의 `useStore`(→ `useSyncExternalStore`)에 위임한다.
+ */
+export function useLikes<U = Item[]>(
+  selector: (items: Item[]) => U = (items) => items as unknown as U,
+): U {
+  return useStore(likeStore, selector)
 }
 
-export const useLikesStore = create<LikesState>()((_set) => ({
-  likes: [],
-  addItem: (_item) => {},
-  removeItem: (_id) => {},
-  removeItems(_ids) {},
-  clear: () => {},
-}))
-
-export const useLikesStoreWith = persist(useLikesStore, {
-  name: 'likes-storage',
-  version: 1,
-  migrate: (persistedState, _version) => {
-    return persistedState as LikesState
-  },
-})
+/** 특정 아이템의 찜 여부만 구독한다. */
+export function useIsLiked(id: LikeItemId): boolean {
+  return useStore(likeStore, (items) => items.some((item) => item.id === id))
+}

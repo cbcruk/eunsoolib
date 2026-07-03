@@ -1,8 +1,3 @@
-export { LikeManager, type Item } from './like-manager'
-export {
-  useLikesStore,
-  useLikesStoreWith,
-  type LikesItem,
-  type LikesItemId,
-  type LikesState,
-} from './use-like-store'
+export { ItemSchema, type Item, type LikeItemId } from './like-item'
+export { likeStore, likeActions } from './like-store'
+export { useLikes, useIsLiked } from './use-like-store'
