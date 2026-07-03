@@ -17,6 +17,7 @@
 | 파일              | 레이어                    | 역할                                                   |
 | ----------------- | ------------------------- | ------------------------------------------------------ |
 | `create-store.ts` | core (framework-agnostic) | `getState` / `setState` / `subscribe` 싱글턴 store     |
+| `persist.ts`      | core (framework-agnostic) | localStorage 등에 상태를 영속화하는 store 래퍼         |
 | `use-store.ts`    | React                     | `useSyncExternalStore` 기반 바인딩 + selector 메모이즈 |
 
 ## 사용법
@@ -80,6 +81,27 @@ const ids = useStore(
 )
 ```
 
+### 영속화: `persist`
+
+`createStore` 위에 localStorage 영속화를 얹은 store를 만든다. React를 모르므로 core 그대로 쓸 수 있다.
+
+```ts
+import { persist } from '@eunsoolib/sync-store'
+
+// volume / isLooping만 'audio-storage' 키에 저장
+const audioStore = persist(
+  { volume: 1, isLooping: false, currentTime: 0 },
+  {
+    name: 'audio-storage',
+    partialize: ({ volume, isLooping }) => ({ volume, isLooping }),
+  },
+)
+```
+
+- 생성 시 저장된 값을 읽어 초기 상태에 병합(하이드레이트)한다.
+- 상태가 바뀔 때마다 `partialize`한 결과를 저장하되, 직렬화 결과가 이전과 같으면 쓰기를 건너뛴다. (위 예시에서 `currentTime`만 바뀌면 localStorage에 쓰지 않는다.)
+- `version` / `migrate`로 스키마 변경에 대응하고, `storage`에 접근할 수 없으면(SSR 등) no-op가 되어 안전하다.
+
 ## API
 
 ### `createStore<T>(initialState: T): Store<T>`
@@ -92,3 +114,7 @@ const ids = useStore(
 ### `useStore<T>(store)` / `useStore<T, U>(store, selector, isEqual?)`
 
 `useSyncExternalStore`로 store를 구독한다. `selector`로 slice를 선택하고 `isEqual`로 리렌더 조건을 제어한다.
+
+### `persist<T, P>(initialState, options): Store<T>`
+
+`createStore`와 동일한 `Store<T>`를 반환하되 저장소에 영속화한다. `options`: `name`(키), `storage`(기본 localStorage), `partialize`, `merge`, `version`, `migrate`.

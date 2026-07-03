@@ -5,3 +5,4 @@ export {
   type Updater,
 } from './create-store'
 export { useStore } from './use-store'
+export { persist, type PersistOptions, type PersistStorage } from './persist'
