@@ -1,32 +1,26 @@
 import { useEffect } from 'react'
-import { useAudioStore } from './use-audio-store'
+import { audioActions } from './audio-actions'
 
 export function AudioManager() {
-  const setAudio = useAudioStore((state) => state.setAudio)
-  const setIsPlaying = useAudioStore((state) => state.setIsPlaying)
-  const setCurrentTime = useAudioStore((state) => state.setCurrentTime)
-  const setDuration = useAudioStore((state) => state.setDuration)
-  const setIsLoading = useAudioStore((state) => state.setIsLoading)
-  const setError = useAudioStore((state) => state.setError)
-
   useEffect(() => {
     const audio = new Audio()
 
     audio.preload = 'metadata'
 
-    const handlePlay = () => setIsPlaying(true)
-    const handlePause = () => setIsPlaying(false)
-    const handleEnded = () => setIsPlaying(false)
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime)
+    const handlePlay = () => audioActions.setIsPlaying(true)
+    const handlePause = () => audioActions.setIsPlaying(false)
+    const handleEnded = () => audioActions.setIsPlaying(false)
+    const handleTimeUpdate = () =>
+      audioActions.setCurrentTime(audio.currentTime)
     const handleLoadedMetadata = () => {
-      setDuration(audio.duration)
-      setIsLoading(false)
+      audioActions.setDuration(audio.duration)
+      audioActions.setIsLoading(false)
     }
-    const handleLoadStart = () => setIsLoading(true)
-    const handleCanPlay = () => setIsLoading(false)
+    const handleLoadStart = () => audioActions.setIsLoading(true)
+    const handleCanPlay = () => audioActions.setIsLoading(false)
     const handleError = () => {
-      setError('오디오를 재생할 수 없습니다.')
-      setIsLoading(false)
+      audioActions.setError('오디오를 재생할 수 없습니다.')
+      audioActions.setIsLoading(false)
     }
 
     audio.addEventListener('play', handlePlay)
@@ -38,7 +32,7 @@ export function AudioManager() {
     audio.addEventListener('canplay', handleCanPlay)
     audio.addEventListener('error', handleError)
 
-    setAudio(audio)
+    audioActions.setAudio(audio)
 
     return () => {
       audio.removeEventListener('play', handlePlay)
@@ -54,14 +48,7 @@ export function AudioManager() {
       audio.src = ''
       audio.load()
     }
-  }, [
-    setAudio,
-    setIsPlaying,
-    setCurrentTime,
-    setDuration,
-    setIsLoading,
-    setError,
-  ])
+  }, [])
 
   return null
 }
