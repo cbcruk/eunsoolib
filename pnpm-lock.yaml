@@ -107,17 +107,29 @@ importers:
 
   packages/audio-components:
     dependencies:
+      '@eunsoolib/sync-store':
+        specifier: workspace:*
+        version: link:../sync-store
       '@use-gesture/react':
         specifier: ^10.3.1
         version: 10.3.1(react@19.1.1)
       react:
         specifier: ^19.1.1
         version: 19.1.1
-      zustand:
-        specifier: ^5.0.4
-        version: 5.0.4(@types/react@19.1.12)(react@19.1.1)
 
   packages/authorization: {}
+
+  packages/box-sizing-audit:
+    dependencies:
+      pixelmatch:
+        specifier: ^7.0.0
+        version: 7.1.0
+      playwright:
+        specifier: ^1.56.0
+        version: 1.56.1
+      pngjs:
+        specifier: ^7.0.0
+        version: 7.0.0
 
   packages/checkbox-group:
     dependencies:
@@ -127,6 +139,8 @@ importers:
       react:
         specifier: ^19.1.1
         version: 19.1.1
+
+  packages/cors-image-proxy: {}
 
   packages/date-navigator:
     dependencies:
@@ -179,6 +193,14 @@ importers:
         specifier: ^1.19.0
         version: 1.19.8
 
+  packages/highlight-kit:
+    dependencies:
+      react:
+        specifier: '>=18.0.0'
+        version: 19.1.1
+
+  packages/image-first-frame: {}
+
   packages/image-size:
     dependencies:
       image-size:
@@ -186,6 +208,12 @@ importers:
         version: 2.0.2
 
   packages/in-view:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+
+  packages/intl-layer:
     dependencies:
       react:
         specifier: ^19.1.1
@@ -230,6 +258,18 @@ importers:
 
   packages/rw-lock: {}
 
+  packages/scope-style:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+
+  packages/scroll-end:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+
   packages/scroll-spy:
     dependencies:
       react:
@@ -246,24 +286,47 @@ importers:
 
   packages/sudoku: {}
 
+  packages/sync-store:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+
   packages/time-range:
     dependencies:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
 
+  packages/use-highlight-search:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+
   packages/use-like-store:
     dependencies:
+      '@eunsoolib/sync-store':
+        specifier: workspace:*
+        version: link:../sync-store
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
       zod:
         specifier: ^3.24.3
         version: 3.25.76
-      zustand:
-        specifier: ^5.0.4
-        version: 5.0.4(@types/react@19.1.12)(react@19.1.1)
 
   packages/vite-server-proxy: {}
 
   packages/vtt-to-json: {}
+
+  packages/web-identity: {}
+
+  packages/with-defaults:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
 
   packages/wordle: {}
 
@@ -2701,24 +2764,6 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zustand@5.0.4:
-    resolution: {integrity: sha512-39VFTN5InDtMd28ZhjLyuTnlytDr9HfwO512Ai4I8ZABCoyAj4F1+sr7sD1jP/+p7k77Iko0Pb5NhgBFDCX0kQ==}
-    engines: {node: '>=12.20.0'}
-    peerDependencies:
-      '@types/react': '>=18.0.0'
-      immer: '>=9.0.6'
-      react: '>=18.0.0'
-      use-sync-external-store: '>=1.2.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      immer:
-        optional: true
-      react:
-        optional: true
-      use-sync-external-store:
-        optional: true
-
 snapshots:
 
   '@adobe/css-tools@4.4.2': {}
@@ -4868,8 +4913,3 @@ snapshots:
   yallist@3.1.1: {}
 
   zod@3.25.76: {}
-
-  zustand@5.0.4(@types/react@19.1.12)(react@19.1.1):
-    optionalDependencies:
-      '@types/react': 19.1.12
-      react: 19.1.1

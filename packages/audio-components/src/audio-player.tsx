@@ -1,44 +1,38 @@
 import { AudioPlayerSlider } from './audio-player-slider'
 import { formatDuration } from './format-duration'
 import { useAudioStore } from './use-audio-store'
+import { audioActions } from './audio-actions'
 
 type CastAudioPlayerProps = {
   src: string
 }
 
 export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
-  const {
-    volume,
-    setVolume,
-    src: currentSrc,
-    isPlaying,
-    currentTime,
-    duration,
-    play: playCast,
-    togglePlay,
-    isLooping,
-    toggleLoop,
-    seek,
-  } = useAudioStore()
+  const volume = useAudioStore((state) => state.volume)
+  const currentSrc = useAudioStore((state) => state.src)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
+  const currentTime = useAudioStore((state) => state.currentTime)
+  const duration = useAudioStore((state) => state.duration)
+  const isLooping = useAudioStore((state) => state.isLooping)
 
   const isMatchedCast = currentSrc === src
   const progress = duration > 0 ? currentTime / duration : 0
 
   const handlePlay = () => {
     if (isMatchedCast) {
-      togglePlay()
+      audioActions.togglePlay()
     } else {
-      playCast(src)
+      audioActions.play(src)
     }
   }
 
   const handleProgress = (percentage: number) => {
     const newTime = percentage * duration
-    seek(newTime)
+    audioActions.seek(newTime)
   }
 
   const handleVolume = (volume: number) => {
-    setVolume(volume)
+    audioActions.setVolume(volume)
   }
 
   return (
@@ -91,7 +85,7 @@ export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
 
           <button
             title={isLooping ? '반복 해제' : '반복'}
-            onClick={toggleLoop}
+            onClick={audioActions.toggleLoop}
             className={`px-3 py-1 text-xs rounded transition-colors ${
               isLooping
                 ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
