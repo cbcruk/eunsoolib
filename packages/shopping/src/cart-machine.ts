@@ -4,6 +4,22 @@ type CartProduct = {
   id: string
 }
 
+/**
+ * 장바구니 상태 머신
+ *
+ * 단일 `active` 상태에서 다음 이벤트를 처리한다.
+ *
+ * - `ADD` — 상품을 담는다. `maxCount`(3개)에 도달하면 guard가 막아 무시된다
+ * - `DELETE` — `id`로 상품을 뺀다
+ * - `RESET` — 장바구니를 비운다
+ *
+ * @example
+ * ```ts
+ * const actor = createActor(cartMachine).start()
+ * actor.send({ type: 'ADD', params: { product: { id: 'p1' } } })
+ * actor.getSnapshot().context.items // Map { 'p1' => { id: 'p1' } }
+ * ```
+ */
 export const cartMachine = setup({
   types: {
     context: {} as {

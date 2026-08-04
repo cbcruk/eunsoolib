@@ -1,6 +1,7 @@
 import { useSelections } from 'ahooks'
 import { Key } from 'react'
 
+/** 체크박스 하나에 대응하는 선택지 */
 type OptionItem = {
   key: Key
   label: string
@@ -9,7 +10,9 @@ type OptionItem = {
 type OptionValue = OptionItem['key']
 
 type CheckboxGroupProps = {
+  /** 렌더링할 선택지 목록 */
   list: Array<OptionItem>
+  /** 초기에 선택해 둘 항목들의 `key` 목록 */
   defaultSelected: Array<OptionValue>
 }
 
@@ -18,6 +21,11 @@ type CheckboxFormProps = Pick<CheckboxGroupProps, 'list'> & {
   onSubmit: (selected: OptionItem[]) => void
 }
 
+/**
+ * 체크박스 목록과 제출 버튼을 렌더링하는 내부 폼
+ *
+ * 선택 상태는 폼 안에서만 관리하고, 제출 시점에만 `onSubmit`으로 올려보낸다.
+ */
 function CheckboxForm({ list, defaultSelected, onSubmit }: CheckboxFormProps) {
   const { selected, toggle } = useSelections(list, {
     itemKey(item) {
@@ -63,6 +71,23 @@ function CheckboxForm({ list, defaultSelected, onSubmit }: CheckboxFormProps) {
   )
 }
 
+/**
+ * 다중 선택 체크박스 그룹
+ *
+ * 내부 폼에서 선택한 값을 제출할 때마다 확정 상태로 반영하고, 현재 선택 상태와
+ * 전체/부분/미선택 여부를 함께 표시한다.
+ *
+ * @example
+ * ```tsx
+ * <CheckboxGroup
+ *   list={[
+ *     { key: 'a', label: '옵션 A' },
+ *     { key: 'b', label: '옵션 B' },
+ *   ]}
+ *   defaultSelected={['a']}
+ * />
+ * ```
+ */
 export function CheckboxGroup({ list, defaultSelected }: CheckboxGroupProps) {
   const {
     selected,
