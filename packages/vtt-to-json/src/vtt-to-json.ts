@@ -1,9 +1,24 @@
+/** 자막 한 줄(cue) */
 export type Cue = {
+  /** 시작 시각(초). `timestamp`를 초로 환산한 값 */
   seconds: number
+  /** 원본 타임스탬프 (`HH:mm:ss.SSS`) */
   timestamp: string
   text: string
 }
 
+/**
+ * WebVTT 자막을 cue 배열로 변환하는 파서
+ *
+ * YouTube 등에서 받은 자동 생성 자막처럼 같은 문장이 여러 번 반복되는 형식을
+ * 염두에 두고, 직전과 동일한 텍스트와 `<c>` 스타일 태그 줄은 건너뛴다.
+ *
+ * @example
+ * ```ts
+ * const cues = new VttParser(vttText).toJson()
+ * // [{ seconds: 1, timestamp: '00:00:01.000', text: '안녕하세요' }]
+ * ```
+ */
 export class VttParser {
   private data: string
 
@@ -12,10 +27,18 @@ export class VttParser {
     lastText: '',
   }
 
+  /**
+   * @param data - WebVTT 파일의 원본 텍스트
+   */
   constructor(data: string) {
     this.data = data
   }
 
+  /**
+   * `HH:mm:ss.SSS` 타임스탬프를 초로 환산
+   *
+   * @returns 형식이 맞지 않으면 `0`
+   */
   private getSeconds(timestamp: string): number {
     const parts = timestamp.split(':')
 
@@ -28,6 +51,11 @@ export class VttParser {
     return parseInt(h, 10) * 3600 + parseInt(m, 10) * 60 + parseFloat(s)
   }
 
+  /**
+   * 자막을 파싱해 cue 배열로 반환
+   *
+   * @returns 시간순 cue 목록. 중복 텍스트와 스타일 태그 줄은 제외된다
+   */
   toJson(): Cue[] {
     const cues: Cue[] = []
     const lines = this.data

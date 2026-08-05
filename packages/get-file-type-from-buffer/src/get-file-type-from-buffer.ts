@@ -3,6 +3,12 @@ import { fileTypeFromBuffer } from 'file-type'
 
 type GetfileTypeFromBufferParam = Buffer
 
+/**
+ * 파일 형식 판별에 실패했을 때 발생하는 태그드 에러
+ *
+ * 판별 과정에서 예외가 났거나(`cause` 포함), 형식을 식별하지 못한 경우 모두
+ * 이 에러로 표현된다.
+ */
 export class FileTypeFromBufferError extends Data.TaggedError(
   'FileTypeFromBufferError',
 )<{
@@ -10,6 +16,21 @@ export class FileTypeFromBufferError extends Data.TaggedError(
   readonly cause?: unknown
 }> {}
 
+/**
+ * 버퍼의 매직 넘버를 읽어 파일 형식(MIME 타입/확장자)을 판별
+ *
+ * 확장자나 파일명이 아니라 실제 바이트를 보고 판단하므로 업로드된 파일을
+ * 검증할 때 쓸 수 있다.
+ *
+ * @param buffer - 검사할 파일의 바이너리 버퍼
+ * @returns 성공 시 `{ ext, mime }`, 실패 시 {@link FileTypeFromBufferError}를
+ * 담은 Effect
+ * @example
+ * ```ts
+ * const program = getfileTypeFromBuffer(buffer)
+ * const { ext, mime } = await Effect.runPromise(program)
+ * ```
+ */
 export const getfileTypeFromBuffer = (buffer: GetfileTypeFromBufferParam) =>
   Effect.gen(function* () {
     const fileType = yield* Effect.tryPromise({
