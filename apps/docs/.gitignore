@@ -1,0 +1,5 @@
+# scripts/sync-content.mjs가 packages/*/README.md에서 생성
+content/docs
+.source
+next-env.d.ts
+*.tsbuildinfo
