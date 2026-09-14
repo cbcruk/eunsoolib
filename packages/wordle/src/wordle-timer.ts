@@ -1,6 +1,6 @@
 type WordleTimerOptions = {
-  /** 타이머 식별자 */
-  id: string
+  /** 여러 타이머를 구분하기 위한 식별자. {@link WordleTimer.id}로 다시 읽을 수 있다 */
+  id?: string
   /** 시작 카운트. @default 0 */
   initialTime?: number
   /** 카운트를 1씩 올리는 간격(ms). @default 1000 */
@@ -9,14 +9,21 @@ type WordleTimerOptions = {
 
 /** 일정 간격마다 1씩 증가하는 경과 시간 카운터. */
 export class WordleTimer {
-  private id: WordleTimerOptions['id']
+  /** 생성할 때 넘긴 식별자. 넘기지 않았으면 `undefined` */
+  readonly id: string | undefined
+  private initialTime: number
   private time: number
   private interval: number
   private timer: ReturnType<typeof setInterval> | null = null
 
   /** @param options - 식별자, 시작 카운트, 증가 간격 */
-  constructor({ id, initialTime = 0, interval = 1000 }: WordleTimerOptions) {
+  constructor({
+    id,
+    initialTime = 0,
+    interval = 1000,
+  }: WordleTimerOptions = {}) {
     this.id = id
+    this.initialTime = initialTime
     this.time = initialTime
     this.interval = interval
   }
@@ -40,10 +47,10 @@ export class WordleTimer {
     }
   }
 
-  /** 카운트를 멈추고 `0`으로 되돌린다. `initialTime`이 아니라 항상 `0`이다. */
+  /** 카운트를 멈추고 생성할 때 넘긴 `initialTime`으로 되돌린다. */
   reset() {
     this.stop()
-    this.time = 0
+    this.time = this.initialTime
   }
 
   /** 현재 카운트를 반환한다. */

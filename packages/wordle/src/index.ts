@@ -5,6 +5,9 @@ export {
   MESSAGES,
   GUESS_STATUS,
   GAME_STATUS,
+  GAME_RESULT,
+  WORD_LENGTH,
+  MAX_GUESSES,
   ANSWER_MAX_LENGTH,
   GUESS_MAX_LENGTH,
 } from './wordle.constants'

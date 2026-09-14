@@ -59,17 +59,23 @@ export class SudokuEngine {
 
   /**
    * 외부 퍼즐로 게임 시작
+   * @description 주어진 숫자끼리 규칙을 어기거나 풀 수 없는 보드는 로드하지 않고 기존 게임을 그대로 둔다.
+   * 해가 여러 개인 보드는 그중 하나를 정답으로 저장한다.
    * @param board - 로드할 9x9 스도쿠 보드
+   * @returns 로드 성공 여부 (규칙 위반이거나 풀 수 없으면 false)
    */
-  loadPuzzle(board: Board): void {
+  loadPuzzle(board: Board): boolean {
+    const solved = isBoardValid(board) ? solve(board) : null
+
+    if (!solved) return false
+
     this.grid = this.boardToCellGrid(board)
-
-    const solved = solve(board)
-
-    this.solution = solved || board
+    this.solution = solved
     this.difficulty = 'medium'
     this.undoStack = []
     this.redoStack = []
+
+    return true
   }
 
   /**
@@ -200,6 +206,7 @@ export class SudokuEngine {
 
   /**
    * 실행취소한 액션 재실행
+   * @description 값 입력·삭제 액션은 {@link SudokuEngine.setValue}와 같이 값을 바꾸고 메모를 지운다.
    * @returns 성공 여부 (재실행할 액션이 없으면 false)
    */
   redo(): boolean {
@@ -211,11 +218,9 @@ export class SudokuEngine {
 
     switch (action.type) {
       case 'setValue':
-        cell.value = action.newValue!
-        cell.memos.clear()
-        break
       case 'clearValue':
-        cell.value = 0
+        cell.value = action.newValue ?? 0
+        cell.memos.clear()
         break
       case 'toggleMemo':
         if (cell.memos.has(action.memoValue!)) {
@@ -235,11 +240,13 @@ export class SudokuEngine {
 
   /**
    * 힌트 받기
-   * @returns 힌트 정보 (위치와 값) 또는 null
+   * @description 저장된 정답을 기준으로 계산하므로, 잘못 입력한 값이 있어도 올바른 값을 준다.
+   * 정답과 다른 값이 들어 있는 칸도 힌트 대상이 된다.
+   * @returns 힌트 정보 (위치와 값) 또는 null (모든 칸이 정답으로 채워진 경우)
    */
   getHint(): { position: Position; value: number } | null {
     const board = this.cellGridToBoard()
-    return getHint(board)
+    return getHint(board, this.solution)
   }
 
   /**

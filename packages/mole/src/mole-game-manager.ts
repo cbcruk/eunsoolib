@@ -8,7 +8,7 @@ type MoleGameOptions = {
   config: GameConfig
   /** 1초마다 남은 시간(초)을 받는 콜백 */
   onTick?: (remainingTime: number) => void
-  /** 시간이 다 되어 `Ended`로 전환된 뒤 호출되는 콜백 */
+  /** 남은 시간이 `0`에 도달해 `Ended`로 전환된 직후(60초 시점) 호출되는 콜백 */
   onTimeout?: () => void
   /** `hit()`으로 점수가 바뀐 직후 점수와 랭크 이름을 받는 콜백 */
   onScoreUpdate?: (score: number, rank: string) => void
@@ -106,19 +106,22 @@ export class MoleGameManager {
     this.spawner.start()
   }
 
-  /** 타이머와 스포너를 멈추고 `Ended`로 전환한다. 이미 `Ended`면 아무것도 하지 않는다. */
+  /** `Playing` 또는 `Paused`에서 타이머와 스포너를 멈추고 `Ended`로 전환한다. */
   end() {
-    if (this.state === GameState.Ended) return
+    if (this.state !== GameState.Playing && this.state !== GameState.Paused) {
+      return
+    }
 
     this.setState(GameState.Ended)
     this.timer.pause()
     this.spawner.stop()
   }
 
-  /** 상태와 무관하게 `Idle`로 전환하고 타이머와 점수를 초기화한다. */
+  /** 상태와 무관하게 `Idle`로 전환하고, 타이머와 스포너를 멈춘 뒤 타이머와 점수를 초기화한다. */
   reset() {
     this.setState(GameState.Idle)
     this.timer.reset()
+    this.spawner.stop()
     this.scoreManager.resetScore()
   }
 

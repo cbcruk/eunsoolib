@@ -48,41 +48,41 @@ coupon.setCoupon({ code: 'DISCOUNT10' })
 // localStorage 등에 보관 후 복원
 const restored = CartManager.fromJSON(JSON.stringify(cart))
 const restoredOrder = OrderManager.fromJSON(JSON.stringify(order))
-const restoredCoupon = CouponManager.fromJSON(coupon.toJSON())
+const restoredCoupon = CouponManager.fromJSON(JSON.stringify(coupon))
 ```
 
 ## API
 
 ### `cartMachine`
 
-단일 `active` 상태 머신. context는 `{ items: Map<string, { id: string }>, maxCount: 3 }`.
+단일 `active` 상태 머신. context는 `{ items: Map<string, { id: string }>, maxCount: 3 }`이며 actor마다 새로 만들어집니다. 이벤트를 처리할 때마다 `items`를 새 `Map`으로 교체하므로 이전 스냅샷은 바뀌지 않고, `useSelector` 같은 참조 비교 셀렉터가 변경을 감지합니다.
 
-| 이벤트                                 | 동작                                  |
-| -------------------------------------- | ------------------------------------- |
-| `{ type: 'ADD', params: { product } }` | 담기. `items.size < 3`일 때만 (guard) |
-| `{ type: 'DELETE', params: { id } }`   | `id`로 빼기                           |
-| `{ type: 'RESET' }`                    | 새 `Map`으로 비우기                   |
+| 이벤트                                 | 동작                                                                |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `{ type: 'ADD', params: { product } }` | 담기. 같은 `id`는 덮어씀. 새 `id`는 `items.size < 3`일 때만 (guard) |
+| `{ type: 'DELETE', params: { id } }`   | `id`로 빼기                                                         |
+| `{ type: 'RESET' }`                    | 새 `Map`으로 비우기                                                 |
 
-한도에 걸린 `ADD`는 에러 없이 무시됩니다.
+한도에 걸린 새 `id`의 `ADD`는 에러 없이 무시됩니다.
 
 ### `new CartManager(initialItems?)`
 
 `initialItems`는 `Map<CartProductId, CartProduct>`이며 복사해서 보관합니다.
 
-| 메서드                       | 설명                                                |
-| ---------------------------- | --------------------------------------------------- |
-| `add(product)`               | 담기. 같은 `id`는 덮어씀. 이미 3개면 `Error`를 던짐 |
-| `delete(id)`                 | 빼기. 없는 `id`는 무시                              |
-| `getItems()`                 | `CartProduct[]`                                     |
-| `toJSON()`                   | `[id, product][]`                                   |
-| `CartManager.fromJSON(data)` | `JSON.stringify(cart)` 문자열로부터 복원            |
+| 메서드                       | 설명                                                            |
+| ---------------------------- | --------------------------------------------------------------- |
+| `add(product)`               | 담기. 같은 `id`는 덮어씀. 이미 3개인데 새 `id`면 `Error`를 던짐 |
+| `delete(id)`                 | 빼기. 없는 `id`는 무시                                          |
+| `getItems()`                 | `CartProduct[]`                                                 |
+| `toJSON()`                   | `[id, product][]`                                               |
+| `CartManager.fromJSON(data)` | `JSON.stringify(cart)` 문자열로부터 복원                        |
 
 타입: `CartProduct = { id: CartProductId }`, `CartProductId = string`.
 
 ### `new CouponManager(initialCoupon = null)`
 
-쿠폰 하나만 보관합니다. `setCoupon(coupon)`(교체) / `resetCoupon()` / `getCoupon()`(없으면 `null`) / `toJSON()` / `CouponManager.fromJSON(data)`(빈 문자열이면 미적용).
-`toJSON()`은 다른 매니저와 달리 **이미 직렬화된 문자열**을 반환하므로 `fromJSON(coupon.toJSON())`처럼 그대로 넘깁니다. `Coupon` 타입은 `{}`로, 필드를 강제하지 않습니다.
+쿠폰 하나만 보관합니다. `setCoupon(coupon)`(교체) / `resetCoupon()` / `getCoupon()`(없으면 `null`) / `toJSON()`(쿠폰 값 또는 `null`) / `CouponManager.fromJSON(data)`(`JSON.stringify(coupon)` 문자열로부터 복원, 빈 문자열이면 미적용).
+다른 매니저와 같이 `JSON.stringify(coupon)`으로 직렬화합니다. `Coupon` 타입은 `{}`로, 필드를 강제하지 않습니다.
 
 ### `new OrderManager(checked?, qty?)`
 
@@ -100,5 +100,5 @@ const restoredCoupon = CouponManager.fromJSON(coupon.toJSON())
 ## 설계 노트
 
 - 네 구성 요소는 서로를 참조하지 않습니다. `OrderManager`는 `CartProductId` 타입만 공유할 뿐 장바구니에 실제로 담긴 상품인지 확인하지 않습니다.
-- 한도 초과 처리 방식이 다릅니다. 머신은 guard로 이벤트를 무시하고, `CartManager`는 예외를 던집니다. 두 구현 모두 한도에 도달하면 이미 담긴 `id`를 다시 담는(덮어쓰기) 것도 막힙니다.
+- 두 구현 모두 한도는 서로 다른 `id`의 개수에만 적용되어, 한도에 도달해도 이미 담긴 `id`를 다시 담으면(덮어쓰기) 성공합니다. 새 `id`가 한도를 넘을 때만 처리 방식이 다른데, 이벤트를 보낸 쪽에 예외를 돌려줄 수 없는 머신은 guard로 무시하고 `CartManager`는 예외를 던집니다.
 - `fromJSON`은 입력을 검증하지 않아, 복원 시에는 최대 개수 제한도 적용되지 않습니다.

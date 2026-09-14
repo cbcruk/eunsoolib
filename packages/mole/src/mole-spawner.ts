@@ -57,14 +57,17 @@ export class MoleSpawner {
   }
 
   /**
-   * 출현 간격을 바꾸고 루프를 다시 시작한다.
+   * 출현 간격을 바꾼다.
    *
-   * 멈춰 있던 상태에서 호출해도 루프가 시작된다.
+   * 루프가 동작 중이면 새 간격으로 다시 시작하고, 멈춰 있으면 간격만 바꿔 다음 `start()`부터 적용한다.
    *
    * @param newDelay - 새 출현 간격(ms)
    */
   updateDelay(newDelay: number) {
     this.delay = newDelay
+
+    if (!this.intervalId) return
+
     this.stop()
     this.start()
   }

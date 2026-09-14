@@ -56,6 +56,22 @@ describe('WordleTimer', () => {
     expect(timer.getTime()).toBe(0)
   })
 
+  it('reset()을 호출하면 initialTime으로 되돌아가야 한다', () => {
+    const timer = new WordleTimer({ id: 't1', initialTime: 10 })
+
+    timer.start()
+    vi.advanceTimersByTime(3000)
+    timer.reset()
+
+    expect(timer.getTime()).toBe(10)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('id 옵션을 읽을 수 있고, 생략할 수 있어야 한다', () => {
+    expect(new WordleTimer({ id: 't1' }).id).toBe('t1')
+    expect(new WordleTimer().id).toBeUndefined()
+  })
+
   it('start()는 중복 실행되지 않아야 한다', () => {
     const timer = new WordleTimer({ id: 't1' })
 

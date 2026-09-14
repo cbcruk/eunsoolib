@@ -93,8 +93,10 @@ function generateSymmetricPositions(): Position[] {
 }
 
 /**
- * 빠른 퍼즐 생성 (유일해 체크 최소화)
- * @description 40셀 이상 비워지기 전까지는 유일해 체크를 생략하여 빠르게 생성
+ * 대칭 제약 없이 퍼즐을 생성한다.
+ * @description 무작위 순서로 한 칸씩 비우며 매번 유일해를 확인하고, 유일해가 깨지는 칸은 되돌린다.
+ * {@link generatePuzzle}과 달리 점대칭 쌍을 함께 지우지 않아 한 번에 한 칸만 되돌리면 되고,
+ * 목표 빈 칸 수를 넘어서지 않는다. 유일해가 깨지는 칸을 건너뛰므로 실제 `emptyCells`가 범위에 못 미칠 수 있다.
  * @param difficulty - 난이도 (기본값: 'medium')
  * @returns 생성된 퍼즐 정보
  */
@@ -126,11 +128,9 @@ export function generateQuickPuzzle(
 
     puzzle[row][col] = 0
 
-    if (emptyCells > 40) {
-      if (!hasUniqueSolution(puzzle)) {
-        puzzle[row][col] = value
-        continue
-      }
+    if (!hasUniqueSolution(puzzle)) {
+      puzzle[row][col] = value
+      continue
     }
 
     emptyCells++

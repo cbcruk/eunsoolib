@@ -33,6 +33,10 @@ game.getGuessListWithStatus()
 // ]]
 
 game.getGameStatus() === GAME_STATUS.Playing // true
+
+game.addGuessItem('apple')
+game.getGameResult() // 'Won'
+game.addGuessItem('grape') // 게임이 끝나 Error
 ```
 
 검증기를 바꾸거나 테스트에서 네트워크를 피하려면 두 번째 인자로 넘깁니다.
@@ -55,27 +59,29 @@ const game = await Wordle.create('apple', async (word) => myWordSet.has(word))
 
 ### 인스턴스
 
-| 멤버                       | 설명                                                        |
-| -------------------------- | ----------------------------------------------------------- |
-| `guessList`                | 입력한 추측 `Word[]` (public 필드)                          |
-| `addGuessItem(guess)`      | 추측 추가. 5글자가 아니거나 이미 6개면 `Error`              |
-| `getGuessListWithStatus()` | 추측마다 `GuessItemWithStatus[]` 배열                       |
-| `getGameStatus()`          | 정답을 맞혔거나 6번 입력했으면 `'Over'`, 아니면 `'Playing'` |
+| 멤버                       | 설명                                                                                             |
+| -------------------------- | ------------------------------------------------------------------------------------------------ |
+| `guessList`                | 입력한 추측 `readonly Word[]`의 복사본 (읽기 전용 getter)                                        |
+| `addGuessItem(guess)`      | 추측 추가. 5글자가 아니면 `LENGTH_ERROR`, 정답을 맞혔거나 이미 6개면 `GAME_OVER_ERROR`의 `Error` |
+| `getGuessListWithStatus()` | 추측마다 `GuessItemWithStatus[]` 배열                                                            |
+| `getGameStatus()`          | 정답을 맞혔거나 6번 입력했으면 `'Over'`, 아니면 `'Playing'`                                      |
+| `getGameResult()`          | 정답을 맞혔으면 `'Won'`, 6번 모두 틀렸으면 `'Lost'`, 진행 중이면 `null`                          |
 
 ### `WordleCodec`
 
-`WordleCodec.encode(answer)` / `WordleCodec.decode(encoded)` — `btoa`/`atob` 기반 Base64 변환입니다. 정답을 URL에서 한눈에 안 보이게 하는 용도일 뿐 암호화가 아니며, Latin-1 밖의 문자(한글 등)는 인코딩할 수 없습니다.
+`WordleCodec.encode(answer)` / `WordleCodec.decode(encoded)` — `TextEncoder`로 만든 UTF-8 바이트를 Base64로 바꿉니다. 한글 같은 Latin-1 밖의 문자도 인코딩할 수 있고, ASCII 단어는 `btoa(answer)`와 결과가 같습니다. 정답을 URL에서 한눈에 안 보이게 하는 용도일 뿐 암호화가 아닙니다.
 
-### `new WordleTimer({ id, initialTime = 0, interval = 1000 })`
+### `new WordleTimer({ id?, initialTime = 0, interval = 1000 })`
 
-경과 시간 카운터. `start()`(중복 호출 무시) / `stop()` / `reset()`(0으로, 정지) / `getTime()`. `interval`마다 `time`이 1씩 증가합니다.
+경과 시간 카운터. `start()`(중복 호출 무시) / `stop()` / `reset()`(`initialTime`으로, 정지) / `getTime()`. `interval`마다 `time`이 1씩 증가합니다. `id`는 여러 타이머를 구분하는 식별자로, 읽기 전용 `timer.id`로 다시 읽을 수 있습니다.
 
 ### 상수·타입
 
 - `GUESS_STATUS`: `Correct` · `Partial` · `Incorrect` · `Typing`
 - `GAME_STATUS`: `Over` · `Playing`
-- `ANSWER_MAX_LENGTH` = `5`(단어 길이), `GUESS_MAX_LENGTH` = `6`(추측 횟수)
-- `MESSAGES`: 에러 메시지 문자열
+- `GAME_RESULT`: `Won` · `Lost`
+- `WORD_LENGTH` = `5`(단어 길이), `MAX_GUESSES` = `6`(추측 횟수). 이전 이름 `ANSWER_MAX_LENGTH` · `GUESS_MAX_LENGTH`는 같은 값의 deprecated 별칭입니다.
+- `MESSAGES`: 에러 메시지 문자열 (`REQUIRED_ERROR` · `LENGTH_ERROR` · `DEFINITION_ERROR` · `GAME_OVER_ERROR`)
 - `Word` = `string`, `DictionaryValidator` = `(word: Word) => Promise<boolean>`, `GuessItemWithStatus` = `{ char, status }`
 - `hasWordDefinitions`: 기본 `DictionaryValidator`
 
@@ -93,5 +99,5 @@ const game = await Wordle.create('apple', async (word) => myWordSet.has(word))
 ### 범위
 
 - 추측 단어는 사전 검증을 하지 않고, 대소문자도 정규화하지 않습니다.
-- `getGameStatus()`는 승리와 패배를 구분하지 않습니다. 인스턴스에 정답 getter가 없으므로, 필요하면 `create()`에 넘긴 정답과 `guessList`를 호출하는 쪽에서 비교합니다.
-- 상태는 매번 `guessList`에서 다시 계산하며 따로 저장하지 않습니다.
+- `getGameStatus()`는 진행 여부만 알려 주고, 승패는 `getGameResult()`로 구분합니다. 인스턴스에 정답 getter는 없습니다.
+- 추측 기록은 `addGuessItem()`으로만 바뀌고, 게임이 끝난 뒤에는 추가되지 않습니다. 상태는 매번 추측 기록에서 다시 계산하며 따로 저장하지 않습니다.

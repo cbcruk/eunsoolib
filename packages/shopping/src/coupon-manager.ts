@@ -14,7 +14,8 @@ export type Coupon = {}
  * const manager = new CouponManager()
  * manager.setCoupon(coupon)
  * manager.getCoupon() // coupon
- * manager.resetCoupon()
+ *
+ * const restored = CouponManager.fromJSON(JSON.stringify(manager))
  * ```
  */
 export class CouponManager {
@@ -46,15 +47,21 @@ export class CouponManager {
     return this.coupon
   }
 
-  /** 적용된 쿠폰을 JSON 문자열로 직렬화 */
-  toJSON(): string {
-    return JSON.stringify(this.coupon)
+  /**
+   * 직렬화 가능한 쿠폰 값으로 변환
+   *
+   * 다른 매니저와 같이 문자열이 아닌 값을 반환하므로 `JSON.stringify(manager)`로 한 번만 인코딩된다.
+   *
+   * @returns 적용된 쿠폰. 없으면 `null`
+   */
+  toJSON(): Coupon | null {
+    return this.coupon
   }
 
   /**
-   * {@link CouponManager.toJSON} 결과로부터 복원
+   * {@link CouponManager.toJSON} 결과 문자열로부터 복원
    *
-   * @param data - 직렬화된 쿠폰 문자열. 빈 문자열이면 미적용 상태로 복원된다
+   * @param data - `JSON.stringify(manager)` 결과. 빈 문자열이면 미적용 상태로 복원된다
    */
   static fromJSON(data: string): CouponManager {
     const parsed = data ? JSON.parse(data) : null

@@ -1,23 +1,31 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest'
 import { MoleGameManager } from './mole-game-manager'
 import { GameConfig, GameState } from './game-config'
 
 describe('MoleGameManager', () => {
   let game: MoleGameManager
-  let onTick: ReturnType<typeof vi.fn>
-  let onSpawn: ReturnType<typeof vi.fn>
-  let onScoreUpdate: ReturnType<typeof vi.fn>
-  let onTimeout: ReturnType<typeof vi.fn>
-  let onStateChange: ReturnType<typeof vi.fn>
+  let onTick: Mock<(remainingTime: number) => void>
+  let onSpawn: Mock<(indexes: number[], visibility: number) => void>
+  let onScoreUpdate: Mock<(score: number, rank: string) => void>
+  let onTimeout: Mock<() => void>
+  let onStateChange: Mock<(state: GameState) => void>
 
   beforeEach(() => {
     vi.useFakeTimers()
 
-    onTick = vi.fn()
-    onSpawn = vi.fn()
-    onScoreUpdate = vi.fn()
-    onTimeout = vi.fn()
-    onStateChange = vi.fn()
+    onTick = vi.fn<(remainingTime: number) => void>()
+    onSpawn = vi.fn<(indexes: number[], visibility: number) => void>()
+    onScoreUpdate = vi.fn<(score: number, rank: string) => void>()
+    onTimeout = vi.fn<() => void>()
+    onStateChange = vi.fn<(state: GameState) => void>()
 
     const config = new GameConfig(3, 3, 3) // 3x3, 최대 3마리
 
@@ -68,13 +76,47 @@ describe('MoleGameManager', () => {
     expect(game.getRemainingSeconds()).toBeLessThan(60)
   })
 
-  it('시간 초과 시 종료된다', () => {
+  it('60초 게임은 정확히 60초 시점에 종료된다', () => {
     game.start()
 
-    vi.advanceTimersByTime(61000)
+    vi.advanceTimersByTime(59999)
+
+    expect(game.getState()).toBe(GameState.Playing)
+    expect(onTimeout).not.toHaveBeenCalled()
+
+    vi.advanceTimersByTime(1)
 
     expect(game.getState()).toBe(GameState.Ended)
-    expect(onTimeout).toHaveBeenCalled()
+    expect(onTick).toHaveBeenLastCalledWith(0)
+    expect(onTimeout).toHaveBeenCalledTimes(1)
+  })
+
+  it('일시정지 전후의 1초 미만 진행분이 합산된다', () => {
+    game.start()
+    vi.advanceTimersByTime(1500)
+    game.pause()
+    game.resume()
+    vi.advanceTimersByTime(500)
+
+    expect(game.getRemainingSeconds()).toBe(58)
+    expect(onTick).toHaveBeenLastCalledWith(58)
+  })
+
+  it('Idle 상태에서 end를 호출하면 무시된다', () => {
+    game.end()
+
+    expect(game.getState()).toBe(GameState.Idle)
+    expect(onStateChange).not.toHaveBeenCalled()
+  })
+
+  it('Ended 상태에서 end를 다시 호출하면 무시된다', () => {
+    game.start()
+    game.end()
+    onStateChange.mockClear()
+
+    game.end()
+
+    expect(onStateChange).not.toHaveBeenCalled()
   })
 
   it('점수를 얻고 랭크가 반영된다', () => {
@@ -93,5 +135,27 @@ describe('MoleGameManager', () => {
     expect(game.getState()).toBe(GameState.Idle)
     expect(game.getScore()).toBe(0)
     expect(game.getRemainingSeconds()).toBe(60)
+  })
+
+  it('Playing 중 reset하면 스포너와 타이머가 모두 멈춘다', () => {
+    game.start()
+    vi.advanceTimersByTime(500)
+    game.reset()
+
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('reset 후 다시 start하면 스포너가 새로 시작한 시점부터 1초 간격으로 동작한다', () => {
+    game.start()
+    vi.advanceTimersByTime(500)
+    game.reset()
+    game.start()
+    onSpawn.mockClear()
+
+    vi.advanceTimersByTime(999)
+    expect(onSpawn).not.toHaveBeenCalled()
+
+    vi.advanceTimersByTime(1)
+    expect(onSpawn).toHaveBeenCalledTimes(1)
   })
 })

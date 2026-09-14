@@ -41,11 +41,13 @@ export class CartManager {
   /**
    * 상품을 담는다. 같은 `id`가 이미 있으면 덮어쓴다
    *
+   * 같은 `id`를 덮어쓰는 것은 개수가 늘지 않으므로 최대 개수에 도달해도 허용된다.
+   *
    * @param product - 담을 상품
-   * @throws 이미 최대 개수(3개)만큼 담겨 있는 경우
+   * @throws 이미 최대 개수(3개)만큼 담겨 있는데 새 `id`를 담으려는 경우
    */
   add(product: CartProduct) {
-    if (this.items.size >= this.MAX_COUNT) {
+    if (!this.items.has(product.id) && this.items.size >= this.MAX_COUNT) {
       throw new Error('장바구니가 가득 찼습니다.')
     }
 
