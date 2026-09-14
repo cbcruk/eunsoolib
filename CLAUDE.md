@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build**: `pnpm build` - Build publishable packages to `dist/` with tsdown (one process per package)
 - **Check Packages**: `pnpm check:packages [name...]` - `pnpm pack` each built package and lint the tarball (metadata, d.ts, publint, attw)
 - **Check README**: `pnpm check:readme` - Validate package READMEs against the template
+- **Changeset**: `pnpm changeset` - Record a release note and version bump for changed packages
 
 ## Architecture Overview
 
@@ -63,6 +64,14 @@ Packages are published to npm under `@cbcruk/*`, except `lab` packages which are
 - **Dependencies**: anything imported from `node_modules` must be declared in `dependencies`/`peerDependencies`; the build fails otherwise (`deps.onlyBundle: []`). Workspace dependencies use `workspace:*`.
 - **Required metadata** (checked by `pnpm check:packages`): `license: MIT`, `repository.directory: packages/<name>`, `homepage: https://cbcruk.github.io/eunsoolib/docs/<category>/<name>/`, `files: ["dist"]`, `publishConfig.access: public`
 - **No `sideEffects: false`**: some packages register dayjs plugins at module load
+
+### Release
+
+Versions and CHANGELOGs are managed with changesets (`.changeset/`), published by `.github/workflows/release.yml`.
+
+- Add a changeset (`pnpm changeset`) only for user-facing package changes; tests/docs/build-only PRs don't need one. In `0.x`, breaking changes bump `minor`.
+- On `main`, the Release workflow either opens/updates the "Version Packages" PR (changesets present) or packs and publishes unpublished versions via npm Trusted Publishing (OIDC, `npm` environment).
+- npm only allows registering a trusted publisher for packages that already exist. A brand-new package must be published once locally (`pnpm build && pnpm check:packages && pnpm changeset publish`, then `git push --follow-tags`) and registered with `./scripts/setup-npm-trust.sh <folder>` before CI can publish it.
 
 ### Notable Packages
 

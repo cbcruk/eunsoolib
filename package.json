@@ -12,6 +12,7 @@
     "build-storybook": "storybook build",
     "build": "pnpm -r --filter \"./packages/*\" --workspace-concurrency 4 build",
     "check:packages": "node scripts/check-packages.mjs",
+    "changeset": "changeset",
     "docs:dev": "pnpm --filter @cbcruk/docs dev",
     "docs:build": "pnpm --filter @cbcruk/docs build",
     "create-package": "./scripts/create-package.sh",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@changesets/cli": "^3.0.2",
     "@chromatic-com/storybook": "^4.1.3",
     "@storybook/addon-a11y": "^10.0.8",
     "@storybook/addon-docs": "^10.0.8",
