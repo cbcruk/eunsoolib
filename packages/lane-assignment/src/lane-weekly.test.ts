@@ -122,3 +122,82 @@ describe('groupEventsByDateWeekly', () => {
     expect(lane0).toBeLessThanOrEqual(lane1)
   })
 })
+
+describe('주 경계 계산', () => {
+  it('월요일 시작 주로도 예외 없이 레인을 할당해야 함', () => {
+    const result = assignLanesWeekly(
+      [
+        { start: '2025-01-06', end: '2025-01-08' },
+        { start: '2025-01-07', end: '2025-01-09' },
+      ],
+      'Monday',
+    )
+
+    expect(Array.from(result.weekLaneCounts)).toEqual([['2025-W02', 2]])
+  })
+
+  it('월요일 시작 주는 연도가 바뀌어도 ISO 주차 하나로 묶여야 함', () => {
+    const result = assignLanesWeekly(
+      [{ start: '2024-12-30', end: '2025-01-05' }],
+      'Monday',
+    )
+
+    expect(Array.from(result.events[0].weeklyLanes.keys())).toEqual([
+      '2025-W01',
+    ])
+  })
+
+  it('일요일 시작 주는 일요일부터 새 주로 나뉘어야 함', () => {
+    // 2022-03-05는 토요일, 2022-03-06은 일요일
+    const result = assignLanesWeekly(
+      [{ start: '2022-03-05', end: '2022-03-07' }],
+      'Sunday',
+    )
+
+    expect(Array.from(result.events[0].weeklyLanes.keys())).toEqual([
+      '2022-W09',
+      '2022-W10',
+    ])
+  })
+
+  it('일요일 시작 주가 연도를 넘으면 하나의 키로 묶여야 함', () => {
+    // 2024-12-29(일) ~ 2025-01-04(토)는 같은 주
+    const result = assignLanesWeekly(
+      [{ start: '2024-12-29', end: '2025-01-04' }],
+      'Sunday',
+    )
+
+    expect(Array.from(result.events[0].weeklyLanes.keys())).toEqual([
+      '2025-W01',
+    ])
+  })
+
+  it('다른 주에 있는 이벤트는 각자 0번 레인을 받아야 함', () => {
+    const result = assignLanesWeekly(
+      [
+        { start: '2022-03-05', end: '2022-03-05' },
+        { start: '2022-03-06', end: '2022-03-06' },
+      ],
+      'Sunday',
+    )
+
+    expect(Array.from(result.weekLaneCounts)).toEqual([
+      ['2022-W09', 1],
+      ['2022-W10', 1],
+    ])
+  })
+
+  it('getLaneForDate가 할당 때와 같은 주 키를 써야 함', () => {
+    const result = assignLanesWeekly(
+      [
+        { start: '2025-01-06', end: '2025-01-08' },
+        { start: '2025-01-07', end: '2025-01-09' },
+      ],
+      'Monday',
+    )
+
+    expect(
+      getLaneForDate(result.events[1], dayjs('2025-01-09'), 'Monday'),
+    ).toBe(1)
+  })
+})

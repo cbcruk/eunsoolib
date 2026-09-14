@@ -29,18 +29,30 @@ export interface WeeklyLaneAssignmentResult {
 /** 주 시작 요일 */
 export type WeekStartsOn = 'Monday' | 'Sunday'
 
-/** 주 식별자 생성 (YYYY-Ww 형식) */
-function getWeekKey(date: dayjs.Dayjs, weekStartsOn: WeekStartsOn): string {
-  if (weekStartsOn === 'Monday') {
-    return `${date.isoWeekYear()}-W${String(date.isoWeek()).padStart(2, '0')}`
-  } else {
-    const year = date.year()
-    const week = date.isoWeek()
-    return `${year}-W${String(week).padStart(2, '0')}`
-  }
+/** `date`가 속한 주의 시작일(00:00). dayjs 로케일과 무관하게 계산한다. */
+function getWeekStart(
+  date: dayjs.Dayjs,
+  weekStartsOn: WeekStartsOn,
+): dayjs.Dayjs {
+  const day = date.startOf('day')
+  return weekStartsOn === 'Monday'
+    ? day.startOf('isoWeek')
+    : day.subtract(day.day(), 'day')
 }
 
-/** 주의 시작일과 종료일 계산 */
+/**
+ * 주 식별자 생성 (`YYYY-Www` 형식).
+ *
+ * 월요일 시작 주는 ISO 주차(`isoWeekYear`-`isoWeek`) 그대로이고, 일요일 시작 주는
+ * 그 주의 월요일이 속한 ISO 주차로 표기한다. 따라서 연말·연초에도 한 주가 하나의 키를 가진다.
+ */
+function getWeekKey(date: dayjs.Dayjs, weekStartsOn: WeekStartsOn): string {
+  const start = getWeekStart(date, weekStartsOn)
+  const monday = weekStartsOn === 'Monday' ? start : start.add(1, 'day')
+  return `${monday.isoWeekYear()}-W${String(monday.isoWeek()).padStart(2, '0')}`
+}
+
+/** 주 식별자에서 그 주의 시작일(00:00)과 종료일(23:59:59.999) 계산 */
 function getWeekRange(
   weekKey: string,
   weekStartsOn: WeekStartsOn,
@@ -49,15 +61,15 @@ function getWeekRange(
   const year = parseInt(yearStr, 10)
   const week = parseInt(weekStr, 10)
 
-  if (weekStartsOn === 'Monday') {
-    const start = dayjs().isoWeekYear(year).isoWeek(week).startOf('isoWeek')
-    const end = start.endOf('isoWeek')
-    return { start, end }
-  } else {
-    const start = dayjs().year(year).isoWeek(week).startOf('week')
-    const end = start.endOf('week')
-    return { start, end }
-  }
+  // 1월 4일이 속한 주가 ISO 1주차다.
+  const isoMonday = dayjs(new Date(year, 0, 4))
+    .startOf('isoWeek')
+    .add(week - 1, 'week')
+  const start =
+    weekStartsOn === 'Monday' ? isoMonday : isoMonday.subtract(1, 'day')
+  const end = start.add(6, 'day').endOf('day')
+
+  return { start, end }
 }
 
 /**
@@ -89,10 +101,10 @@ export function assignLanesWeekly(
     const start = dayjs(event.start)
     const end = event.end ? dayjs(event.end) : start
 
-    let current = start
+    let current = getWeekStart(start, weekStartsOn)
     while (current.isSameOrBefore(end, 'day')) {
       allWeeks.add(getWeekKey(current, weekStartsOn))
-      current = current.add(1, 'week').startOf('week')
+      current = current.add(1, 'week')
     }
   })
 

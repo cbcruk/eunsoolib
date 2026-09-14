@@ -1,5 +1,4 @@
 import type { DBSCRegistrationConfig } from './types'
-import { WebIdentityError } from './types'
 
 /**
  * Device Bound Session Credentials (DBSC) utilities.

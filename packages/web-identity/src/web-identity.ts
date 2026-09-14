@@ -2,7 +2,6 @@ import { CredentialManager } from './credential-manager'
 import { Passkeys } from './passkeys'
 import { FedCM } from './fedcm'
 import { DigitalCredentials } from './digital-credentials'
-import { DBSC } from './dbsc'
 import type {
   FeatureSupport,
   UnifiedCredentialRequestOptions,

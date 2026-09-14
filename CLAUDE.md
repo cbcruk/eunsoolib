@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Test**: `pnpm test` - Run all tests with Vitest
 - **Test UI**: `pnpm test:ui` - Run tests with Vitest UI interface
 - **Test Run**: `pnpm test:run` - Run tests once without watch mode
+- **Typecheck**: `pnpm typecheck` - `tsc --noEmit` over `packages/` (must stay at 0 errors; runs in CI). `apps/docs` is type-checked by `next build`
 - **Build**: `pnpm build` - Build publishable packages to `dist/` with tsdown (one process per package)
 - **Check Packages**: `pnpm check:packages [name...]` - `pnpm pack` each built package and lint the tarball (metadata, d.ts, publint, attw)
 - **Check README**: `pnpm check:readme` - Validate package READMEs against the template
