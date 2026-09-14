@@ -41,25 +41,42 @@ function Sentinel({ onIntersect }: { onIntersect: () => void }) {
 }
 ```
 
-`onIntersect`가 effect 의존성에 들어가므로 `useCallback` 등으로 참조를 고정하세요.
-렌더링마다 새 함수를 넘기면 옵저버가 매번 다시 만들어지고, 대상이 계속 보이는 동안
-콜백이 반복 호출될 수 있습니다.
+`onIntersect`는 최신 참조를 내부 ref에 보관하므로 인라인 함수를 넘겨도 옵저버가 다시
+만들어지지 않습니다. 옵저버는 `enabled`, `threshold`, `root`, `rootMargin`이 바뀔 때만
+다시 만들어집니다.
+
+`<div>`가 아닌 엘리먼트를 관찰하려면 타입 인자를 넘깁니다.
+
+```tsx
+const { ref } = useIntersectionObserver<HTMLLIElement>({ onIntersect })
+
+return <li ref={ref} />
+```
 
 ## API
 
-### `useIntersectionObserver(options)`
+### `useIntersectionObserver<T extends Element = HTMLDivElement>(options)`
 
-`{ ref }`를 반환합니다. `ref`(`RefObject<HTMLDivElement | null>`)를 대상 `<div>`에
-연결하면, 대상이 교차 상태가 될 때마다 `onIntersect`를 호출합니다. 벗어났다가 다시
-들어오면 다시 호출됩니다.
+`{ ref }`를 반환합니다. `ref`(`RefObject<T | null>`)를 대상 엘리먼트에 연결하면, 대상이
+교차 상태가 될 때마다 `onIntersect`를 호출합니다. 벗어났다가 다시 들어오면 다시 호출됩니다.
 
-| Option        | Type         | Default | Description                          |
-| ------------- | ------------ | ------- | ------------------------------------ |
-| `onIntersect` | `() => void` | —       | 교차 상태가 됐을 때 호출             |
-| `enabled`     | `boolean`    | `true`  | `false`면 관찰하지 않음              |
-| `threshold`   | `number`     | `0.1`   | `IntersectionObserver`의 `threshold` |
+| Option        | Type                          | Default | Description                                |
+| ------------- | ----------------------------- | ------- | ------------------------------------------ |
+| `onIntersect` | `() => void`                  | —       | 교차 상태가 됐을 때 호출 (항상 최신 함수)  |
+| `enabled`     | `boolean`                     | `true`  | `false`면 관찰하지 않음                    |
+| `threshold`   | `number`                      | `0.1`   | `IntersectionObserver`의 `threshold`       |
+| `root`        | `Element \| Document \| null` | `null`  | 교차 판정 기준 엘리먼트. `null`이면 뷰포트 |
+| `rootMargin`  | `string`                      | `'0px'` | 기준 영역의 여백 (CSS `margin` 문법)       |
 
 ### `<InView />`
 
 위 훅의 옵션에 `children: ReactNode`(필수)를 더하고, `<div>`의 나머지 props를 받습니다.
-`root`, `rootMargin`은 지원하지 않으며 항상 뷰포트 기준으로 관찰합니다.
+`ref`를 넘기면 관찰 대상 `<div>`에 함께 연결됩니다(객체 ref, 콜백 ref 모두 지원).
+
+## 제약
+
+- `InView`는 항상 `<div>`를 렌더링합니다. 다른 엘리먼트가 필요하면 훅을 직접 사용하세요.
+- 훅의 `ref`는 객체 ref라서, 마운트 이후 대상 엘리먼트 자체가 다른 노드로 바뀌면 옵션이
+  바뀔 때까지 새 노드를 관찰하지 않습니다.
+- `root`에 엘리먼트를 넘길 때는 렌더링 시점에 실제 엘리먼트가 있어야 합니다(state에 담은
+  노드 등). 렌더 중 `ref.current`는 첫 렌더에 `null`입니다.

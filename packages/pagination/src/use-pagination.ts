@@ -2,12 +2,33 @@ import { useCallback, useMemo, useState } from 'react'
 import { getPaginationRange } from './pagination.utils'
 import type { PaginationInstance, UsePaginationOptions } from './types'
 
+const clamp = (page: number, totalPages: number) =>
+  Math.max(1, Math.min(page, totalPages))
+
 /**
  * Instance Hook Pattern으로 동작하는 pagination 훅.
  *
  * 하나의 인스턴스를 여러 UI(테이블 위/아래 등)가 props로 공유하면 Provider
  * 없이도 상태가 동기화된다. 기존 인스턴스를 `pagination`으로 주입하면 그대로
  * 반환한다.
+ *
+ * 반환하는 `page`는 렌더링마다 `1`~`totalPages`로 clamp한다. 서버 응답을 기다리는 동안
+ * `total`이 잠시 `0`이 되어도 기억한 페이지를 잃지 않도록 내부 상태는 바꾸지 않는다.
+ * `onChange`는 페이지가 실제로 바뀔 때만 호출한다.
+ *
+ * @example
+ * ```tsx
+ * import { Pagination, usePagination } from '@cbcruk/pagination'
+ *
+ * function List({ total }: { total: number }) {
+ *   const pagination = usePagination({
+ *     total,
+ *     initialPageSize: 20,
+ *     onChange: (page) => console.log(page),
+ *   })
+ *   return <Pagination pagination={pagination} showInfo />
+ * }
+ * ```
  */
 export function usePagination({
   total = 0,
@@ -18,21 +39,23 @@ export function usePagination({
   onChange,
   pagination,
 }: UsePaginationOptions = {}): PaginationInstance {
-  const [page, setPage] = useState(initialPage)
+  const [pageState, setPage] = useState(initialPage)
   const [pageSize, setPageSizeState] = useState(initialPageSize)
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const page = clamp(pageState, totalPages)
 
   const goTo = useCallback(
     (p: number) => {
-      const clamped = Math.max(
-        1,
-        Math.min(p, Math.max(1, Math.ceil(total / pageSize))),
-      )
+      const clamped = clamp(p, totalPages)
+
       setPage(clamped)
-      onChange?.(clamped)
+
+      if (clamped !== page) {
+        onChange?.(clamped)
+      }
     },
-    [total, pageSize, onChange],
+    [totalPages, page, onChange],
   )
 
   const next = useCallback(() => goTo(page + 1), [goTo, page])
@@ -42,9 +65,12 @@ export function usePagination({
     (size: number) => {
       setPageSizeState(size)
       setPage(1)
-      onChange?.(1)
+
+      if (page !== 1) {
+        onChange?.(1)
+      }
     },
-    [onChange],
+    [page, onChange],
   )
 
   return useMemo<PaginationInstance>(() => {

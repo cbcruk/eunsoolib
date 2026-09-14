@@ -130,6 +130,84 @@ describe('usePagination', () => {
     act(() => result.current.goTo(3))
     expect(onChange).toHaveBeenCalledWith(3)
   })
+
+  it('페이지가 바뀌지 않으면 onChange를 호출하지 않아야 함', () => {
+    const onChange = vi.fn()
+    const { result } = renderHook(() => usePagination({ total: 95, onChange }))
+
+    act(() => result.current.prev())
+    act(() => result.current.goTo(1))
+    act(() => result.current.setPageSize(20))
+    expect(onChange).not.toHaveBeenCalled()
+
+    act(() => result.current.goTo(5))
+    act(() => result.current.next())
+    act(() => result.current.goTo(999))
+    expect(onChange.mock.calls).toEqual([[5]])
+  })
+
+  it('setPageSize는 첫 페이지가 아닐 때만 onChange(1)을 호출해야 함', () => {
+    const onChange = vi.fn()
+    const { result } = renderHook(() =>
+      usePagination({ total: 95, initialPage: 3, onChange }),
+    )
+
+    act(() => result.current.setPageSize(20))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(1)
+  })
+
+  it('total이 줄면 page를 totalPages 안으로 보정해야 함', () => {
+    const { result, rerender } = renderHook(
+      ({ total }) => usePagination({ total, initialPageSize: 10 }),
+      { initialProps: { total: 95 } },
+    )
+
+    act(() => result.current.goTo(5))
+    rerender({ total: 8 })
+
+    expect(result.current.page).toBe(1)
+    expect(result.current.totalPages).toBe(1)
+    expect(result.current.range).toEqual({ start: 1, end: 8 })
+    expect(result.current.isLast).toBe(true)
+    expect(result.current.items).toEqual([1])
+  })
+
+  it('보정된 page에서 prev/next가 보정된 값을 기준으로 동작해야 함', () => {
+    const { result, rerender } = renderHook(
+      ({ total }) => usePagination({ total, initialPageSize: 10 }),
+      { initialProps: { total: 95 } },
+    )
+
+    act(() => result.current.goTo(9))
+    rerender({ total: 30 })
+    expect(result.current.page).toBe(3)
+
+    act(() => result.current.prev())
+    expect(result.current.page).toBe(2)
+  })
+
+  it('total이 잠시 0이 되었다가 돌아오면 기억한 page를 유지해야 함', () => {
+    const { result, rerender } = renderHook(
+      ({ total }) => usePagination({ total, initialPageSize: 10 }),
+      { initialProps: { total: 95 } },
+    )
+
+    act(() => result.current.goTo(5))
+    rerender({ total: 0 })
+    expect(result.current.page).toBe(1)
+
+    rerender({ total: 95 })
+    expect(result.current.page).toBe(5)
+  })
+
+  it('범위를 벗어난 initialPage도 clamp해야 함', () => {
+    const { result } = renderHook(() =>
+      usePagination({ total: 30, initialPage: 7 }),
+    )
+
+    expect(result.current.page).toBe(3)
+    expect(result.current.isLast).toBe(true)
+  })
 })
 
 describe('Pagination 컴포넌트', () => {
@@ -167,5 +245,29 @@ describe('Pagination 컴포넌트', () => {
   it('showInfo가 켜지면 항목 범위를 표시해야 함', () => {
     render(<Harness />)
     expect(screen.getByText(/1–10/)).toBeInTheDocument()
+  })
+
+  it('pagination 없이 total을 넘기면 자체 인스턴스로 여러 페이지를 표시해야 함', () => {
+    const onChange = vi.fn()
+
+    render(
+      <Pagination
+        total={95}
+        initialPageSize={10}
+        onChange={onChange}
+        showInfo
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: '10' })).toBeInTheDocument()
+    expect(screen.getByText(/95/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByLabelText('다음 페이지'))
+
+    expect(screen.getByRole('button', { name: '2' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(onChange).toHaveBeenCalledWith(2)
   })
 })

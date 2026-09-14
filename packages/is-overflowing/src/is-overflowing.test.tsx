@@ -1,13 +1,36 @@
 import { render, screen, act } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
+import { useState } from 'react'
 import { useOverflowDetection } from './is-overflowing'
 import { OverflowDemo } from './overflow-demo'
 
-const mockUseSize = vi.hoisted(() => vi.fn())
+class MockResizeObserver {
+  static instances: MockResizeObserver[] = []
 
-vi.mock('ahooks', () => ({
-  useSize: mockUseSize,
-}))
+  readonly callback: ResizeObserverCallback
+  targets: Element[] = []
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback
+    MockResizeObserver.instances.push(this)
+  }
+
+  observe(target: Element) {
+    this.targets.push(target)
+  }
+
+  unobserve() {}
+
+  disconnect() {
+    this.targets = []
+  }
+
+  trigger() {
+    act(() => {
+      this.callback([], this as unknown as ResizeObserver)
+    })
+  }
+}
 
 function createPropertyManager() {
   const originalProps: Record<string, PropertyDescriptor | undefined> = {}
@@ -55,13 +78,12 @@ describe('useOverflowDetection 훅', () => {
   ]
 
   beforeEach(async () => {
-    mockUseSize.mockImplementation(() => ({ width: 100, height: 20 }))
+    MockResizeObserver.instances = []
     propertyManager.saveAll(properties)
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
-
+    vi.unstubAllGlobals()
     propertyManager.restoreAll(properties)
   })
 
@@ -71,6 +93,114 @@ describe('useOverflowDetection 훅', () => {
     expect(result.current.hasHorizontalOverflow).toBe(false)
     expect(result.current.hasVerticalOverflow).toBe(false)
     expect(result.current.ref.current).toBeNull()
+  })
+
+  function Truncated({ text = '짧은 텍스트' }: { text?: string }) {
+    const { ref, hasHorizontalOverflow, hasVerticalOverflow } =
+      useOverflowDetection()
+
+    return (
+      <div>
+        <div ref={ref} data-testid="target">
+          <span data-testid="content">{text}</span>
+        </div>
+        <output data-testid="result">
+          {`${hasHorizontalOverflow}/${hasVerticalOverflow}`}
+        </output>
+      </div>
+    )
+  }
+
+  function mockSizes(sizes: {
+    scrollWidth: number
+    clientWidth: number
+    scrollHeight?: number
+    clientHeight?: number
+  }) {
+    const { scrollHeight = 0, clientHeight = 0 } = sizes
+
+    propertyManager.mockProperty('scrollWidth', () => sizes.scrollWidth)
+    propertyManager.mockProperty('clientWidth', () => sizes.clientWidth)
+    propertyManager.mockProperty('scrollHeight', () => scrollHeight)
+    propertyManager.mockProperty('clientHeight', () => clientHeight)
+  }
+
+  it('추가 리렌더 없이 첫 커밋 직후 오버플로우를 반영해야 함', () => {
+    mockSizes({
+      scrollWidth: 200,
+      clientWidth: 100,
+      scrollHeight: 80,
+      clientHeight: 40,
+    })
+
+    render(<Truncated />)
+
+    expect(screen.getByTestId('result')).toHaveTextContent('true/true')
+  })
+
+  it('엘리먼트 크기는 그대로이고 내용만 바뀌어도 값을 갱신해야 함', async () => {
+    const sizes = { scrollWidth: 80, clientWidth: 100 }
+
+    mockSizes(sizes)
+    render(<Truncated />)
+
+    expect(screen.getByTestId('result')).toHaveTextContent('false/false')
+
+    sizes.scrollWidth = 300
+    await act(async () => {
+      screen.getByTestId('content').textContent = '아주 길어진 텍스트'
+    })
+
+    expect(screen.getByTestId('result')).toHaveTextContent('true/false')
+  })
+
+  it('ResizeObserver로 대상과 자식의 크기 변화를 감지해야 함', () => {
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+
+    const sizes = { scrollWidth: 200, clientWidth: 100 }
+
+    mockSizes(sizes)
+    render(<Truncated />)
+
+    const observer = MockResizeObserver.instances[0]
+
+    expect(observer.targets).toEqual([
+      screen.getByTestId('target'),
+      screen.getByTestId('content'),
+    ])
+    expect(screen.getByTestId('result')).toHaveTextContent('true/false')
+
+    sizes.clientWidth = 400
+    observer.trigger()
+
+    expect(screen.getByTestId('result')).toHaveTextContent('false/false')
+  })
+
+  it('나중에 연결된 엘리먼트도 측정해야 함', () => {
+    mockSizes({ scrollWidth: 200, clientWidth: 100 })
+
+    function Delayed() {
+      const [visible, setVisible] = useState(false)
+      const { ref, hasHorizontalOverflow } = useOverflowDetection()
+
+      return (
+        <div>
+          <button onClick={() => setVisible(true)}>보이기</button>
+          {visible && <div ref={ref} />}
+          <output data-testid="result">{String(hasHorizontalOverflow)}</output>
+        </div>
+      )
+    }
+
+    render(<Delayed />)
+
+    expect(screen.getByTestId('result')).toHaveTextContent('false')
+
+    act(() => {
+      screen.getByText('보이기').click()
+    })
+
+    expect(screen.getByTestId('result')).toHaveTextContent('true')
   })
 })
 
@@ -84,12 +214,10 @@ describe('OverflowDemo 컴포넌트', () => {
   ]
 
   beforeEach(async () => {
-    mockUseSize.mockImplementation(() => ({ width: 100, height: 20 }))
     propertyManager.saveAll(properties)
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
     propertyManager.restoreAll(properties)
   })
 
