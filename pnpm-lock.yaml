@@ -145,17 +145,11 @@ importers:
 
   packages/cors-image-proxy: {}
 
-  packages/date-navigator:
+  packages/dayjs-utils:
     dependencies:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
-
-  packages/dexie:
-    dependencies:
-      dexie:
-        specifier: ^4.0.11
-        version: 4.0.11
 
   packages/download-image:
     dependencies:
@@ -177,8 +171,6 @@ importers:
 
   packages/fast-draw-image: {}
 
-  packages/format-time-from-seconds: {}
-
   packages/get-file-type-from-buffer:
     dependencies:
       effect:
@@ -187,8 +179,6 @@ importers:
       file-type:
         specifier: ^20.5.0
         version: 20.5.0
-
-  packages/get-random-number: {}
 
   packages/heif:
     dependencies:
@@ -203,12 +193,6 @@ importers:
         version: 19.1.1
 
   packages/image-first-frame: {}
-
-  packages/image-size:
-    dependencies:
-      image-size:
-        specifier: ^2.0.2
-        version: 2.0.2
 
   packages/in-view:
     dependencies:
@@ -257,8 +241,6 @@ importers:
         specifier: ^19.1.1
         version: 19.1.1
 
-  packages/parse-phone-number: {}
-
   packages/query-view:
     dependencies:
       react:
@@ -297,23 +279,11 @@ importers:
         specifier: ^5.19.3
         version: 5.19.3
 
-  packages/stacked: {}
+  packages/stacked-pr: {}
 
   packages/sudoku: {}
 
   packages/sync-store:
-    dependencies:
-      react:
-        specifier: ^19.1.1
-        version: 19.1.1
-
-  packages/time-range:
-    dependencies:
-      dayjs:
-        specifier: ^1.11.13
-        version: 1.11.13
-
-  packages/use-highlight-search:
     dependencies:
       react:
         specifier: ^19.1.1
@@ -331,7 +301,7 @@ importers:
         specifier: ^3.24.3
         version: 3.25.76
 
-  packages/vite-server-proxy: {}
+  packages/utils: {}
 
   packages/vtt-to-json: {}
 
@@ -1774,9 +1744,6 @@ packages:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
     engines: {node: '>=8'}
 
-  dexie@4.0.11:
-    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
-
   doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
@@ -1963,11 +1930,6 @@ packages:
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
-
-  image-size@2.0.2:
-    resolution: {integrity: sha512-IRqXKlaXwgSMAMtpNzZa1ZAe8m+Sa1770Dhk8VkSsP9LS+iHD62Zd8FQKs8fbPiagBE7BzoFX23cxFnwshpV6w==}
-    engines: {node: '>=16.x'}
-    hasBin: true
 
   indent-string@4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
@@ -4220,8 +4182,6 @@ snapshots:
 
   detect-libc@2.0.4: {}
 
-  dexie@4.0.11: {}
-
   doctrine@3.0.0:
     dependencies:
       esutils: 2.0.3
@@ -4409,8 +4369,6 @@ snapshots:
       safer-buffer: 2.1.2
 
   ieee754@1.2.1: {}
-
-  image-size@2.0.2: {}
 
   indent-string@4.0.0: {}
 

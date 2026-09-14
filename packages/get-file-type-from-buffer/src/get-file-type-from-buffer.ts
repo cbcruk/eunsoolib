@@ -1,7 +1,7 @@
 import { Data, Effect, Option } from 'effect'
 import { fileTypeFromBuffer } from 'file-type'
 
-type GetfileTypeFromBufferParam = Buffer
+type GetFileTypeFromBufferParam = Buffer
 
 /**
  * 파일 형식 판별에 실패했을 때 발생하는 태그드 에러
@@ -27,11 +27,11 @@ export class FileTypeFromBufferError extends Data.TaggedError(
  * 담은 Effect
  * @example
  * ```ts
- * const program = getfileTypeFromBuffer(buffer)
+ * const program = getFileTypeFromBuffer(buffer)
  * const { ext, mime } = await Effect.runPromise(program)
  * ```
  */
-export const getfileTypeFromBuffer = (buffer: GetfileTypeFromBufferParam) =>
+export const getFileTypeFromBuffer = (buffer: GetFileTypeFromBufferParam) =>
   Effect.gen(function* () {
     const fileType = yield* Effect.tryPromise({
       try: () => fileTypeFromBuffer(buffer),
@@ -54,3 +54,6 @@ export const getfileTypeFromBuffer = (buffer: GetfileTypeFromBufferParam) =>
       }),
     )
   })
+
+/** @deprecated 오타가 있는 이전 이름. {@link getFileTypeFromBuffer}를 사용 */
+export const getfileTypeFromBuffer = getFileTypeFromBuffer

@@ -150,12 +150,8 @@ if (r.ok) {
 
 ## 데모
 
-`demo()` 함수가 gh-stack 개요 페이지의 예제 흐름을 그대로 보여줍니다.
+[`src/stack.example.ts`](src/stack.example.ts)의 `demo()` 함수가 gh-stack 개요 페이지의 예제 흐름을 그대로 보여줍니다. 공개 API에는 포함되지 않습니다.
 
-```typescript
-import { demo } from '@eunsoolib/stacked-pr'
-
-demo()
+```bash
+npx tsx -e "import('./packages/stacked-pr/src/stack.example.ts').then((m) => m.demo())"
 ```
-
-실행은 `index.ts` 마지막 줄의 `demo()` 주석을 풀고 `npx tsx index.ts` 또는 `bun index.ts`로 가능합니다.
