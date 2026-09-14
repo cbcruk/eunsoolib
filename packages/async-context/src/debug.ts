@@ -1,7 +1,10 @@
 import type { AsyncContext } from './types'
 
+/** {@linkcode debugContexts}가 컨텍스트마다 돌려주는 상태. */
 export interface ContextDebugInfo {
+  /** {@linkcode AsyncContext.isActive}의 결과. */
   active: boolean
+  /** {@linkcode AsyncContext.getOptional}의 결과. 비활성이면 `undefined`. */
   value: unknown
 }
 
@@ -10,6 +13,8 @@ export interface ContextDebugInfo {
  *
  * @example
  * ```ts
+ * import { debugContexts } from "@cbcruk/async-context";
+ *
  * const status = debugContexts({ user: userContext, request: requestContext });
  * // { user: { active: true, value: {...} }, request: { active: false, value: undefined } }
  * ```

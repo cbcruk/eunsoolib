@@ -15,7 +15,7 @@ import type { QueryLike, QueryState } from './types'
  * - `status: 'error'`는 `data`의 유무로 `failed`와 `degraded`로 갈린다.
  *   Query가 실패해도 같은 `queryKey`의 이전 data를 유지하기 때문이다.
  *
- * @param query `useQuery` / `useSuspenseQuery` 결과, 또는 같은 형태의 plain object.
+ * @param query - `useQuery` / `useSuspenseQuery` 결과, 또는 같은 형태의 plain object.
  * @returns 교체 층(`idle` / `loading` / `failed`) 또는 중첩 층(`ready` / `degraded`) 상태.
  *
  * @example 상태 분류

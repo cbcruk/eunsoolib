@@ -57,9 +57,13 @@ export function generateToc(options: TocOptions = {}): HTMLElement {
   return nav
 }
 
+/** Options for {@link generateStyles}. */
 export interface GenerateStylesOptions {
+  /** Class applied to the active link. @default 'active' */
   activeClass?: string
+  /** CSS color value for the active link. @default 'var(--scroll-spy-active-color, #3b82f6)' */
   activeColor?: string
+  /** CSS duration for the link color transition. @default '0.2s' */
   transitionDuration?: string
 }
 

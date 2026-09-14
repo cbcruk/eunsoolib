@@ -1,13 +1,35 @@
 type Resolver = () => void
 
+/** {@link RWLock} 생성 옵션. */
 export interface RWLockOptions {
   /**
    * 'write' (default): write-preferring. writer 대기 중이면 새 reader 차단.
    * 'read': read-preferring. writer가 active일 때만 reader 차단 (max concurrency).
+   *
+   * @default 'write'
    */
   preference?: 'read' | 'write'
 }
 
+/**
+ * Promise 기반 readers-writer lock.
+ *
+ * 여러 reader는 동시에 lock을 hold 할 수 있고, writer는 단독으로만 hold 한다.
+ * 대기 중인 acquirer는 FIFO 큐로 관리되며, 둘 중 누구를 먼저 깨울지는
+ * {@link RWLockOptions.preference}로 정한다.
+ *
+ * @example
+ * ```ts
+ * import { RWLock } from '@cbcruk/rw-lock'
+ *
+ * const lock = new RWLock()
+ *
+ * const value = await lock.withRead(() => cache.get('key'))
+ * await lock.withWrite(async () => {
+ *   cache.set('key', await fetchValue())
+ * })
+ * ```
+ */
 export class RWLock {
   private readersActive = 0
   private writersWaiting = 0
@@ -20,6 +42,9 @@ export class RWLock {
 
   private readonly preference: 'read' | 'write'
 
+  /**
+   * @param options - 스케줄링 우선순위 옵션
+   */
   constructor(options: RWLockOptions = {}) {
     this.preference = options.preference ?? 'write'
   }
@@ -141,7 +166,7 @@ export class RWLock {
   /**
    * read lock 안에서 `fn`을 실행하고, 완료/예외와 무관하게 lock을 반환합니다.
    *
-   * @param fn lock을 hold한 채 실행할 콜백 (동기/비동기 모두 허용)
+   * @param fn - lock을 hold한 채 실행할 콜백 (동기/비동기 모두 허용)
    * @returns `fn`의 반환값으로 resolve 되는 Promise
    */
   async withRead<T>(fn: () => T | Promise<T>): Promise<T> {
@@ -156,7 +181,7 @@ export class RWLock {
   /**
    * write lock 안에서 `fn`을 실행하고, 완료/예외와 무관하게 lock을 반환합니다.
    *
-   * @param fn lock을 단독 hold한 채 실행할 콜백 (동기/비동기 모두 허용)
+   * @param fn - lock을 단독 hold한 채 실행할 콜백 (동기/비동기 모두 허용)
    * @returns `fn`의 반환값으로 resolve 되는 Promise
    */
   async withWrite<T>(fn: () => T | Promise<T>): Promise<T> {

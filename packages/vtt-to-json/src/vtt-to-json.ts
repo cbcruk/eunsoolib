@@ -15,6 +15,8 @@ export type Cue = {
  *
  * @example
  * ```ts
+ * import { VttParser } from '@cbcruk/vtt-to-json'
+ *
  * const cues = new VttParser(vttText).toJson()
  * // [{ seconds: 1, timestamp: '00:00:01.000', text: '안녕하세요' }]
  * ```

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
 
+/** Options for {@link useActiveSection}. */
 export interface UseActiveSectionOptions {
   /** Sticky offset (px) used as the activation line. @default 0 */
   offset?: number
 }
 
+/** Value returned by {@link useActiveSection}. */
 export interface UseActiveSectionReturn {
   /** The currently stuck section, recomputed on `scrollend`. */
   activeSection: HTMLElement | null

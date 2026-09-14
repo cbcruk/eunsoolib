@@ -6,6 +6,8 @@ import { LocalStorageManager } from './local-storage-manager'
  * @template V - 값 타입
  * @example
  * ```ts
+ * import { LocalStorageMapManager } from '@cbcruk/local-storage-manager'
+ *
  * const store = new LocalStorageMapManager<string, { id: string; status: string }>('my-store')
  * store.set('key1', { id: 'key1', status: 'active' })
  * store.get('key1') // { id: 'key1', status: 'active' }
@@ -17,6 +19,11 @@ export class LocalStorageMapManager<K, V> {
   private map: Map<K, V>
   private storage: LocalStorageManager<[K, V][]>
 
+  /**
+   * 생성 시 `storageKey`에 저장된 엔트리 배열을 읽어 Map을 복원한다.
+   *
+   * @param storageKey - 엔트리 배열을 저장할 localStorage 키
+   */
   constructor(storageKey: string) {
     this.storage = new LocalStorageManager(storageKey)
     const stored = this.storage.load()

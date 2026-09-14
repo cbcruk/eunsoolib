@@ -17,6 +17,8 @@ type CartItems = Map<CartProductId, CartProduct>
  *
  * @example
  * ```ts
+ * import { CartManager } from '@cbcruk/shopping'
+ *
  * const cart = new CartManager()
  * cart.add({ id: 'p1' })
  * cart.getItems() // [{ id: 'p1' }]

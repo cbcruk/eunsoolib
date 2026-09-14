@@ -1,11 +1,12 @@
 import { useEffect, useRef, type RefObject } from 'react'
 
+/** Options for {@link useScrollEnd}. */
 export interface UseScrollEndOptions {
-  /** Scroll container to observe. Defaults to `'document'`. */
+  /** Scroll container to observe. @default 'document' */
   target?: RefObject<HTMLElement | null> | 'document'
   /** Called when the browser finishes a scroll on the target. */
   onScrollEnd: (event: Event) => void
-  /** Disable the subscription without unmounting. @default true */
+  /** Whether the subscription is active; set `false` to pause it without unmounting. @default true */
   enabled?: boolean
 }
 

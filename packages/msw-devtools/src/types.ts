@@ -1,13 +1,3 @@
-/**
- * 스토리지에 영속되는 상태의 정의.
- *
- * 이 파일에는 함수가 들어갈 수 없다. 설계의 전제 자체가 "상태는 직렬화 가능하고
- * 핸들러는 거기서 파생된다"이기 때문이다. 반대 방향은 없다 — resolver는
- * 클로저라 스토리지에 되쓸 수 없다.
- *
- * @module
- */
-
 /** 오버라이드를 걸 수 있는 HTTP 메서드. msw의 `http` 팩토리 키와 같다. */
 export type HttpMethodName =
   | 'get'
@@ -31,9 +21,13 @@ export type OverrideMode = 'json' | 'passthrough' | 'network-error'
 export interface Override {
   /** `${METHOD} ${path}` — {@linkcode EndpointInfo.id}와 같은 형태. */
   id: string
+  /** 대상 엔드포인트의 HTTP 메서드. */
   method: HttpMethodName
+  /** 대상 엔드포인트의 path. */
   path: string
+  /** 오버라이드를 실제로 적용할지 여부. */
   enabled: boolean
+  /** 요청을 처리하는 방식. */
   mode: OverrideMode
   /** `mode`가 `json`일 때만 쓴다. */
   status: number
@@ -50,22 +44,36 @@ export interface Override {
  * "빈 목록"처럼 함께 켜져야 의미가 있는 묶음이다.
  */
 export interface Scenario {
+  /** 시나리오 id. Draft 시나리오는 `'draft'`다. */
   id: string
+  /** 패널에 보이는 이름. */
   name: string
+  /** {@linkcode Override.id}를 키로 한 오버라이드 맵. */
   overrides: Record<string, Override>
 }
 
-/** 스토리지에 저장되는 최상위 상태. */
+/**
+ * 스토리지에 저장되는 최상위 상태.
+ *
+ * 상태는 직렬화 가능해야 하고 핸들러는 여기서 파생된다. 반대 방향은 없다 —
+ * resolver는 클로저라 스토리지에 되쓸 수 없다.
+ */
 export interface DevtoolsState {
+  /** 저장 형식 버전. 다르면 빈 상태로 시작한다. */
   version: 1
+  /** 저장된 시나리오 목록. Draft가 항상 포함된다. */
   scenarios: Scenario[]
+  /** 지금 편집·적용 중인 시나리오의 id. */
   activeId: string
 }
 
 /** 등록된 핸들러를 읽어 발견한 엔드포인트. */
 export interface EndpointInfo {
+  /** `${METHOD} ${path}` 형태의 식별자. 메서드는 대문자다. */
   id: string
+  /** 소문자 HTTP 메서드. */
   method: HttpMethodName
+  /** 핸들러에 등록된 문자열 path. */
   path: string
 }
 
@@ -86,6 +94,7 @@ export interface EndpointInfo {
  * `WebSocketHandler`처럼 `info`가 아예 없는 종류도 같은 배열에 섞여 오기 때문이다.
  */
 export interface HandlerLike {
+  /** 핸들러 메타데이터. HTTP 핸들러라면 `method`와 `path`를 담는다. */
   readonly info?: unknown
 }
 
@@ -95,7 +104,10 @@ export interface HandlerLike {
  * 덕분에 store와 controller가 UI 없는 node 테스트에서도 그대로 쓰인다.
  */
 export interface MswTarget {
+  /** 현재 등록된 핸들러 목록을 돌려준다. */
   listHandlers(): readonly unknown[]
+  /** 런타임 핸들러를 추가한다. setup 시점 핸들러보다 우선한다. */
   use(...handlers: unknown[]): void
+  /** 런타임 핸들러를 버린다. 인자를 넘기면 그 목록으로 초기 핸들러를 교체한다. */
   resetHandlers(...handlers: unknown[]): void
 }

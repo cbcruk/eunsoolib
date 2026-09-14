@@ -8,7 +8,7 @@ import type { Override } from './types'
  * 반대 방향은 없다 — resolver는 클로저라 스토리지에 되쓸 수 없다. 그래서 저장하는
  * 건 항상 오버라이드 데이터이고, 핸들러는 변경 때마다 새로 컴파일된다.
  *
- * @param override 컴파일할 오버라이드.
+ * @param override - 컴파일할 오버라이드.
  * @returns 핸들러. 꺼져 있거나 다룰 수 없는 메서드면 `null`.
  */
 export function compileOverride(override: Override): RequestHandler | null {
@@ -36,7 +36,7 @@ export function compileOverride(override: Override): RequestHandler | null {
  *
  * 꺼진 오버라이드는 핸들러를 만들지 않으므로 결과에서 빠진다.
  *
- * @param overrides {@linkcode Scenario.overrides}.
+ * @param overrides - {@linkcode Scenario.overrides}.
  * @returns `worker.use(...)`에 그대로 넘길 수 있는 핸들러 배열.
  *
  * @example 시나리오를 코드로 적용하기

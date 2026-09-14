@@ -38,6 +38,30 @@ interface ResetBoundaryProps {
   children: ReactNode
 }
 
+/**
+ * `deps`가 바뀔 때마다 경계 안의 모든 {@link Resettable} 상태를 초기값으로 되돌린다.
+ *
+ * `deps`는 길이가 달라지거나 원소 중 하나라도 `Object.is`로 다르면 변경으로
+ * 본다. 경계 자체는 remount되지 않으므로, 경계 안이라도 `Resettable` 밖에 있는
+ * 상태는 유지된다.
+ *
+ * @example
+ * ```tsx
+ * import { ResetBoundary, Resettable } from '@cbcruk/reset-boundary'
+ *
+ * function Form({ userId }: { userId: string }) {
+ *   return (
+ *     <ResetBoundary deps={[userId]}>
+ *       <Resettable initial="">
+ *         {(name, setName) => (
+ *           <input value={name} onChange={(e) => setName(e.target.value)} />
+ *         )}
+ *       </Resettable>
+ *     </ResetBoundary>
+ *   )
+ * }
+ * ```
+ */
 export function ResetBoundary({
   deps,
   children,
@@ -70,6 +94,15 @@ interface ResettableProps<T> {
   children: (state: T, setState: Dispatch<SetStateAction<T>>) => ReactNode
 }
 
+/**
+ * 가장 가까운 {@link ResetBoundary}가 리셋될 때 초기화되는 `useState`를 render prop으로 제공한다.
+ *
+ * `children`은 `(state, setState)`를 받아 렌더한다. 경계가 리셋되면 내부
+ * 컴포넌트가 remount되어 `initial`로 다시 초기화된다.
+ *
+ * @template T - 상태 값 타입
+ * @throws `ResetBoundary` 밖에서 렌더한 경우
+ */
 export function Resettable<T>({
   initial,
   children,

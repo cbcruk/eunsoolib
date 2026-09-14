@@ -13,6 +13,8 @@ interface InViewProps extends ComponentProps<'div'> {
  *
  * @example
  * ```tsx
+ * import { InView } from '@cbcruk/in-view'
+ *
  * <InView onIntersect={() => fetchNextPage()}>
  *   <p>로딩중...</p>
  * </InView>

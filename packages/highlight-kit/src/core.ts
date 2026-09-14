@@ -1,4 +1,4 @@
-/**
+/*
  * @highlight-kit/core
  *
  * Framework-agnostic singleton controller for the CSS Custom Highlight API.
@@ -12,13 +12,21 @@
  * (`subscribe` + `getSnapshot`) so framework adapters can stay thin.
  */
 
+/** Options controlling how a string pattern is matched against text. */
 export interface MatchOptions {
-  /** Case sensitive match (default: false) */
+  /**
+   * Case sensitive match. Ignored for `RegExp` patterns, which keep their own flags.
+   * @default false
+   */
   caseSensitive?: boolean
-  /** Match whole words only (default: false) */
+  /**
+   * Match whole words only (wraps the pattern in `\b`). Ignored for `RegExp` patterns.
+   * @default false
+   */
   wholeWord?: boolean
 }
 
+/** Reactive state of one highlight name, as exposed to subscribers. */
 export interface HighlightSnapshot {
   /** Whether this name currently has any registered ranges */
   readonly active: boolean
@@ -51,8 +59,9 @@ export interface HighlightSink {
   isSupported?(): boolean
 }
 
+/** Options for {@link createHighlightController}. */
 export interface HighlightControllerOptions {
-  /** Defaults to {@link createCssHighlightSink}. */
+  /** Where reconciled ranges are written. Defaults to {@link createCssHighlightSink}. */
   sink?: HighlightSink
 }
 
@@ -60,6 +69,7 @@ export interface HighlightControllerOptions {
 // Pure utilities (no global state)
 // ---------------------------------------------------------------------------
 
+/** Whether the CSS Custom Highlight API (`CSS.highlights` and `Highlight`) is available. */
 export function isHighlightSupported(): boolean {
   return (
     typeof CSS !== 'undefined' &&
@@ -130,8 +140,11 @@ export function computeRanges(
 }
 
 /**
- * Map flat character offsets (over the concatenated text content of `root`)
- * onto Range objects. Useful when you already know positions.
+ * Map flat character offsets onto Range objects. Useful when you already know positions.
+ *
+ * Offsets count over the concatenated text of {@link getTextNodes}, which skips
+ * whitespace-only text nodes. When `root` contains such nodes, offsets differ
+ * from `root.textContent`.
  */
 export function rangesFromOffsets(
   root: Element,
@@ -202,6 +215,23 @@ interface HighlightEntry {
 const EMPTY_SNAPSHOTS: Readonly<Record<string, HighlightSnapshot>> =
   Object.freeze({})
 
+/**
+ * Tracks ranges per highlight name and source, and writes their union to a sink.
+ *
+ * Multiple sources may contribute to one name; each change reconciles the name
+ * into a single highlight and notifies `subscribe` listeners. Create instances
+ * with {@link createHighlightController} or use the shared {@link highlights}.
+ *
+ * @example
+ * ```ts
+ * import { computeRanges, highlights } from '@cbcruk/highlight-kit'
+ *
+ * const el = document.querySelector('#article')!
+ * highlights.set('search', 'my-source', computeRanges(el, 'wisdom'))
+ * highlights.getSnapshot('search') // { active: true, count: ... }
+ * highlights.remove('search', 'my-source')
+ * ```
+ */
 class HighlightController {
   #sink: HighlightSink
   /** name -> (sourceId -> ranges). Multiple sources may share a name. */
@@ -213,12 +243,17 @@ class HighlightController {
   /** External-store listeners. */
   #listeners = new Set<() => void>()
 
+  /** Create a controller that writes to `sink` (the CSS registry sink by default). */
   constructor({
     sink = createCssHighlightSink(),
   }: HighlightControllerOptions = {}) {
     this.#sink = sink
   }
 
+  /**
+   * Whether the sink reports support. `true` when the sink has no `isSupported`.
+   * When `false`, {@link HighlightController.set} is a no-op.
+   */
   get supported(): boolean {
     return this.#sink.isSupported?.() ?? true
   }
@@ -346,6 +381,19 @@ export type { HighlightController }
 // Optional CSS helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Build `::highlight(name)` CSS rules from a style map without injecting them.
+ *
+ * camelCase property names are converted to kebab-case; values are written as is.
+ *
+ * @example
+ * ```ts
+ * import { generateHighlightCSS } from '@cbcruk/highlight-kit'
+ *
+ * generateHighlightCSS({ search: { backgroundColor: 'yellow' } })
+ * // '::highlight(search) {\n  background-color: yellow;\n}'
+ * ```
+ */
 export function generateHighlightCSS(
   styles: Record<string, Partial<CSSStyleDeclaration>>,
 ): string {
@@ -362,6 +410,16 @@ export function generateHighlightCSS(
     .join('\n\n')
 }
 
+/**
+ * Append a `<style>` element with `::highlight()` rules to `document.head`.
+ *
+ * An existing element with the same `id` is removed first, so calling it again
+ * replaces the previous rules.
+ *
+ * @param styles - Style declarations keyed by highlight name
+ * @param id - `id` of the `<style>` element
+ * @returns The inserted `<style>` element
+ */
 export function injectHighlightStyles(
   styles: Record<string, Partial<CSSStyleDeclaration>>,
   id = 'highlight-kit-styles',

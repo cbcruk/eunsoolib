@@ -8,6 +8,8 @@ import dayjs from 'dayjs'
  *
  * @example
  * ```ts
+ * import { DateNavigator } from '@cbcruk/dayjs-utils'
+ *
  * const nav = new DateNavigator('2024-01-01')
  * nav.next() // '2024-01-02'
  * nav.previous() // '2024-01-01'

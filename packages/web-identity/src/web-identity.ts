@@ -20,7 +20,7 @@ import type {
  *
  * @example
  * ```ts
- * import { WebIdentity } from 'web-identity';
+ * import { DigitalCredentials, WebIdentity } from '@cbcruk/web-identity';
  *
  * const identity = new WebIdentity('example.com');
  *
@@ -54,12 +54,20 @@ import type {
  * ```
  */
 export class WebIdentity {
+  /** Underlying {@link CredentialManager} used for unified sign-in and sign-out. */
   public readonly credentialManager: CredentialManager
+  /** Underlying {@link Passkeys} instance bound to {@link WebIdentity.rpId}. */
   public readonly passkeys: Passkeys
+  /** Underlying {@link FedCM} instance. */
   public readonly fedcm: FedCM
+  /** Underlying {@link DigitalCredentials} instance. */
   public readonly digitalCredentials: DigitalCredentials
+  /** Relying party ID used for passkey operations. */
   public readonly rpId: string
 
+  /**
+   * @param rpId - Relying party ID (usually the site's domain) used for passkey operations.
+   */
   constructor(rpId: string) {
     this.rpId = rpId
     this.credentialManager = new CredentialManager()

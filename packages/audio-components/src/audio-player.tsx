@@ -4,9 +4,18 @@ import { useAudioStore } from './use-audio-store'
 import { audioActions } from './audio-actions'
 
 type CastAudioPlayerProps = {
+  /** 이 플레이어가 재생할 오디오 URL. */
   src: string
 }
 
+/**
+ * 진행 바, 재생 버튼, 시간, 볼륨, 반복 토글을 갖춘 오디오 플레이어.
+ *
+ * 상태는 공유 `audioStore`에서 읽는다. 지금 store에 걸린 `src`와 같으면
+ * 재생 버튼이 재생/일시정지를 토글하고, 다르면 이 `src`로 바꿔 재생한다.
+ * 동작하려면 `AudioManager`가 먼저 마운트되어 있어야 한다.
+ * 이전/다음 버튼은 항상 비활성이다.
+ */
 export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
   const volume = useAudioStore((state) => state.volume)
   const currentSrc = useAudioStore((state) => state.src)

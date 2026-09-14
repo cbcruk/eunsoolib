@@ -28,7 +28,7 @@ function isHttpMethod(value: string): value is HttpMethodName {
  * - **GraphQL 핸들러** — `info`가 path 대신 operation을 들고 있어 같은 키로 다룰 수 없다.
  * - **RegExp path 핸들러** — 오버라이드를 걸 안정적인 문자열 id가 없다.
  *
- * @param target `setupWorker()` 또는 `setupServer()` 결과.
+ * @param target - `setupWorker()` 또는 `setupServer()` 결과.
  * @returns path 순으로 정렬된 엔드포인트. 같은 `id`는 한 번만 담긴다.
  */
 export function introspectEndpoints(target: MswTarget): EndpointInfo[] {

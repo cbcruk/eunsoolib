@@ -6,6 +6,8 @@
  * @throws 11자리 숫자 형식이 아닌 경우
  * @example
  * ```ts
+ * import { parsePhoneNumber } from '@cbcruk/utils'
+ *
  * parsePhoneNumber('01012345678')
  * // { prefix: '010', middle: '1234', suffix: '5678' }
  * ```

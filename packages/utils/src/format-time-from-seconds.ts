@@ -7,6 +7,8 @@
  * @returns 사람이 읽을 수 있는 한국어 시간 문자열
  * @example
  * ```ts
+ * import { formatTimeFromSeconds } from '@cbcruk/utils'
+ *
  * formatTimeFromSeconds(3661) // '1시간 1분 1초'
  * formatTimeFromSeconds(90) // '1분 30초'
  * formatTimeFromSeconds(0) // ''

@@ -2,11 +2,13 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 /** {@linkcode ErrorBoundary}의 props. */
 export type ErrorBoundaryProps = {
+  /** 에러를 잡을 하위 트리. */
   children: ReactNode
   /** `QueryView`의 `fallback`과 같은 시그니처 앞부분: `(error, retry) => ReactNode`. */
   fallback: (error: unknown, retry: () => void) => ReactNode
   /** 이 값들 중 하나라도 바뀌면 자동 리셋한다. 라우트/필터 변경에 쓴다. */
   resetKeys?: readonly unknown[]
+  /** 에러를 잡았을 때 `componentDidCatch`에서 불린다. 로깅에 쓴다. */
   onError?: (error: unknown, info: ErrorInfo) => void
   /** 리셋 직전에 불린다. `queryClient.resetQueries` 등을 여기서 호출한다. */
   onReset?: () => void
@@ -54,6 +56,7 @@ export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
+  /** 잡은 에러와 에러 상태 여부. */
   state: ErrorBoundaryState = { hasError: false, error: null }
 
   /** 자식이 던진 에러를 상태로 옮긴다. */
@@ -78,6 +81,7 @@ export class ErrorBoundary extends Component<
     this.setState({ hasError: false, error: null })
   }
 
+  /** 에러 상태면 `fallback(error, reset)`을, 아니면 `children`을 렌더한다. */
   render(): ReactNode {
     return this.state.hasError
       ? this.props.fallback(this.state.error, this.reset)

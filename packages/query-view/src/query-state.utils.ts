@@ -5,7 +5,7 @@ import type { QueryState } from './types'
  *
  * 교체 층과 중첩 층을 가르는 판정이 곧 이 함수다.
  *
- * @param state 분류된 상태.
+ * @param state - 분류된 상태.
  * @returns `ready` 또는 `degraded`이면 `true`.
  *
  * @example 상태에서 data 꺼내기
@@ -30,7 +30,7 @@ export function hasData<T>(
  * 않는다 — `{}`가 빈 결과인지 필드가 전부 optional인 유효 응답인지는 도메인만
  * 안다. 그런 경우엔 `isEmpty` prop으로 직접 넘긴다.
  *
- * @param value 판정할 값.
+ * @param value - 판정할 값.
  * @returns 빈 결과로 볼 수 있으면 `true`.
  */
 export function defaultIsEmpty(value: unknown): boolean {
@@ -52,7 +52,7 @@ export function defaultIsEmpty(value: unknown): boolean {
  * `DOMException`뿐 아니라 `name`이 `AbortError`인 모든 에러를 인정한다.
  * 취소를 표현하는 관례가 라이브러리마다 다르기 때문이다.
  *
- * @param error 검사할 값.
+ * @param error - 검사할 값.
  * @returns 취소로 볼 수 있으면 `true`.
  *
  * @example 취소를 에러 패널에서 제외하기
@@ -84,7 +84,7 @@ export function isAbortError(error: unknown): boolean {
  * {@linkcode QueryState}에 phase가 추가되면 이 호출이 컴파일 에러가 되어
  * 처리를 빠뜨린 자리를 알려준다.
  *
- * @param value 남은 케이스. 모든 phase를 처리했다면 `never`로 좁혀진다.
+ * @param value - 남은 케이스. 모든 phase를 처리했다면 `never`로 좁혀진다.
  * @returns 반환하지 않는다. 항상 던진다.
  */
 export function assertNever(value: never): never {

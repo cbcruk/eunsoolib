@@ -3,17 +3,15 @@ import { DIFFICULTY_CELLS_TO_REMOVE } from './sudoku.types'
 import { generateSolvedBoard, hasUniqueSolution } from './sudoku.solver'
 import { cloneBoard, shuffle } from './sudoku.utils'
 
-/**
- * 생성된 퍼즐 정보
- * @property puzzle - 빈 셀이 있는 퍼즐 보드
- * @property solution - 완성된 정답 보드
- * @property difficulty - 난이도
- * @property emptyCells - 빈 셀의 개수
- */
+/** 생성된 퍼즐 정보 */
 export interface GeneratedPuzzle {
+  /** 빈 셀이 있는 퍼즐 보드 */
   puzzle: Board
+  /** 완성된 정답 보드 */
   solution: Board
+  /** 난이도 */
   difficulty: Difficulty
+  /** 빈 셀의 개수 */
   emptyCells: number
 }
 

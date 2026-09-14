@@ -65,11 +65,19 @@ export const getLastPage = (total: number, pageSize: number) => {
  * @param params - Airtable API 파라미터 (filterByFormula, sort, fields 등)
  * @example
  * ```ts
+ * import { Effect } from 'effect'
+ * import { fetchList, makeAirtableConfigLayer } from '@cbcruk/airtable'
+ *
+ * const ConfigLive = makeAirtableConfigLayer({
+ *   apiKey: 'your-api-key',
+ *   baseUrl: 'https://api.airtable.com/v0/your-base-id',
+ * })
+ *
  * const program = fetchList<{ name: string }>('/TableName', {
  *   filterByFormula: '{status} = "active"',
  * })
  *
- * Effect.runPromise(program.pipe(Effect.provide(AirtableConfigLive)))
+ * Effect.runPromise(program.pipe(Effect.provide(ConfigLive)))
  * ```
  */
 export const fetchList = <TFields>(url: string, params: Params = {}) =>
@@ -136,6 +144,9 @@ export const getLastIndex = (url: string) =>
  * AirtableConfig Layer를 생성합니다.
  * @example
  * ```ts
+ * import { Effect } from 'effect'
+ * import { fetchList, makeAirtableConfigLayer } from '@cbcruk/airtable'
+ *
  * const ConfigLive = makeAirtableConfigLayer({
  *   apiKey: 'your-api-key',
  *   baseUrl: 'https://api.airtable.com/v0/your-base-id',

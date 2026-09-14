@@ -3,6 +3,27 @@ import { usePagination } from './use-pagination'
 import { DOTS } from './pagination.utils'
 import type { PaginationProps } from './types'
 
+/**
+ * 이전·다음 버튼과 페이지 번호 버튼을 인라인 스타일로 렌더링하는 pagination 컴포넌트.
+ *
+ * `pagination`을 넘기지 않으면 옵션 없이 {@link usePagination}으로 인스턴스를
+ * 만든다.
+ *
+ * @example
+ * ```tsx
+ * import { Pagination, usePagination } from '@cbcruk/pagination'
+ *
+ * function ProductTable({ total }: { total: number }) {
+ *   const pagination = usePagination({ total, initialPageSize: 8 })
+ *   return (
+ *     <>
+ *       <Pagination pagination={pagination} size="sm" showInfo />
+ *       <Pagination pagination={pagination} />
+ *     </>
+ *   )
+ * }
+ * ```
+ */
 export function Pagination({
   pagination,
   showInfo = false,

@@ -19,6 +19,8 @@ import {
  *
  * @example
  * ```ts
+ * import { Passkeys } from '@cbcruk/web-identity';
+ *
  * const passkeys = new Passkeys('example.com');
  *
  * // Register a new passkey
@@ -43,6 +45,9 @@ import {
 export class Passkeys {
   private rpId: string
 
+  /**
+   * @param rpId - Relying party ID used by {@link Passkeys.authenticate} when `config.rpId` is omitted.
+   */
   constructor(rpId: string) {
     this.rpId = rpId
   }

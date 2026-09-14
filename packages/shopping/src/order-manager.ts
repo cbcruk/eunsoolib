@@ -12,6 +12,8 @@ type QtyGroup = Map<CartProductId, number>
  *
  * @example
  * ```ts
+ * import { OrderManager } from '@cbcruk/shopping'
+ *
  * const order = new OrderManager()
  * order.toggleCheck('p1') // 선택
  * order.setQty('p1', 3)

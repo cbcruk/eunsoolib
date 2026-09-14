@@ -1,5 +1,6 @@
 /** 인증에 성공했을 때의 결과 */
 export interface AuthResult {
+  /** 인증 성공 여부. {@link BasicAuthStrategy}는 성공 시에만 `true`로 반환한다. */
   ok: boolean
 }
 
@@ -10,6 +11,7 @@ export interface AuthResult {
  * `Response`(예: 401)를 돌려준다.
  */
 export interface AuthStrategy {
+  /** 요청을 검증해 성공 결과 또는 그대로 반환할 실패 `Response`를 돌려준다. */
   authorize(request: Request): AuthResult | Response
 }
 
@@ -21,6 +23,8 @@ export interface AuthStrategy {
  *
  * @example
  * ```ts
+ * import { BasicAuthStrategy } from '@cbcruk/authorization'
+ *
  * const strategy = new BasicAuthStrategy('admin', 'secret')
  * const result = strategy.authorize(request)
  *

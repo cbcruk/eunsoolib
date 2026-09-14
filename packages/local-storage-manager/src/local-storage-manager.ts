@@ -3,6 +3,8 @@
  * @template T - 저장할 데이터 타입
  * @example
  * ```ts
+ * import { LocalStorageManager } from '@cbcruk/local-storage-manager'
+ *
  * const storage = new LocalStorageManager<{ theme: string }>('settings')
  * storage.save({ theme: 'dark' })
  * storage.load() // { theme: 'dark' }
@@ -10,6 +12,9 @@
  * ```
  */
 export class LocalStorageManager<T> {
+  /**
+   * @param storageKey - 값을 JSON으로 직렬화해 저장할 localStorage 키
+   */
   constructor(private storageKey: string) {}
 
   /** localStorage에서 데이터를 불러옴. 없으면 null 반환 */

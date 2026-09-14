@@ -7,4 +7,5 @@ import type { ComponentPropsWithRef, ElementType } from 'react'
 export type WithDefaults<P, D> = Omit<P, keyof D> &
   Partial<Pick<P, Extract<keyof D, keyof P>>>
 
+/** Default props accepted for component `C`: any subset of its props, including `ref`. */
 export type Defaults<C extends ElementType> = Partial<ComponentPropsWithRef<C>>

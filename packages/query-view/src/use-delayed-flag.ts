@@ -20,8 +20,8 @@ export type DelayedFlagOptions = {
  * 실패해서 안 보여준다"가 성립하지 않기 때문이다. 지연만이 시간에 대한 정책을
  * 요구한다.
  *
- * @param active 지연 중인지 여부. 보통 `state.phase === 'loading'`.
- * @param options 시간 정책. 기본값은 `delay: 200`, `minDuration: 400`.
+ * @param active - 지연 중인지 여부. 보통 `state.phase === 'loading'`.
+ * @param options - 시간 정책. 기본값은 `delay: 200`, `minDuration: 400`.
  * @returns placeholder를 렌더해야 하면 `true`.
  *
  * @example 직접 만든 로딩 표시에 적용하기

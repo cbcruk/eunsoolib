@@ -1,16 +1,25 @@
 import { AsyncLocalStorage } from 'async_hooks'
 import type { AsyncContext } from './types'
 
+/** 컨텍스트 밖에서 {@linkcode AsyncContext.get}을 호출했을 때 던지는 에러. */
 export class ContextNotFoundError extends Error {
+  /** @param message - 에러 메시지. `name`은 `'ContextNotFoundError'`로 고정된다. */
   constructor(message: string) {
     super(message)
     this.name = 'ContextNotFoundError'
   }
 }
 
+/**
+ * {@linkcode createAsyncContext}의 옵션.
+ *
+ * @template T - 컨텍스트에 담을 값의 타입
+ */
 export interface ContextOptions<T> {
   /**
    * 컨텍스트 이름 (에러 메시지에서 사용).
+   *
+   * @default 'anonymous'
    */
   name?: string
 
@@ -30,6 +39,8 @@ export interface ContextOptions<T> {
  *
  * @example
  * ```ts
+ * import { createAsyncContext } from "@cbcruk/async-context";
+ *
  * interface User {
  *   id: string;
  *   name: string;
@@ -92,6 +103,8 @@ export function createAsyncContext<T>(
  *
  * @example
  * ```ts
+ * import { createAsyncContext, scopedRun } from "@cbcruk/async-context";
+ *
  * const requestIdContext = createAsyncContext<string>({ name: "requestId" });
  *
  * await requestIdContext.run("parent-123", async () => {

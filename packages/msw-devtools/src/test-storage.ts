@@ -4,7 +4,7 @@
  * `localStorage`의 동기 계약만 흉내내면 충분하다 — store가 쓰는 건 `getItem`과
  * `setItem`뿐이다.
  *
- * @param seed 초기 내용을 공유할 백킹 맵. 같은 맵을 넘기면 "새로고침"을 흉내낼 수 있다.
+ * @param seed - 초기 내용을 공유할 백킹 맵. 같은 맵을 넘기면 "새로고침"을 흉내낼 수 있다.
  * @returns `Storage`로 쓸 수 있는 객체.
  */
 export function createMemoryStorage(seed = new Map<string, string>()): Storage {

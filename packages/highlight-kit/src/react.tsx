@@ -53,9 +53,11 @@ export function useHighlightController(): HighlightController {
   return useContext(ControllerContext)
 }
 
+/** Props for {@link HighlightProvider}. */
 export interface HighlightProviderProps {
   /** Omit to create an isolated controller once for this provider. */
   controller?: HighlightController
+  /** Subtree whose hooks use this controller. */
   children?: ReactNode
 }
 
@@ -137,8 +139,12 @@ export function useHighlightRanges(
   }, [controller, name, sourceId, ranges, priority])
 }
 
+/** Match options for {@link useTextMatches}, plus DOM change tracking. */
 export interface TextMatchOptions extends MatchOptions {
-  /** Recompute when the container's DOM changes (MutationObserver). */
+  /**
+   * Recompute when the container's DOM changes (MutationObserver).
+   * @default true
+   */
   observe?: boolean
 }
 
@@ -176,17 +182,30 @@ export function useTextMatches(
   return ranges
 }
 
+/** Options for {@link useHighlight}. */
 export interface UseHighlightOptions extends MatchOptions {
   /** The text/regex to highlight. Falsy clears this source. */
   query: string | RegExp
   /** CSS ::highlight() name. Defaults to a unique per-instance name. */
   name?: string
-  /** Stacking order against other highlight names (default: 0). */
+  /**
+   * Stacking order against other highlight names.
+   * @default 0
+   */
   priority?: number
-  /** Recompute when the container's DOM changes (default: false). */
+  /**
+   * Recompute when the container's DOM changes (MutationObserver).
+   * @default false
+   */
   observe?: boolean
 }
 
+/**
+ * Return value of {@link useHighlight}: the container ref, the resolved name,
+ * and that name's current snapshot.
+ *
+ * @template T - Element type the `ref` is attached to
+ */
 export interface UseHighlightResult<
   T extends Element = HTMLElement,
 > extends HighlightSnapshot {
@@ -200,6 +219,23 @@ export interface UseHighlightResult<
  * Headless highlighting. Attach the returned `ref` to any container; the hook
  * keeps that container's matches for `query` registered under `name`, and
  * reconciles on every change. Cleans up its own contribution on unmount.
+ *
+ * @template T - Element type the `ref` is attached to
+ *
+ * @example
+ * ```tsx
+ * import { useHighlight } from '@cbcruk/highlight-kit/react'
+ *
+ * function SearchableText({ query }: { query: string }) {
+ *   const { ref, count } = useHighlight<HTMLDivElement>({ query, name: 'search' })
+ *   return (
+ *     <>
+ *       <span>{count} matches</span>
+ *       <div ref={ref}>...</div>
+ *     </>
+ *   )
+ * }
+ * ```
  */
 export function useHighlight<T extends Element = HTMLElement>(
   options: UseHighlightOptions,
@@ -253,25 +289,55 @@ export function useHighlight<T extends Element = HTMLElement>(
   return { ref, name, ...state }
 }
 
+/** Options for {@link useHighlightSearch}. */
 export interface UseHighlightSearchOptions extends TextMatchOptions {
   /**
-   * Base highlight name (default: 'search'). The active match is registered
-   * under `${name}-current` with a higher priority.
+   * Base highlight name. The active match is registered under
+   * `${name}-current` with a higher priority.
+   * @default 'search'
    */
   name?: string
 }
 
+/** Return value of {@link useHighlightSearch}. */
 export interface UseHighlightSearchResult {
+  /** Number of ranges registered under the base name. */
   count: number
   /** Index of the active match, or -1 when there are no matches. */
   active: number
+  /** Move to the next match, wrapping to the first after the last. */
   next(): void
+  /** Move to the previous match, wrapping to the last before the first. */
   prev(): void
 }
 
 /**
  * Search with next/prev navigation. All matches go to `name`, the active one to
  * `${name}-current`, and the active match is scrolled into view.
+ *
+ * When the matches change, the active index is clamped to the new match count.
+ *
+ * @example
+ * ```tsx
+ * import { useRef, useState } from 'react'
+ * import { HighlightStyles, useHighlightSearch } from '@cbcruk/highlight-kit/react'
+ *
+ * function Search() {
+ *   const ref = useRef<HTMLDivElement>(null)
+ *   const [query, setQuery] = useState('wisdom')
+ *   const { count, active, next, prev } = useHighlightSearch(ref, query)
+ *   return (
+ *     <>
+ *       <HighlightStyles />
+ *       <input value={query} onChange={(e) => setQuery(e.target.value)} />
+ *       <span>{count === 0 ? '0/0' : `${active + 1}/${count}`}</span>
+ *       <button onClick={prev}>Prev</button>
+ *       <button onClick={next}>Next</button>
+ *       <div ref={ref}>...</div>
+ *     </>
+ *   )
+ * }
+ * ```
  */
 export function useHighlightSearch(
   containerRef: RefObject<Element | null>,
@@ -321,16 +387,32 @@ export function useHighlightSearch(
 // Declarative components
 // ---------------------------------------------------------------------------
 
+/** Props for the declarative {@link Highlight} component. */
 export interface HighlightProps extends MatchOptions {
+  /** The text/regex to highlight. Falsy clears this source. */
   query: string | RegExp
+  /** CSS ::highlight() name. Defaults to a unique per-instance name. */
   name?: string
+  /**
+   * Stacking order against other highlight names.
+   * @default 0
+   */
   priority?: number
+  /**
+   * Recompute when the container's DOM changes (MutationObserver).
+   * @default false
+   */
   observe?: boolean
-  /** Element to render as the scan container (default: 'div'). */
+  /**
+   * Element to render as the scan container.
+   * @default 'div'
+   */
   as?: ElementType
+  /** Content rendered inside the container and scanned for matches. */
   children?: ReactNode
-  /** Tip: pass style={{ display: 'contents' }} for zero layout impact. */
+  /** Class name for the container element. */
   className?: string
+  /** Inline style for the container element. Tip: pass `{ display: 'contents' }` for zero layout impact. */
   style?: CSSProperties
 }
 
@@ -365,13 +447,19 @@ const HighlightRootContext = createContext<HighlightRootContextValue | null>(
   null,
 )
 
+/** Props for {@link HighlightRoot}; other `div` props go to the rendered element. */
 export interface HighlightRootProps extends Omit<
   ComponentPropsWithoutRef<'div'>,
   'children'
 > {
   /** Default highlight name for nested <Highlight.Match> without `name`. */
   name: string
+  /**
+   * Element to render as the scan container.
+   * @default 'div'
+   */
   as?: ElementType
+  /** Content rendered inside the container, including `<Highlight.Match>` elements. */
   children?: ReactNode
 }
 
@@ -393,16 +481,24 @@ export const HighlightRoot = forwardRef<HTMLElement, HighlightRootProps>(
   },
 )
 
+/** Props for {@link HighlightMatch}. */
 export interface HighlightMatchProps extends TextMatchOptions {
+  /** The text/regex to find in the enclosing Root's container. */
   pattern: string | RegExp
   /** Falls back to the enclosing Root's `name`. */
   name?: string
+  /**
+   * Stacking order against other highlight names.
+   * @default 0
+   */
   priority?: number
 }
 
 /**
  * Effect-only: renders nothing, scans the enclosing Root's container and
  * registers the matches. Tracks DOM changes by default (`observe`).
+ *
+ * @throws When rendered outside `<Highlight.Root>`.
  */
 export function HighlightMatch({
   pattern,
@@ -420,20 +516,48 @@ export function HighlightMatch({
 }
 
 /**
- * <Highlight query="foo" name="search">…</Highlight>
- *
  * Renders a single wrapper element and highlights matches of `query` within it.
+ *
  * Multiple <Highlight> sharing the same `name` are unioned by the core, so one
  * ::highlight(name) CSS rule styles them all.
  *
  * For several patterns over one container use the compound form:
- * <Highlight.Root name="log"><Highlight.Match pattern={/ERROR.*\/} /></Highlight.Root>
+ * `Highlight.Root` with nested `Highlight.Match` elements.
+ *
+ * @example Single pattern
+ * ```tsx
+ * import { Highlight } from '@cbcruk/highlight-kit/react'
+ *
+ * function Article({ keyword }: { keyword: string }) {
+ *   return (
+ *     <Highlight query={keyword} name="search" style={{ display: 'contents' }}>
+ *       <article>...</article>
+ *     </Highlight>
+ *   )
+ * }
+ * ```
+ *
+ * @example Several patterns over one container
+ * ```tsx
+ * import { Highlight } from '@cbcruk/highlight-kit/react'
+ *
+ * function Logs({ logs }: { logs: string }) {
+ *   return (
+ *     <Highlight.Root name="log-info" as="pre">
+ *       {logs}
+ *       <Highlight.Match name="log-error" pattern={/ERROR:[^\n]+/} />
+ *       <Highlight.Match pattern={/INFO:[^\n]+/} />
+ *     </Highlight.Root>
+ *   )
+ * }
+ * ```
  */
 export const Highlight = Object.assign(HighlightComponent, {
   Root: HighlightRoot,
   Match: HighlightMatch,
 })
 
+/** `::highlight()` style declarations keyed by highlight name. */
 export type HighlightStyleMap = Record<string, Partial<CSSStyleDeclaration>>
 
 const DEFAULT_SEARCH_STYLES: HighlightStyleMap = {
@@ -441,6 +565,7 @@ const DEFAULT_SEARCH_STYLES: HighlightStyleMap = {
   'search-current': { backgroundColor: 'rgb(249 115 22)', color: 'white' },
 }
 
+/** Props for {@link HighlightStyles}. */
 export interface HighlightStylesProps {
   /** `::highlight()` rules by name (default: `search` / `search-current`). */
   styles?: HighlightStyleMap

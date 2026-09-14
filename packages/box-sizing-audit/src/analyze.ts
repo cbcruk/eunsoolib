@@ -9,14 +9,23 @@ import type {
   RawImage,
 } from './box-sizing-audit.types'
 
+/** Captured data passed to {@link analyzeAudit}. */
 export interface AnalyzeInput {
+  /** Audited page URL, copied to the result. */
   url: string
+  /** Flipped selector; `null` is reported as `*`. */
   scope: string | null
+  /** Element snapshots before the flip. */
   before: ElementSnapshot[]
+  /** Element snapshots after the flip. */
   after: ElementSnapshot[]
+  /** Full-page screenshot before the flip. */
   beforeImg: RawImage
+  /** Full-page screenshot after the flip. */
   afterImg: RawImage
+  /** Pixel comparator that returns the mismatched pixel count. */
   compare: PixelCompare
+  /** Diff tolerances. */
   thresholds?: DiffThresholds
 }
 

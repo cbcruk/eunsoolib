@@ -15,6 +15,9 @@ type CartProduct = {
  *
  * @example
  * ```ts
+ * import { createActor } from 'xstate'
+ * import { cartMachine } from '@cbcruk/shopping'
+ *
  * const actor = createActor(cartMachine).start()
  * actor.send({ type: 'ADD', params: { product: { id: 'p1' } } })
  * actor.getSnapshot().context.items // Map { 'p1' => { id: 'p1' } }

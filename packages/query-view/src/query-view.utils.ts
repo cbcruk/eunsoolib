@@ -20,8 +20,8 @@ export const isDev: boolean =
  * `ReactNode`에는 함수가 포함되지 않으므로 `typeof slot === 'function'` 하나로
  * 두 형태를 안전하게 가른다.
  *
- * @param slot 노드이거나, 인자를 받아 노드를 만드는 함수.
- * @param args 함수 슬롯일 때 넘길 인자.
+ * @param slot - 노드이거나, 인자를 받아 노드를 만드는 함수.
+ * @param args - 함수 슬롯일 때 넘길 인자.
  * @returns 렌더할 노드.
  */
 export function renderSlot<A extends unknown[]>(
@@ -40,8 +40,8 @@ export function renderSlot<A extends unknown[]>(
  * 돌려준다 — 슬롯이 `retry`의 존재를 확인할 필요가 없도록, 이 자리는 항상 호출
  * 가능한 함수다.
  *
- * @param query 재요청 대상 query.
- * @param onRetry 직접 넘긴 재시도 동작. 캐시 무효화가 필요할 때 쓴다.
+ * @param query - 재요청 대상 query.
+ * @param onRetry - 직접 넘긴 재시도 동작. 캐시 무효화가 필요할 때 쓴다.
  * @returns 슬롯에 넘길 재시도 함수.
  */
 export function resolveRetry<T>(

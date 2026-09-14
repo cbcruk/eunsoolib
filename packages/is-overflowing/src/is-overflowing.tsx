@@ -26,6 +26,8 @@ export type OverflowDetection<T extends HTMLElement = HTMLElement> = {
  * @returns 오버플로우 여부와 연결할 `ref`
  * @example
  * ```tsx
+ * import { useOverflowDetection } from '@cbcruk/is-overflowing'
+ *
  * const { ref, hasHorizontalOverflow } = useOverflowDetection<HTMLDivElement>()
  *
  * return (

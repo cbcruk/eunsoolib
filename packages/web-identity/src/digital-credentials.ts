@@ -12,6 +12,8 @@ import { assertCredentialsAPI, wrapError } from './utils'
  *
  * @example
  * ```ts
+ * import { DigitalCredentials } from '@cbcruk/web-identity';
+ *
  * const dc = new DigitalCredentials();
  *
  * // Request age verification (selective disclosure)

@@ -14,8 +14,15 @@ export class DevtoolsController {
   private endpoints: EndpointInfo[] = []
   private unsubscribe: () => void
   private target: MswTarget
+  /** 오버라이드 데이터를 읽어 오는 store. */
   readonly store: DevtoolsStore
 
+  /**
+   * 엔드포인트를 읽고 store를 구독한 뒤, 활성 시나리오를 곧바로 한 번 설치한다.
+   *
+   * @param target - `setupWorker()` 또는 `setupServer()` 결과.
+   * @param store - 활성 시나리오를 읽어 올 store.
+   */
   constructor(target: MswTarget, store: DevtoolsStore) {
     this.target = target
     this.store = store
@@ -48,6 +55,11 @@ export class DevtoolsController {
     return this.endpoints
   }
 
+  /**
+   * 마지막으로 읽어 둔 엔드포인트 목록.
+   *
+   * 핸들러를 다시 읽지 않는다. 필요하면 {@linkcode DevtoolsController.refresh}를 쓴다.
+   */
   getEndpoints(): EndpointInfo[] {
     return this.endpoints
   }
