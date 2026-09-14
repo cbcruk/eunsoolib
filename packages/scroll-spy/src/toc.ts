@@ -1,18 +1,13 @@
 import type { TocOptions } from './types'
-
-function slugify(text: string, fallback: string): string {
-  return (
-    text
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || fallback
-  )
-}
+import { createHeadingIdAssigner } from './heading-id'
 
 /**
  * Auto-generate a table-of-contents `<nav>` from headings in a container.
- * Headings without an `id` get one derived from their text.
+ *
+ * Headings without an `id` get one derived from their text: letters and digits
+ * of any script are kept (`Getting Started` → `getting-started`, non-Latin text
+ * stays as text), and a slug already used in the document gets a `-2`, `-3`,
+ * … suffix. Text with no letters or digits falls back to `section`.
  */
 export function generateToc(options: TocOptions = {}): HTMLElement {
   const {
@@ -33,12 +28,10 @@ export function generateToc(options: TocOptions = {}): HTMLElement {
   const list = document.createElement(listType)
   list.className = listClass
 
-  let idCounter = 0
+  const assignId = createHeadingIdAssigner(container)
 
   for (const heading of headings) {
-    if (!heading.id) {
-      heading.id = slugify(heading.textContent ?? '', `section-${idCounter++}`)
-    }
+    assignId(heading)
 
     const item = document.createElement('li')
     item.className = itemClass

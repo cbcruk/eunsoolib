@@ -192,8 +192,8 @@ expect(controller.getSnapshot('search').count).toBe(3)
 | `createCssHighlightSink()`             | `CSS.highlights`에 반영하는 기본 sink                                                                                     |
 | `createNoopSink()`                     | 부수효과 없는 sink (SSR/테스트용, 미지원 환경에서도 bookkeeping 수행)                                                     |
 | `computeRanges(root, pattern, opts?)`  | 패턴(string/RegExp) 매칭 → `Range[]` (`caseSensitive` / `wholeWord` 옵션)                                                 |
-| `rangesFromOffsets(root, spans)`       | 문자 offset 배열 → `Range[]`                                                                                              |
-| `getTextNodes(root)`                   | 하위 텍스트 노드 수집                                                                                                     |
+| `rangesFromOffsets(root, spans)`       | 문자 offset 배열 → `Range[]` (`root.textContent` 기준, 공백만 있는 텍스트 노드 포함)                                      |
+| `getTextNodes(root)`                   | 하위 텍스트 노드 수집 (공백만 있는 노드 제외)                                                                             |
 | `isHighlightSupported()`               | API 지원 여부                                                                                                             |
 | `generateHighlightCSS(styles)`         | `::highlight()` CSS 문자열 생성 (주입 없이 반환)                                                                          |
 | `injectHighlightStyles(styles, id?)`   | `::highlight()` CSS 동적 주입 (`<style>` 삽입)                                                                            |

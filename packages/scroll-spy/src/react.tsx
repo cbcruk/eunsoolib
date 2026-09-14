@@ -13,6 +13,7 @@ import {
 } from 'react'
 import type { ScrollSpyInstance, ScrollSpyOptions } from './types'
 import { createScrollSpy, supportsScrollTargetGroup } from './scroll-spy'
+import { createHeadingIdAssigner } from './heading-id'
 
 /** Options for {@link useScrollSpy}: the `createScrollSpy` options except `onChange`. */
 export interface UseScrollSpyOptions extends Omit<
@@ -114,7 +115,12 @@ export function useScrollSpy(
 
 /** A heading detected by {@link useScrollSpyHeadings}. */
 export interface Heading {
-  /** Element `id`, generated from the text when the heading had none. */
+  /**
+   * Element `id`, generated from the text when the heading had none.
+   *
+   * Generated ids keep letters and digits of any script and get a `-2`, `-3`, …
+   * suffix when the slug is already used in the document.
+   */
   id: string
   /** Trimmed text content. */
   text: string
@@ -141,8 +147,10 @@ export interface UseScrollSpyHeadingsReturn extends UseScrollSpyReturn {
 /**
  * Collect headings from a container and track the active one with {@link useScrollSpy}.
  *
- * Headings without an `id` get a slug derived from their text (or
- * `section-<n>` when the text yields no slug). Headings are collected after
+ * Headings without an `id` get a slug derived from their text. Letters and
+ * digits of any script are kept, a slug already used in the document gets a
+ * `-2`, `-3`, … suffix, and text with no letters or digits falls back to
+ * `section`. Headings are collected after
  * mount and again when `selector` or `container` changes, and the scroll spy is
  * refreshed once headings are found.
  *
@@ -179,18 +187,10 @@ export function useScrollSpyHeadings(
 
     const elements = containerEl.querySelectorAll(selector)
     const newHeadings: Heading[] = []
-    let idCounter = 0
+    const assignId = createHeadingIdAssigner(containerEl)
 
     elements.forEach((el) => {
-      if (!el.id) {
-        const text =
-          el.textContent
-            ?.trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '') || `section-${idCounter++}`
-        el.id = text
-      }
+      assignId(el)
 
       newHeadings.push({
         id: el.id,

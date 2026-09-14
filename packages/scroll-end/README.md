@@ -47,7 +47,14 @@ useScrollEnd({
 // 특정 스크롤 컨테이너만 관찰
 const ref = useRef<HTMLDivElement>(null)
 useScrollEnd({ target: ref, onScrollEnd: handleEnd, enabled: isActive })
+
+// 요소가 이 컴포넌트의 리렌더 없이 나타나거나 바뀔 수 있으면 요소를 직접 넘김
+const [el, setEl] = useState<HTMLDivElement | null>(null)
+useScrollEnd({ target: el, onScrollEnd: handleEnd })
+// <div ref={setEl} />
 ```
+
+대상은 커밋마다 다시 확인하고, 가리키는 요소가 바뀔 때만 리스너를 옮깁니다. 조건부 렌더로 나중에 마운트되거나 다른 노드로 교체된 컨테이너도 따라갑니다.
 
 ### `useStuck` — sticky stuck 감지
 
@@ -103,11 +110,11 @@ if (!isScrollEndSupported()) {
 
 ### `useScrollEnd(options): void`
 
-| 옵션          | 타입                                           | 기본값       | 설명                         |
-| ------------- | ---------------------------------------------- | ------------ | ---------------------------- |
-| `onScrollEnd` | `(event: Event) => void`                       | (필수)       | 스크롤이 끝났을 때 호출      |
-| `target`      | `RefObject<HTMLElement \| null> \| 'document'` | `'document'` | 관찰할 스크롤 컨테이너       |
-| `enabled`     | `boolean`                                      | `true`       | 언마운트 없이 구독을 끄고 켬 |
+| 옵션          | 타입                                                                  | 기본값       | 설명                                                                                               |
+| ------------- | --------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------- |
+| `onScrollEnd` | `(event: Event) => void`                                              | (필수)       | 스크롤이 끝났을 때 호출                                                                            |
+| `target`      | `RefObject<HTMLElement \| null> \| HTMLElement \| null \| 'document'` | `'document'` | 관찰할 스크롤 컨테이너. ref는 훅을 쓴 컴포넌트가 렌더될 때마다 다시 읽고, `null`이면 구독하지 않음 |
+| `enabled`     | `boolean`                                                             | `true`       | 언마운트 없이 구독을 끄고 켬                                                                       |
 
 ### `useStuck(options?): { sentinelRef, isStuck }`
 
@@ -129,6 +136,10 @@ if (!isScrollEndSupported()) {
 ### `installScrollEndPolyfill(target?, options?): () => void`
 
 `@cbcruk/scroll-end/polyfill` entry. `target` 기본값은 `document`, `idleDelay`(ms) 기본값은 `100`이며 해제 함수를 반환합니다.
+
+## 제약
+
+- `target`에 ref를 넘기면 `ref.current`는 **훅을 쓴 컴포넌트가 렌더된 뒤에만** 다시 읽습니다. 자식 컴포넌트의 상태 변화만으로 요소가 마운트·교체되는 경우처럼 이 컴포넌트가 리렌더되지 않으면 변화를 알 수 없으니, callback ref로 요소를 state에 담아 `target`에 요소를 직접 넘기세요.
 
 ## 폴리필 (별도 entry)
 

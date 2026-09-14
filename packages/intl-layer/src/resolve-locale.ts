@@ -36,6 +36,25 @@ function languageOf(tag: string): string {
 }
 
 /**
+ * 후보가 실제 locale인지 확인해 정규화된 태그를 반환한다. 아니면 `null`.
+ *
+ * BCP 47 형식 검사(`Intl.getCanonicalLocales`)만으로는 `products` 같은 경로
+ * 세그먼트도 통과하므로, 런타임에 locale 데이터가 있는지
+ * (`Intl.DateTimeFormat.supportedLocalesOf`)까지 확인한다.
+ */
+function toKnownLocale(candidate: string): string | null {
+  try {
+    const [canonical] = Intl.getCanonicalLocales(candidate.trim())
+    if (!canonical) return null
+    return Intl.DateTimeFormat.supportedLocalesOf(canonical).length > 0
+      ? canonical
+      : null
+  } catch {
+    return null
+  }
+}
+
+/**
  * 후보 목록을 supported와 협상한다. exact 매칭 우선, 없으면 language subtag 매칭.
  * 매칭이 없으면 null.
  */
@@ -57,7 +76,12 @@ function negotiate(candidates: string[], supported: string[]): string | null {
 
 /**
  * locale 결정의 단일 지점. 우선순위 `urlSegment > cookie > Accept-Language > fallback`.
- * `supported`를 주면 협상 후 매칭되는 태그만, 없으면 첫 후보를 그대로 돌려준다.
+ * `supported`를 주면 협상 후 매칭되는 태그만, 없으면 locale로 인정되는 첫 후보를 돌려준다.
+ *
+ * `supported`가 없을 때 후보는 `Intl.getCanonicalLocales`로 형식을 검사하고, 런타임이
+ * 해당 locale 데이터를 가진 경우(`Intl.DateTimeFormat.supportedLocalesOf`)만 쓴다.
+ * 그래서 `/products/…`의 `products` 같은 locale이 아닌 값은 건너뛰고, 통과한 후보는
+ * 정규화된 태그(`en-us` → `en-US`)로 반환한다. 모두 탈락하면 `fallback`이다.
  *
  * @example
  * ```ts
@@ -68,6 +92,13 @@ function negotiate(candidates: string[], supported: string[]): string | null {
  *   acceptLanguage: 'ko;q=0.9,en-US',
  *   supported: ['ko-KR', 'en-US'],
  * }) // 'en-US'
+ * ```
+ *
+ * @example supported 없이 URL 세그먼트 검증
+ * ```ts
+ * import { resolveLocale } from '@cbcruk/intl-layer'
+ *
+ * resolveLocale({ urlSegment: 'products', acceptLanguage: 'ko-KR' }) // 'ko-KR'
  * ```
  */
 export function resolveLocale(sources: ResolveLocaleSources): string {
@@ -87,7 +118,11 @@ export function resolveLocale(sources: ResolveLocaleSources): string {
   if (supported && supported.length > 0) {
     return negotiate(candidates, supported) ?? fallback
   }
-  return candidates[0] ?? fallback
+  for (const candidate of candidates) {
+    const locale = toKnownLocale(candidate)
+    if (locale) return locale
+  }
+  return fallback
 }
 
 /**

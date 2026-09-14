@@ -78,7 +78,12 @@ export function isHighlightSupported(): boolean {
   )
 }
 
-/** Collect all non-empty text nodes under an element. */
+/**
+ * Collect the text nodes under an element that contain non-whitespace text.
+ *
+ * Whitespace-only nodes (newlines, indentation between elements) are skipped,
+ * so this is suited to pattern matching, not to offset math against `textContent`.
+ */
 export function getTextNodes(root: Node): Text[] {
   const nodes: Text[] = []
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null)
@@ -139,22 +144,43 @@ export function computeRanges(
   return ranges
 }
 
+/** Collect every text node under `root`, whitespace-only ones included. */
+function getAllTextNodes(root: Node): Text[] {
+  const nodes: Text[] = []
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null)
+  let node: Node | null
+  while ((node = walker.nextNode())) nodes.push(node as Text)
+  return nodes
+}
+
 /**
  * Map flat character offsets onto Range objects. Useful when you already know positions.
  *
- * Offsets count over the concatenated text of {@link getTextNodes}, which skips
- * whitespace-only text nodes. When `root` contains such nodes, offsets differ
- * from `root.textContent`.
+ * Offsets count over `root.textContent`, whitespace-only text nodes (newlines,
+ * indentation between elements) included, so positions computed from
+ * `textContent` or on a server against the same text line up. Unlike
+ * {@link computeRanges}, a span may cross text node boundaries; it yields one
+ * range per text node it touches. Out-of-bounds parts are ignored.
+ *
+ * @example
+ * ```ts
+ * import { rangesFromOffsets } from '@cbcruk/highlight-kit'
+ *
+ * const el = document.querySelector('#article')!
+ * const start = el.textContent!.indexOf('wisdom')
+ * rangesFromOffsets(el, [{ start, end: start + 'wisdom'.length }])
+ * ```
  */
 export function rangesFromOffsets(
   root: Element,
   spans: ReadonlyArray<{ start: number; end: number }>,
 ): Range[] {
-  const nodes = getTextNodes(root)
+  const nodes = getAllTextNodes(root)
   const layout: Array<{ node: Text; start: number; end: number }> = []
   let offset = 0
   for (const node of nodes) {
     const len = node.textContent?.length ?? 0
+    if (len === 0) continue
     layout.push({ node, start: offset, end: offset + len })
     offset += len
   }

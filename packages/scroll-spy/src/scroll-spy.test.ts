@@ -196,6 +196,58 @@ describe('generateToc', () => {
     expect(document.querySelector('h2')!.id).toBe('getting-started')
   })
 
+  it('텍스트가 같은 헤딩은 -2, -3 접미사로 서로 다른 id를 받아야 함', () => {
+    document.body.innerHTML = `
+      <h2>Example</h2>
+      <h2>Example</h2>
+      <h2>Example</h2>
+    `
+
+    const nav = generateToc({ container: document.body })
+
+    const ids = [...document.querySelectorAll('h2')].map((h) => h.id)
+    expect(ids).toEqual(['example', 'example-2', 'example-3'])
+    expect(
+      [...nav.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+    ).toEqual(['#example', '#example-2', '#example-3'])
+  })
+
+  it('문서에 이미 있는 id와 겹치면 접미사를 붙여야 함', () => {
+    document.body.innerHTML = `
+      <div id="intro"></div>
+      <h2>Intro</h2>
+    `
+
+    generateToc({ container: document.body })
+
+    expect(document.querySelector('h2')!.id).toBe('intro-2')
+  })
+
+  it('한글 등 영문 외 제목은 순번이 아니라 텍스트로 id를 만들어야 함', () => {
+    document.body.innerHTML = `
+      <h2>시작하기</h2>
+      <h2>설치 방법</h2>
+      <h2>Café 1</h2>
+    `
+
+    generateToc({ container: document.body })
+
+    const ids = [...document.querySelectorAll('h2')].map((h) => h.id)
+    expect(ids).toEqual(['시작하기', '설치-방법', 'café-1'])
+  })
+
+  it('글자·숫자가 없는 제목은 section으로 대체하고 중복을 피해야 함', () => {
+    document.body.innerHTML = `
+      <h2>!!!</h2>
+      <h2>???</h2>
+    `
+
+    generateToc({ container: document.body })
+
+    const ids = [...document.querySelectorAll('h2')].map((h) => h.id)
+    expect(ids).toEqual(['section', 'section-2'])
+  })
+
   it('levels 옵션으로 포함할 헤딩을 제한해야 함', () => {
     document.body.innerHTML = `
       <h2 id="a">A</h2>
