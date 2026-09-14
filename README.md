@@ -22,7 +22,11 @@
 | [devtools](https://cbcruk.github.io/eunsoolib/docs/#개발-도구)      | 개발 도구                                             | 2    |
 | [lab](https://cbcruk.github.io/eunsoolib/docs/#lab-도메인-모델게임) | 도메인 모델·게임 (재사용 라이브러리가 아닌 설계 실험) | 5    |
 
-패키지는 npm에 배포되어 있지 않습니다. 필요한 코드를 복사하거나 이 워크스페이스 안에서 사용하세요.
+lab을 뺀 패키지는 npm에 `@cbcruk/<name>`으로 배포됩니다. lab 패키지는 배포하지 않습니다.
+
+```bash
+pnpm add @cbcruk/sync-store
+```
 
 ## 개발
 
@@ -36,7 +40,21 @@ pnpm check:readme      # 패키지 README 형식 검사
 pnpm docs:dev          # 문서 사이트 로컬 실행 (apps/docs)
 pnpm docs:build        # 문서 사이트 정적 빌드 → apps/docs/out
 pnpm create-package <name>  # 새 패키지 생성
+
+pnpm build             # 배포 대상 패키지 빌드 → packages/*/dist
+pnpm check:packages    # 배포될 tarball 검사 (메타데이터·d.ts·publint·attw)
+pnpm changeset         # 릴리스할 변경 기록
 ```
+
+## 릴리스
+
+[changesets](https://changesets.dev)로 패키지별 버전과 CHANGELOG를 관리합니다.
+
+1. 사용자에게 영향이 있는 변경이면 PR에 `pnpm changeset`으로 changeset을 추가합니다.
+2. PR이 `main`에 머지되면 Release 워크플로가 버전을 올린 "Version Packages" PR을 만듭니다.
+3. 그 PR을 머지하면 npm Trusted Publishing으로 배포하고 git 태그와 GitHub Release를 만듭니다.
+
+새 패키지는 CI가 처음 배포할 수 없어서(npm에 있어야 신뢰 게시자를 등록할 수 있음) 로컬에서 한 번 배포한 뒤 `./scripts/setup-npm-trust.sh <name>`으로 등록합니다.
 
 ## 구조
 
