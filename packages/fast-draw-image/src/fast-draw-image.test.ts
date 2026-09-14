@@ -14,6 +14,36 @@ function setUserAgent(ua: string): void {
   })
 }
 
+/** Stub `fetch` with a load that stays pending until `resolve` is called or its signal aborts. */
+function stubDeferredFetch() {
+  const signals: AbortSignal[] = []
+  const resolvers: Array<() => void> = []
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      (_url: string, init?: RequestInit) =>
+        new Promise((resolve, reject) => {
+          const signal = init?.signal ?? undefined
+          if (signal) {
+            signals.push(signal)
+            signal.addEventListener('abort', () =>
+              reject(new DOMException('fetch aborted', 'AbortError')),
+            )
+          }
+          resolvers.push(() =>
+            resolve({ ok: true, blob: () => Promise.resolve(new Blob()) }),
+          )
+        }),
+    ),
+  )
+
+  return {
+    signals,
+    resolveAll: () => resolvers.forEach((resolve) => resolve()),
+  }
+}
+
 function asChromium(): void {
   ;(window as unknown as Record<string, unknown>).chrome = {}
 }
@@ -100,6 +130,123 @@ describe('loadImage (chromium 경로)', () => {
 
     expect(a).toBe(b)
     expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('동시 요청 중 첫 호출만 abort해도 다른 호출은 계속 로드되어야 함', async () => {
+    const { signals, resolveAll } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+    const first = new AbortController()
+
+    const a = loader.loadImage('x.jpg', { signal: first.signal })
+    const b = loader.loadImage('x.jpg')
+
+    first.abort()
+    await expect(a).rejects.toMatchObject({ name: 'AbortError' })
+
+    expect(signals[0].aborted).toBe(false)
+    resolveAll()
+
+    await expect(b).resolves.toBe(bitmap)
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('동시 요청 중 나중 호출의 signal로도 그 호출을 abort할 수 있어야 함', async () => {
+    const { resolveAll } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+    const second = new AbortController()
+
+    const a = loader.loadImage('x.jpg')
+    const b = loader.loadImage('x.jpg', { signal: second.signal })
+
+    second.abort()
+    await expect(b).rejects.toMatchObject({ name: 'AbortError' })
+
+    resolveAll()
+    await expect(a).resolves.toBe(bitmap)
+  })
+
+  it('동시 요청이 모두 abort되면 실제 로드도 abort되어야 함', async () => {
+    const { signals } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+    const first = new AbortController()
+    const second = new AbortController()
+
+    const a = loader.loadImage('x.jpg', { signal: first.signal })
+    const b = loader.loadImage('x.jpg', { signal: second.signal })
+
+    first.abort()
+    expect(signals[0].aborted).toBe(false)
+
+    second.abort()
+    expect(signals[0].aborted).toBe(true)
+
+    await expect(a).rejects.toMatchObject({ name: 'AbortError' })
+    await expect(b).rejects.toMatchObject({ name: 'AbortError' })
+    expect(loader.isCached('x.jpg')).toBe(false)
+  })
+
+  it('모두 abort된 뒤 같은 URL을 다시 요청하면 새로 로드해야 함', async () => {
+    const { resolveAll } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+    const controller = new AbortController()
+
+    const a = loader.loadImage('x.jpg', { signal: controller.signal })
+    controller.abort()
+    await expect(a).rejects.toMatchObject({ name: 'AbortError' })
+
+    const b = loader.loadImage('x.jpg')
+    resolveAll()
+
+    await expect(b).resolves.toBe(bitmap)
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('이미 abort된 signal을 넘기면 로드를 시작하지 않고 AbortError를 던져야 함', async () => {
+    const loader = new FastDrawImage()
+
+    await expect(
+      loader.loadImage('x.jpg', { signal: AbortSignal.abort() }),
+    ).rejects.toMatchObject({ name: 'AbortError' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('동시 요청 중 하나라도 cache:true면 결과를 캐시해야 함', async () => {
+    const { resolveAll } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+
+    const a = loader.loadImage('x.jpg', { cache: false })
+    const b = loader.loadImage('x.jpg', { cache: true })
+    resolveAll()
+    await Promise.all([a, b])
+
+    expect(loader.isCached('x.jpg')).toBe(true)
+  })
+
+  it('동시 요청이 모두 cache:false면 결과를 캐시하지 않아야 함', async () => {
+    const { resolveAll } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+
+    const a = loader.loadImage('x.jpg', { cache: false })
+    const b = loader.loadImage('x.jpg', { cache: false })
+    resolveAll()
+    await Promise.all([a, b])
+
+    expect(loader.isCached('x.jpg')).toBe(false)
+  })
+
+  it('cache:true 호출이 abort되고 cache:false 호출만 남으면 캐시하지 않아야 함', async () => {
+    const { resolveAll } = stubDeferredFetch()
+    const loader = new FastDrawImage()
+    const controller = new AbortController()
+
+    const a = loader.loadImage('x.jpg', { signal: controller.signal })
+    const b = loader.loadImage('x.jpg', { cache: false })
+    controller.abort()
+    await expect(a).rejects.toMatchObject({ name: 'AbortError' })
+
+    resolveAll()
+    await expect(b).resolves.toBe(bitmap)
+    expect(loader.isCached('x.jpg')).toBe(false)
   })
 
   it('응답이 ok가 아니면 에러를 던져야 함', async () => {
@@ -271,6 +418,64 @@ describe('drawImage', () => {
 
     expect(result).toBe(bitmap)
     expect(drawSpy).toHaveBeenCalledWith(bitmap, 5, 10)
+  })
+
+  it('width만 주면 원본 비율로 height를 계산해 그려야 함', async () => {
+    bitmap = {
+      close: vi.fn(),
+      width: 400,
+      height: 300,
+    } as unknown as ImageBitmap
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap))
+    const loader = new FastDrawImage()
+    await loader.drawImage('a.jpg', { canvas: fakeCanvas, width: 200 })
+
+    expect(drawSpy).toHaveBeenCalledWith(bitmap, 0, 0, 200, 150)
+  })
+
+  it('height만 주면 원본 비율로 width를 계산해 그려야 함', async () => {
+    bitmap = {
+      close: vi.fn(),
+      width: 400,
+      height: 300,
+    } as unknown as ImageBitmap
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap))
+    const loader = new FastDrawImage()
+    await loader.drawImage('a.jpg', {
+      canvas: fakeCanvas,
+      x: 1,
+      y: 2,
+      height: 60,
+    })
+
+    expect(drawSpy).toHaveBeenCalledWith(bitmap, 1, 2, 80, 60)
+  })
+
+  it('소스 사각형과 width만 주면 소스 사각형 비율로 height를 계산해야 함', async () => {
+    const loader = new FastDrawImage()
+    await loader.drawImage('sprite.png', {
+      canvas: fakeCanvas,
+      sx: 0,
+      sy: 0,
+      sWidth: 64,
+      sHeight: 32,
+      width: 128,
+    })
+
+    expect(drawSpy).toHaveBeenCalledWith(bitmap, 0, 0, 64, 32, 0, 0, 128, 64)
+  })
+
+  it('소스 사각형만 주면 소스 크기로 그려야 함', async () => {
+    const loader = new FastDrawImage()
+    await loader.drawImage('sprite.png', {
+      canvas: fakeCanvas,
+      sx: 8,
+      sy: 8,
+      sWidth: 64,
+      sHeight: 32,
+    })
+
+    expect(drawSpy).toHaveBeenCalledWith(bitmap, 8, 8, 64, 32, 0, 0, 64, 32)
   })
 
   it('width/height가 있으면 리사이즈하여 그려야 함', async () => {

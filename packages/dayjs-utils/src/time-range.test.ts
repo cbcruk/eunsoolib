@@ -13,6 +13,14 @@ describe('TimeRange', () => {
       expect(result.format('HH:mm:ss')).toBe('15:30:45')
     })
 
+    it('기준 시각을 넘기면 그 날짜에 시각을 붙인다', () => {
+      const tr = new TimeRange('09:00:00', '17:00:00')
+      const base = dayjs('2020-02-29T08:00:00')
+      const result = tr['toDatetime']('15:30:45', base)
+
+      expect(result.format('YYYY-MM-DD HH:mm:ss')).toBe('2020-02-29 15:30:45')
+    })
+
     it('잘못된 시간 문자열은 에러를 던진다', () => {
       const tr = new TimeRange('09:00:00', '17:00:00')
       expect(() => tr['toDatetime']('99:99:99')).toThrow()
@@ -39,6 +47,35 @@ describe('TimeRange', () => {
       const tr = new TimeRange('12:00:00', '13:00:00')
       expect(tr.isActive(now)).toBe(true)
     })
+
+    it('오늘이 아닌 날짜를 넘겨도 그 날짜의 시각으로 판정한다', () => {
+      const tr = new TimeRange('10:00:00', '14:00:00')
+
+      expect(tr.isActive(dayjs('2020-01-01T12:00:00'))).toBe(true)
+      expect(tr.isActive(dayjs('2020-01-01T15:00:00'))).toBe(false)
+      expect(tr.isActive(now.subtract(1, 'day'))).toBe(true)
+    })
+
+    it('startTime과 endTime이 같으면 빈 구간이라 false', () => {
+      const tr = new TimeRange('12:00:00', '12:00:00')
+      expect(tr.isActive(now)).toBe(false)
+    })
+
+    describe('자정을 넘는 구간 (22:00:00 ~ 02:00:00)', () => {
+      const tr = new TimeRange('22:00:00', '02:00:00')
+
+      it.each([
+        ['2025-05-06T22:00:00', true],
+        ['2025-05-06T23:30:00', true],
+        ['2025-05-07T00:00:00', true],
+        ['2025-05-07T01:59:59', true],
+        ['2025-05-07T02:00:00', false],
+        ['2025-05-06T12:00:00', false],
+        ['2025-05-06T21:59:59', false],
+      ])('%s이면 %s', (time, expected) => {
+        expect(tr.isActive(dayjs(time))).toBe(expected)
+      })
+    })
   })
 
   describe('getRemainingTime', () => {
@@ -52,6 +89,27 @@ describe('TimeRange', () => {
       const tr = new TimeRange('08:00:00', '11:59:59')
       const remaining = tr.getRemainingTime(now)
       expect(remaining).toEqual({ HH: '00', mm: '00', ss: '00' })
+    })
+
+    it('오늘이 아닌 날짜를 넘겨도 그 날짜의 endTime까지 계산한다', () => {
+      const tr = new TimeRange('10:00:00', '13:30:00')
+      const remaining = tr.getRemainingTime(dayjs('2020-01-01T12:00:00'))
+      expect(remaining).toEqual({ HH: '01', mm: '30', ss: '00' })
+    })
+
+    it('자정을 넘는 구간은 다음 날 endTime까지 계산한다', () => {
+      const tr = new TimeRange('22:00:00', '02:00:00')
+
+      expect(tr.getRemainingTime(dayjs('2025-05-06T23:30:00'))).toEqual({
+        HH: '02',
+        mm: '30',
+        ss: '00',
+      })
+      expect(tr.getRemainingTime(dayjs('2025-05-07T01:15:00'))).toEqual({
+        HH: '00',
+        mm: '45',
+        ss: '00',
+      })
     })
 
     it('잘못된 시간일 경우 null을 반환한다', () => {
