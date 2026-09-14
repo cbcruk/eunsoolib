@@ -45,7 +45,7 @@ export interface DevtoolsHandle {
  * const worker = setupWorker(...handlers)
  *
  * if (import.meta.env.DEV) {
- *   const { setupMswDevtools } = await import('@eunsoolib/msw-devtools')
+ *   const { setupMswDevtools } = await import('@cbcruk/msw-devtools')
  *   setupMswDevtools(worker)
  * }
  *
@@ -55,7 +55,7 @@ export interface DevtoolsHandle {
  * @example UI 없이 테스트에서 같은 시나리오 재생하기
  * ```ts
  * import { setupServer } from 'msw/node'
- * import { setupMswDevtools } from '@eunsoolib/msw-devtools'
+ * import { setupMswDevtools } from '@cbcruk/msw-devtools'
  *
  * const { store, unmount } = setupMswDevtools(server, { ui: false, storage })
  * store.importScenario(await readFile('./scenarios/checkout-fails.json', 'utf8'))

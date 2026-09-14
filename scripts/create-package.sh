@@ -36,7 +36,7 @@ mkdir -p "$PACKAGE_DIR/src"
 # package.json 생성
 cat > "$PACKAGE_DIR/package.json" << EOF
 {
-  "name": "@eunsoolib/$PACKAGE_NAME",
+  "name": "@cbcruk/$PACKAGE_NAME",
   "description": "TODO: 한 줄 설명",
   "version": "0.0.1",
   "type": "module",

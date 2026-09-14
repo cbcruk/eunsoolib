@@ -1,4 +1,4 @@
-import { useStore } from '@eunsoolib/sync-store'
+import { useStore } from '@cbcruk/sync-store'
 import { audioStore, type AudioState } from './audio-store'
 
 /**

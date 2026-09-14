@@ -1,4 +1,4 @@
-# @eunsoolib/is-overflowing
+# @cbcruk/is-overflowing
 
 엘리먼트의 내용이 가로·세로로 넘치는지 감지하는 React 훅입니다.
 
@@ -8,7 +8,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/is-overflowing react
+pnpm add @cbcruk/is-overflowing react
 ```
 
 브라우저 전용입니다. 크기 변화 감지에 ahooks의 `useSize`를 사용합니다.
@@ -16,7 +16,7 @@ pnpm add @eunsoolib/is-overflowing react
 ## 사용법
 
 ```tsx
-import { useOverflowDetection } from '@eunsoolib/is-overflowing'
+import { useOverflowDetection } from '@cbcruk/is-overflowing'
 
 function Title({ text }: { text: string }) {
   const { ref, hasHorizontalOverflow } = useOverflowDetection<HTMLDivElement>()

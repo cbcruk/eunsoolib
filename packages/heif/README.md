@@ -1,4 +1,4 @@
-# @eunsoolib/heif
+# @cbcruk/heif
 
 브라우저에서 HEIF(`.heic`/`.heif`) 이미지를 JPEG/PNG/WebP로 변환
 
@@ -7,7 +7,7 @@ iOS가 기본으로 찍는 HEIC는 대부분의 브라우저·서버가 디코�
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/heif libheif-js
+pnpm add @cbcruk/heif libheif-js
 ```
 
 `libheif-js`는 peer dependency입니다 (wasm 디코더). 실제 변환 시 동적 import 되므로, HEIF가 아닌 파일만 다루는 경로에서는 로드되지 않습니다.
@@ -19,7 +19,7 @@ pnpm add @eunsoolib/heif libheif-js
 `processImageFile`은 HEIF면 변환된 `File`을, 아니면 입력을 **그대로** 반환합니다. 파일 종류를 가리지 않고 한 번에 통과시킬 수 있습니다.
 
 ```typescript
-import { processImageFile } from '@eunsoolib/heif'
+import { processImageFile } from '@cbcruk/heif'
 
 async function handleUpload(file: File): Promise<File> {
   const safe = await processImageFile(file)
@@ -31,7 +31,7 @@ async function handleUpload(file: File): Promise<File> {
 ### 직접 변환
 
 ```typescript
-import { heifToBlob } from '@eunsoolib/heif'
+import { heifToBlob } from '@cbcruk/heif'
 
 const blob = await heifToBlob(heicFile, { type: 'image/webp', quality: 0.9 })
 const url = URL.createObjectURL(blob)
@@ -40,7 +40,7 @@ const url = URL.createObjectURL(blob)
 ### HEIF 여부만 판별
 
 ```typescript
-import { isHeifFile } from '@eunsoolib/heif'
+import { isHeifFile } from '@cbcruk/heif'
 
 isHeifFile(new File([], 'IMG_0001.HEIC')) // true
 ```

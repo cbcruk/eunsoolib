@@ -1,4 +1,4 @@
-# @eunsoolib/intl-layer
+# @cbcruk/intl-layer
 
 브라우저 `Intl` API를 안전하게 쓰기 위한 **locale layer**. React / vanilla 양쪽을
 지원하며, "암묵적 환경 의존"을 제거하고 locale 결정 지점을 한 곳으로 모은다.
@@ -6,7 +6,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/intl-layer
+pnpm add @cbcruk/intl-layer
 # React 바인딩을 쓸 때만:
 pnpm add react
 ```
@@ -31,7 +31,7 @@ silent하게 쓴다. 이게 실무에선 함정이다.
 language subtag까지 협상한다.
 
 ```ts
-import { resolveLocale } from '@eunsoolib/intl-layer'
+import { resolveLocale } from '@cbcruk/intl-layer'
 
 const locale = resolveLocale({
   urlSegment: 'ko', // /ko/dashboard 의 첫 세그먼트
@@ -51,11 +51,7 @@ const locale = resolveLocale({
 locale 변경 시 캐시 무효화 + `<html lang>` 동기화.
 
 ```ts
-import {
-  createI18nStore,
-  applyI18n,
-  bindI18nSweep,
-} from '@eunsoolib/intl-layer'
+import { createI18nStore, applyI18n, bindI18nSweep } from '@cbcruk/intl-layer'
 
 const store = createI18nStore({ locale: 'ko-KR', timeZone: 'Asia/Seoul' })
 
@@ -72,7 +68,7 @@ store.setLocale('en-US') // 캐시 비움 + <html lang> 갱신 + change 발생
 Custom Element (패턴 B):
 
 ```ts
-import { defineFormattedDate } from '@eunsoolib/intl-layer'
+import { defineFormattedDate } from '@cbcruk/intl-layer'
 
 defineFormattedDate(store) // <fmt-date value="2026-01-15" style-as="long">
 ```
@@ -80,7 +76,7 @@ defineFormattedDate(store) // <fmt-date value="2026-01-15" style-as="long">
 ### React — Context + memoize
 
 ```tsx
-import { LocaleProvider, useFormatters } from '@eunsoolib/intl-layer'
+import { LocaleProvider, useFormatters } from '@cbcruk/intl-layer'
 
 // 서버에서 결정한 locale 주입 (Next.js App Router라면 [locale] segment → RootLayout)
 function Root() {
@@ -100,7 +96,7 @@ function Price({ value }: { value: number }) {
 vanilla store를 React에 잇고 싶다면:
 
 ```tsx
-import { useI18nStore } from '@eunsoolib/intl-layer'
+import { useI18nStore } from '@cbcruk/intl-layer'
 
 const locale = useI18nStore(store) // change에 반응해 리렌더
 ```

@@ -1,4 +1,4 @@
-# @eunsoolib/reset-boundary
+# @cbcruk/reset-boundary
 
 `deps`가 바뀌면 경계 안의 상태를 초기값으로 되돌리는 React 컴포넌트입니다.
 
@@ -7,13 +7,13 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/reset-boundary
+pnpm add @cbcruk/reset-boundary
 ```
 
 ## 사용법
 
 ```tsx
-import { ResetBoundary, Resettable } from '@eunsoolib/reset-boundary'
+import { ResetBoundary, Resettable } from '@cbcruk/reset-boundary'
 
 function ProductReview({ productId }: { productId: string }) {
   return (

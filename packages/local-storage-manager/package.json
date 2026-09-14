@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/local-storage-manager",
+  "name": "@cbcruk/local-storage-manager",
   "description": "타입 안전한 localStorage 관리 유틸리티",
   "version": "0.0.1",
   "type": "module",

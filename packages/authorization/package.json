@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/authorization",
+  "name": "@cbcruk/authorization",
   "description": "표준 Request/Response 기반 HTTP Basic 인증 전략",
   "version": "0.0.1",
   "type": "module",

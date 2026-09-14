@@ -1,4 +1,4 @@
-# @eunsoolib/web-identity
+# @cbcruk/web-identity
 
 > Modern Web Identity APIs를 하나의 TypeScript 라이브러리로 통합
 
@@ -17,17 +17,13 @@ Google I/O 2025에서 발표된 최신 웹 인증/신원확인 API들을 통합�
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/web-identity
+pnpm add @cbcruk/web-identity
 ```
 
 ## 사용법
 
 ```ts
-import {
-  WebIdentity,
-  DigitalCredentials,
-  Passkeys,
-} from '@eunsoolib/web-identity'
+import { WebIdentity, DigitalCredentials, Passkeys } from '@cbcruk/web-identity'
 
 const identity = new WebIdentity('example.com')
 
@@ -150,7 +146,7 @@ await identity.passkeys.signalAllAcceptedCredentials({
 ### 6. FedCM 제휴 로그인
 
 ```ts
-import { FedCM } from '@eunsoolib/web-identity'
+import { FedCM } from '@cbcruk/web-identity'
 
 // Active 모드: 버튼 클릭 후 프롬프트 표시
 const credential = await identity.signInWithFederation([
@@ -182,7 +178,7 @@ const credential = await identity.fedcm.signInMultiProvider(
 ### 7. 디지털 신원 확인
 
 ```ts
-import { DigitalCredentials } from '@eunsoolib/web-identity'
+import { DigitalCredentials } from '@cbcruk/web-identity'
 
 // 연령 확인 (18세 이상인지만 확인, 생년월일 미공개)
 const cred = await identity.verifyIdentity([
@@ -234,7 +230,7 @@ WebIdentity (facade)
 모든 에러는 `WebIdentityError`로 래핑됩니다:
 
 ```ts
-import { WebIdentityError } from '@eunsoolib/web-identity';
+import { WebIdentityError } from '@cbcruk/web-identity';
 
 try {
   const result = await identity.signIn({ ... });
@@ -261,7 +257,7 @@ try {
 ### 유틸리티
 
 ```ts
-import { toBase64URL, fromBase64URL } from '@eunsoolib/web-identity'
+import { toBase64URL, fromBase64URL } from '@cbcruk/web-identity'
 
 // ArrayBuffer ↔ Base64URL 변환
 const encoded = toBase64URL(credential.rawId)

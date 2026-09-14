@@ -10,7 +10,7 @@ import type { QueryState } from './types'
  *
  * @example 상태에서 data 꺼내기
  * ```ts
- * import { hasData, toQueryState } from '@eunsoolib/query-view'
+ * import { hasData, toQueryState } from '@cbcruk/query-view'
  *
  * const state = toQueryState(query)
  * const items = hasData(state) ? state.data : []
@@ -57,7 +57,7 @@ export function defaultIsEmpty(value: unknown): boolean {
  *
  * @example 취소를 에러 패널에서 제외하기
  * ```tsx
- * import { QueryView, isAbortError } from '@eunsoolib/query-view'
+ * import { QueryView, isAbortError } from '@cbcruk/query-view'
  *
  * <QueryView
  *   query={query}

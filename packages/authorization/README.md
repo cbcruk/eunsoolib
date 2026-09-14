@@ -1,4 +1,4 @@
-# @eunsoolib/authorization
+# @cbcruk/authorization
 
 표준 `Request`/`Response` 기반 HTTP Basic 인증 전략입니다.
 
@@ -8,7 +8,7 @@ Web 표준 `Request`만 받으므로 Cloudflare Workers, Deno, Bun, Node 18+ 등
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/authorization
+pnpm add @cbcruk/authorization
 ```
 
 `Request`, `Response`, `atob`이 전역에 있어야 합니다.
@@ -16,7 +16,7 @@ pnpm add @eunsoolib/authorization
 ## 사용법
 
 ```ts
-import { BasicAuthStrategy } from '@eunsoolib/authorization'
+import { BasicAuthStrategy } from '@cbcruk/authorization'
 
 const strategy = new BasicAuthStrategy('admin', 'secret')
 
@@ -39,7 +39,7 @@ export default {
 있습니다.
 
 ```ts
-import type { AuthStrategy } from '@eunsoolib/authorization'
+import type { AuthStrategy } from '@cbcruk/authorization'
 
 const guard = (strategy: AuthStrategy, request: Request) =>
   strategy.authorize(request)

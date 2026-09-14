@@ -1,4 +1,4 @@
-# @eunsoolib/image-first-frame
+# @cbcruk/image-first-frame
 
 애니메이션 이미지(GIF · 애니메이션 WebP · APNG)의 **첫 프레임**을 PNG/JPEG/WebP
 `Blob`으로 추출하는 브라우저 유틸리티입니다.
@@ -9,13 +9,13 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/image-first-frame
+pnpm add @cbcruk/image-first-frame
 ```
 
 ## 사용법
 
 ```typescript
-import { imageFirstFrameToBlob } from '@eunsoolib/image-first-frame'
+import { imageFirstFrameToBlob } from '@cbcruk/image-first-frame'
 
 // <input type="file"> 등에서 받은 GIF File
 const thumbnail = await imageFirstFrameToBlob(gifFile, {
@@ -45,7 +45,7 @@ await imageFirstFrameToBlob(file, { type: 'image/png', background: '#000' })
 `Blob` 대신 그려진 캔버스가 필요할 때(데이터 URL, 추가 가공 등):
 
 ```typescript
-import { imageFirstFrameToCanvas } from '@eunsoolib/image-first-frame'
+import { imageFirstFrameToCanvas } from '@cbcruk/image-first-frame'
 
 const canvas = await imageFirstFrameToCanvas(file, { type: 'image/jpeg' })
 const dataUrl = canvas.toDataURL('image/jpeg', 0.9)

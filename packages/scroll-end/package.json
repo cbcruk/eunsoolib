@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/scroll-end",
+  "name": "@cbcruk/scroll-end",
   "description": "네이티브 scrollend 이벤트 기반 스크롤 종료·sticky 감지 훅",
   "version": "0.0.1",
   "type": "module",

@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/stacked-pr",
+  "name": "@cbcruk/stacked-pr",
   "description": "gh stack을 인메모리 자료구조로 모델링한 Stacked PR 구현",
   "version": "0.0.1",
   "type": "module",

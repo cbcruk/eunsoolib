@@ -41,7 +41,7 @@ export function compileOverride(override: Override): RequestHandler | null {
  *
  * @example 시나리오를 코드로 적용하기
  * ```ts
- * import { compileScenario } from '@eunsoolib/msw-devtools'
+ * import { compileScenario } from '@cbcruk/msw-devtools'
  *
  * worker.resetHandlers()
  * worker.use(...compileScenario(scenario.overrides))

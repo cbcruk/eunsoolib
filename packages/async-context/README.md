@@ -1,4 +1,4 @@
-# @eunsoolib/async-context
+# @cbcruk/async-context
 
 Node.js `AsyncLocalStorage` 기반의 타입 안전한 컨텍스트 관리 라이브러리입니다.
 
@@ -7,7 +7,7 @@ Node.js `AsyncLocalStorage` 기반의 타입 안전한 컨텍스트 관리 라�
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/async-context
+pnpm add @cbcruk/async-context
 ```
 
 ## 핵심 컨셉
@@ -32,7 +32,7 @@ pnpm add @eunsoolib/async-context
 ### 1. 컨텍스트 생성
 
 ```typescript
-import { createAsyncContext } from '@eunsoolib/async-context'
+import { createAsyncContext } from '@cbcruk/async-context'
 
 interface User {
   id: string
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
 #### 단일 컨텍스트 래퍼
 
 ```typescript
-import { createRouteWrapper } from '@eunsoolib/async-context'
+import { createRouteWrapper } from '@cbcruk/async-context'
 
 const withAuth = createRouteWrapper(userContext, async (request) => {
   return await authenticate(request)
@@ -97,7 +97,7 @@ export const GET = withAuth(async () => {
 #### 다중 컨텍스트 래퍼
 
 ```typescript
-import { createMultiRouteWrapper } from '@eunsoolib/async-context'
+import { createMultiRouteWrapper } from '@cbcruk/async-context'
 
 const withContext = createMultiRouteWrapper({
   user: {
@@ -132,7 +132,7 @@ Express/Koa 스타일의 미들웨어 체인을 구성할 수 있습니다.
 import {
   createContextMiddleware,
   runWithMiddlewares,
-} from '@eunsoolib/async-context'
+} from '@cbcruk/async-context'
 
 // 미들웨어 정의
 const requestMiddleware = createContextMiddleware(requestContext, (req) => ({
@@ -156,7 +156,7 @@ const result = await runWithMiddlewares(
 ### 디버깅
 
 ```typescript
-import { debugContexts } from '@eunsoolib/async-context'
+import { debugContexts } from '@cbcruk/async-context'
 
 const status = debugContexts({
   user: userContext,

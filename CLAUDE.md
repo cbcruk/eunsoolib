@@ -33,7 +33,7 @@ Each package follows the same pattern:
 
 Every package has a Korean `README.md` following `scripts/templates/README.md` (`pnpm check:readme` validates it):
 
-- Title `# @eunsoolib/<name>` followed by a one-line description matching `package.json` `description`
+- Title `# @cbcruk/<name>` followed by a one-line description matching `package.json` `description`
 - Required h2 sections in order: `## 설치` → `## 사용법` → `## API`; concept sections may sit between 설치 and 사용법, notes/constraints/browser support go after API
 - No per-package license section (root `package.json` is MIT)
 - Document known constraints honestly (e.g. a `## 제약` section) instead of hiding them
@@ -48,7 +48,7 @@ Every `packages/*/package.json` carries a Korean `description` and an `eunsoolib
 
 - **category**: `react` (React 컴포넌트·훅), `dom` (DOM·CSS 브라우저 API), `state` (상태·저장소), `async` (비동기·서버), `auth` (인증·신원), `media` (이미지·미디어), `utils` (날짜·포맷 유틸), `devtools` (개발 도구), `lab` (도메인 모델·게임 — 재사용 라이브러리가 아닌 설계 실험)
 - **runtime**: one or more of `universal`, `browser`, `node`, `edge`
-- Folder name must match the package name (`packages/stacked-pr` → `@eunsoolib/stacked-pr`)
+- Folder name must match the package name (`packages/stacked-pr` → `@cbcruk/stacked-pr`)
 - Demo components/functions (`demo.tsx`, `*.example.ts`, `overflow-demo.tsx`) are not re-exported from `src/index.ts`
 
 ### Notable Packages

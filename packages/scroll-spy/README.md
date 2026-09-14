@@ -1,16 +1,16 @@
-# @eunsoolib/scroll-spy
+# @cbcruk/scroll-spy
 
 Progressive enhancement 기반의 모던 scroll-spy 라이브러리입니다.
 
 - 🚀 **네이티브 CSS** `scroll-target-group` + `:target-current` (Chrome 140+)
 - 🔧 미지원 브라우저를 위한 **IntersectionObserver** 폴백
-- ⚛️ **React 훅·컴포넌트** 포함 (`@eunsoolib/scroll-spy/react`)
+- ⚛️ **React 훅·컴포넌트** 포함 (`@cbcruk/scroll-spy/react`)
 - 📦 코어는 **의존성 없음** (훅 사용 시에만 react peer 의존)
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/scroll-spy
+pnpm add @cbcruk/scroll-spy
 ```
 
 ## Progressive Enhancement
@@ -52,7 +52,7 @@ CSS.supports('scroll-target-group')
 ### Vanilla JavaScript (폴백 포함)
 
 ```typescript
-import { createScrollSpy } from '@eunsoolib/scroll-spy'
+import { createScrollSpy } from '@cbcruk/scroll-spy'
 
 const nav = document.querySelector('.toc') as HTMLElement
 const spy = createScrollSpy(nav, {
@@ -68,7 +68,7 @@ spy.destroy()
 ### React 훅
 
 ```tsx
-import { useScrollSpyHeadings, ScrollSpyNav } from '@eunsoolib/scroll-spy/react'
+import { useScrollSpyHeadings, ScrollSpyNav } from '@cbcruk/scroll-spy/react'
 
 function Toc() {
   const { headings, currentId, navRef } = useScrollSpyHeadings({
@@ -82,10 +82,7 @@ function Toc() {
 부드러운 스크롤을 더하려면 `useSmoothScroll`을 조합합니다.
 
 ```tsx
-import {
-  useScrollSpyHeadings,
-  useSmoothScroll,
-} from '@eunsoolib/scroll-spy/react'
+import { useScrollSpyHeadings, useSmoothScroll } from '@cbcruk/scroll-spy/react'
 
 function Toc() {
   const { headings, currentId, navRef } = useScrollSpyHeadings()
@@ -110,7 +107,7 @@ function Toc() {
 
 ## API
 
-### 코어 (`@eunsoolib/scroll-spy`)
+### 코어 (`@cbcruk/scroll-spy`)
 
 | 함수                            | 설명                                               |
 | ------------------------------- | -------------------------------------------------- |
@@ -140,7 +137,7 @@ function Toc() {
 | `refresh`   | `() => void`     | 타깃 재관찰            |
 | `destroy`   | `() => void`     | 인스턴스 정리          |
 
-### React (`@eunsoolib/scroll-spy/react`)
+### React (`@cbcruk/scroll-spy/react`)
 
 | 항목                   | 설명                                          |
 | ---------------------- | --------------------------------------------- |

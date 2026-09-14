@@ -1,4 +1,4 @@
-# @eunsoolib/get-file-type-from-buffer
+# @cbcruk/get-file-type-from-buffer
 
 버퍼의 매직 넘버를 읽어 파일 형식(확장자·MIME 타입)을 판별하는 Effect 함수입니다.
 
@@ -9,7 +9,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/get-file-type-from-buffer effect
+pnpm add @cbcruk/get-file-type-from-buffer effect
 ```
 
 반환값이 Effect이므로 실행하려면 `effect`가 필요합니다. 입력 타입이 Node `Buffer`라 **Node
@@ -20,7 +20,7 @@ pnpm add @eunsoolib/get-file-type-from-buffer effect
 ```ts
 import { readFile } from 'node:fs/promises'
 import { Effect } from 'effect'
-import { getFileTypeFromBuffer } from '@eunsoolib/get-file-type-from-buffer'
+import { getFileTypeFromBuffer } from '@cbcruk/get-file-type-from-buffer'
 
 const buffer = await readFile('photo.jpg')
 const { ext, mime } = await Effect.runPromise(getFileTypeFromBuffer(buffer))

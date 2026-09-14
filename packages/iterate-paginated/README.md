@@ -1,4 +1,4 @@
-# @eunsoolib/iterate-paginated
+# @cbcruk/iterate-paginated
 
 페이지네이션 API를 아이템 단위 async iterable로 평탄화합니다.
 
@@ -8,13 +8,13 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/iterate-paginated
+pnpm add @cbcruk/iterate-paginated
 ```
 
 ## 사용법
 
 ```ts
-import { iteratePaginated, type PagedFetch } from '@eunsoolib/iterate-paginated'
+import { iteratePaginated, type PagedFetch } from '@cbcruk/iterate-paginated'
 
 type User = { id: string; name: string }
 

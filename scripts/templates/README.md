@@ -1,4 +1,4 @@
-# @eunsoolib/{{name}}
+# @cbcruk/{{name}}
 
 {{description}}
 
@@ -6,7 +6,7 @@
 선택: 왜 필요한지, 무엇을 해결하는지 2~5줄. 긴 배경·원리는 아래 "설계 노트"로 보낸다.
 
 규칙 (scripts/check-readmes.mjs가 검사)
-- 제목은 package.json의 name과 같게: `# @eunsoolib/<name>`
+- 제목은 package.json의 name과 같게: `# @cbcruk/<name>`
 - 제목 바로 아래 한 줄 설명은 package.json의 description과 같은 뜻으로
 - `## 설치` → `## 사용법` → `## API` 세 섹션은 필수, 이 순서
 - 사용법이 여러 갈래면 `## 사용법` 아래 `###`로 나누고, 개념 설명이 먼저 필요하면
@@ -19,7 +19,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/{{name}}
+pnpm add @cbcruk/{{name}}
 ```
 
 <!-- peer dependency나 실행 환경(browser / node / edge) 제약이 있으면 여기에 적는다 -->
@@ -27,7 +27,7 @@ pnpm add @eunsoolib/{{name}}
 ## 사용법
 
 ```ts
-import { example } from '@eunsoolib/{{name}}'
+import { example } from '@cbcruk/{{name}}'
 
 example()
 ```

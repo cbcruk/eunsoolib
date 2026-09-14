@@ -1,11 +1,11 @@
-# @eunsoolib/sync-store
+# @cbcruk/sync-store
 
 프레임워크에 의존하지 않는 싱글턴 store core와, 그 위에 얇게 얹는 React `useSyncExternalStore` 레이어.
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/sync-store
+pnpm add @cbcruk/sync-store
 ```
 
 core(`createStore`, `persist`)는 의존성이 없고, `useStore`를 쓸 때만 `react`(peer dependency)가 필요합니다.
@@ -33,7 +33,7 @@ core(`createStore`, `persist`)는 의존성이 없고, `useStore`를 쓸 때만 
 ### 1. core: 싱글턴 store 정의
 
 ```ts
-import { createStore } from '@eunsoolib/sync-store'
+import { createStore } from '@cbcruk/sync-store'
 
 interface CounterState {
   count: number
@@ -59,7 +59,7 @@ counterActions.increment() // { count: 1 }
 ### 2. React: `useStore`로 바인딩
 
 ```tsx
-import { useStore } from '@eunsoolib/sync-store'
+import { useStore } from '@cbcruk/sync-store'
 import { counterStore, counterActions } from './counter-store'
 
 function Counter() {
@@ -94,7 +94,7 @@ const ids = useStore(
 `createStore` 위에 localStorage 영속화를 얹은 store를 만든다. React를 모르므로 core 그대로 쓸 수 있다.
 
 ```ts
-import { persist } from '@eunsoolib/sync-store'
+import { persist } from '@cbcruk/sync-store'
 
 // volume / isLooping만 'audio-storage' 키에 저장
 const audioStore = persist(

@@ -1,4 +1,4 @@
-# @eunsoolib/shopping
+# @cbcruk/shopping
 
 XState 기반 장바구니·쿠폰·주문 도메인 모델입니다.
 
@@ -7,7 +7,7 @@ XState 기반 장바구니·쿠폰·주문 도메인 모델입니다.
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/shopping xstate
+pnpm add @cbcruk/shopping xstate
 ```
 
 `xstate`(^5)는 패키지 의존성이지만, `cartMachine`을 실행하려면 앱에서 `createActor`를 직접 import해야 하므로 함께 설치합니다. 매니저 클래스만 쓴다면 필요 없습니다.
@@ -18,7 +18,7 @@ pnpm add @eunsoolib/shopping xstate
 
 ```ts
 import { createActor } from 'xstate'
-import { cartMachine } from '@eunsoolib/shopping'
+import { cartMachine } from '@cbcruk/shopping'
 
 const actor = createActor(cartMachine).start()
 
@@ -32,7 +32,7 @@ actor.getSnapshot().context.items // Map<string, { id: string }>
 ### 매니저 클래스
 
 ```ts
-import { CartManager, CouponManager, OrderManager } from '@eunsoolib/shopping'
+import { CartManager, CouponManager, OrderManager } from '@cbcruk/shopping'
 
 const cart = new CartManager()
 cart.add({ id: 'p1' })

@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/sync-store",
+  "name": "@cbcruk/sync-store",
   "description": "framework-agnostic 싱글턴 store와 useSyncExternalStore 바인딩",
   "version": "0.0.1",
   "type": "module",

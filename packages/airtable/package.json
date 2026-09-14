@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/airtable",
+  "name": "@cbcruk/airtable",
   "description": "Effect 기반 Airtable API 클라이언트",
   "version": "0.0.1",
   "type": "module",

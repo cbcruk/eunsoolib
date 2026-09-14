@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/intl-layer",
+  "name": "@cbcruk/intl-layer",
   "description": "브라우저 Intl API를 위한 locale 결정·포맷터 레이어",
   "version": "0.0.1",
   "type": "module",

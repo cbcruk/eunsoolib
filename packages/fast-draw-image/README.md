@@ -1,4 +1,4 @@
-# @eunsoolib/fast-draw-image
+# @cbcruk/fast-draw-image
 
 Canvas를 위한 논블로킹 크로스브라우저 이미지 렌더링 라이브러리입니다.
 
@@ -24,7 +24,7 @@ Canvas의 `drawImage()`는 큰 이미지를 처리할 때 메인 스레드를 �
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/fast-draw-image
+pnpm add @cbcruk/fast-draw-image
 ```
 
 ## 사용법
@@ -32,7 +32,7 @@ pnpm add @eunsoolib/fast-draw-image
 ### 기본 - 이미지 로드
 
 ```typescript
-import { loadImage } from '@eunsoolib/fast-draw-image'
+import { loadImage } from '@cbcruk/fast-draw-image'
 
 const bitmap = await loadImage('https://example.com/large-image.jpg')
 
@@ -43,7 +43,7 @@ ctx.drawImage(bitmap, 0, 0)
 ### Canvas에 그리기
 
 ```typescript
-import { drawImage } from '@eunsoolib/fast-draw-image'
+import { drawImage } from '@cbcruk/fast-draw-image'
 
 await drawImage('image.jpg', {
   canvas: 'myCanvas', // Canvas ID 또는 HTMLCanvasElement
@@ -70,7 +70,7 @@ await drawImage('spritesheet.png', {
 ### 여러 이미지 프리로드
 
 ```typescript
-import { preload } from '@eunsoolib/fast-draw-image'
+import { preload } from '@cbcruk/fast-draw-image'
 
 const images = await preload(['frame1.jpg', 'frame2.jpg', 'frame3.jpg'], {
   concurrency: 2,
@@ -87,7 +87,7 @@ images.get('frame1.jpg') // ImageBitmap
 더 세밀한 제어가 필요하면 클래스 인스턴스를 직접 사용합니다.
 
 ```typescript
-import { FastDrawImage } from '@eunsoolib/fast-draw-image'
+import { FastDrawImage } from '@cbcruk/fast-draw-image'
 
 const loader = new FastDrawImage()
 
@@ -105,7 +105,7 @@ loader.getCacheStats() // { size: 0, urls: [] }
 ### AbortController로 취소
 
 ```typescript
-import { loadImage } from '@eunsoolib/fast-draw-image'
+import { loadImage } from '@cbcruk/fast-draw-image'
 
 const controller = new AbortController()
 setTimeout(() => controller.abort(), 5000)

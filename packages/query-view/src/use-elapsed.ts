@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
  *
  * @example 지연 단계에 따라 문구 바꾸기
  * ```tsx
- * import { useElapsed } from '@eunsoolib/query-view'
+ * import { useElapsed } from '@cbcruk/query-view'
  *
  * function Waiting({ pending }: { pending: boolean }) {
  *   const elapsed = useElapsed(pending)

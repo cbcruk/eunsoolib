@@ -1,11 +1,11 @@
-# @eunsoolib/airtable
+# @cbcruk/airtable
 
 Effect 기반 Airtable API 클라이언트 라이브러리
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/airtable effect
+pnpm add @cbcruk/airtable effect
 ```
 
 ## 사용법
@@ -14,7 +14,7 @@ pnpm add @eunsoolib/airtable effect
 
 ```typescript
 import { Effect } from 'effect'
-import { fetchList, makeAirtableConfigLayer } from '@eunsoolib/airtable'
+import { fetchList, makeAirtableConfigLayer } from '@cbcruk/airtable'
 
 // Layer 생성
 const ConfigLayer = makeAirtableConfigLayer({
@@ -47,7 +47,7 @@ import {
   paginationFormula,
   getLastPage,
   makeAirtableConfigLayer,
-} from '@eunsoolib/airtable'
+} from '@cbcruk/airtable'
 import { Effect } from 'effect'
 
 const ConfigLayer = makeAirtableConfigLayer({
@@ -76,7 +76,7 @@ import {
   fetchList,
   AirtableError,
   makeAirtableConfigLayer,
-} from '@eunsoolib/airtable'
+} from '@cbcruk/airtable'
 
 const ConfigLayer = makeAirtableConfigLayer({
   apiKey: 'your-api-key',

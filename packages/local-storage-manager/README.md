@@ -1,11 +1,11 @@
-# @eunsoolib/local-storage-manager
+# @cbcruk/local-storage-manager
 
 localStorage를 타입 안전하게 관리하는 유틸리티 라이브러리
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/local-storage-manager
+pnpm add @cbcruk/local-storage-manager
 ```
 
 ## 사용법
@@ -15,7 +15,7 @@ pnpm add @eunsoolib/local-storage-manager
 단일 값을 저장/조회할 때 사용합니다.
 
 ```typescript
-import { LocalStorageManager } from '@eunsoolib/local-storage-manager'
+import { LocalStorageManager } from '@cbcruk/local-storage-manager'
 
 // 타입 지정
 const storage = new LocalStorageManager<{ theme: string; fontSize: number }>(
@@ -37,7 +37,7 @@ storage.remove()
 Map 형태의 데이터를 관리할 때 사용합니다.
 
 ```typescript
-import { LocalStorageMapManager } from '@eunsoolib/local-storage-manager'
+import { LocalStorageMapManager } from '@cbcruk/local-storage-manager'
 
 type User = { id: string; name: string; status: 'active' | 'inactive' }
 

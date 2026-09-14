@@ -1,4 +1,4 @@
-# @eunsoolib/pagination
+# @cbcruk/pagination
 
 Instance Hook Pattern 기반의 React pagination 라이브러리입니다.
 
@@ -7,7 +7,7 @@ Instance Hook Pattern 기반의 React pagination 라이브러리입니다.
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/pagination
+pnpm add @cbcruk/pagination
 ```
 
 ## 사용법
@@ -15,7 +15,7 @@ pnpm add @eunsoolib/pagination
 ### 인스턴스를 공유하는 컴포넌트
 
 ```tsx
-import { usePagination, Pagination } from '@eunsoolib/pagination'
+import { usePagination, Pagination } from '@cbcruk/pagination'
 
 function ProductTable({ total }: { total: number }) {
   const pagination = usePagination({ total, initialPageSize: 8 })

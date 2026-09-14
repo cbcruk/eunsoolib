@@ -1,4 +1,4 @@
-# @eunsoolib/logo-soup-utils
+# @cbcruk/logo-soup-utils
 
 `react-logo-soup`의 로고 정규화 알고리즘을 **환경 비의존 순수 함수**로 재구성한 패키지입니다.
 
@@ -9,7 +9,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/logo-soup-utils
+pnpm add @cbcruk/logo-soup-utils
 ```
 
 의존성이 없는 순수 함수라 브라우저·Node·Worker 어디서든 동작합니다. RGBA 픽셀을 얻는 방법만 환경에 맞게 준비하면 됩니다.
@@ -25,7 +25,7 @@ import {
   downsampleDimensions,
   getVisualCenterTransform,
   scanPixels,
-} from '@eunsoolib/logo-soup-utils'
+} from '@cbcruk/logo-soup-utils'
 
 async function measureLogo(src: string) {
   const img = new Image()

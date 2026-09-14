@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/highlight-kit",
+  "name": "@cbcruk/highlight-kit",
   "description": "CSS Custom Highlight API 기반 텍스트 하이라이트 core와 React 어댑터",
   "version": "0.0.1",
   "type": "module",

@@ -1,4 +1,4 @@
-# @eunsoolib/rw-lock
+# @cbcruk/rw-lock
 
 single-threaded async 환경(브라우저 / Node)을 위한 Readers–Writer Lock
 
@@ -7,7 +7,7 @@ JS/TS는 single-threaded라 진짜 thread contention은 없지만, 비동기 작
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/rw-lock
+pnpm add @cbcruk/rw-lock
 ```
 
 ## 핵심 동작
@@ -26,7 +26,7 @@ pnpm add @eunsoolib/rw-lock
 `acquire` / `release`를 직접 다루는 대신 헬퍼를 쓰면 `finally`로 release가 보장되어 안전합니다.
 
 ```typescript
-import { RWLock } from '@eunsoolib/rw-lock'
+import { RWLock } from '@cbcruk/rw-lock'
 
 const lock = new RWLock() // 디폴트: write-preferring
 

@@ -1,4 +1,4 @@
-# @eunsoolib/box-sizing-audit
+# @cbcruk/box-sizing-audit
 
 `content-box` → `border-box` 마이그레이션을 위한 토글-비교 감사 도구. 페이지를
 현재 상태로 캡처하고, 선택한 스코프에 `box-sizing: border-box`를 주입한 뒤 다시
@@ -11,7 +11,7 @@ preflight / 벤더 스타일)은 no-op이라 결과에 나타나지 않는다. d
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/box-sizing-audit
+pnpm add @cbcruk/box-sizing-audit
 # 감사를 실제로 실행하려면 (peer):
 pnpm add -D playwright pixelmatch pngjs
 ```
@@ -55,7 +55,7 @@ node box-sizing-audit.example.js http://localhost:3000/admin --scope main
 ### 프로그래밍 방식
 
 ```ts
-import { boxSizingAudit, formatReport } from '@eunsoolib/box-sizing-audit'
+import { boxSizingAudit, formatReport } from '@cbcruk/box-sizing-audit'
 
 const result = await boxSizingAudit({
   url: 'http://localhost:3000/admin',

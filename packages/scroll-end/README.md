@@ -1,4 +1,4 @@
-# @eunsoolib/scroll-end
+# @cbcruk/scroll-end
 
 네이티브 `scrollend` 이벤트 기반의 headless React 19 훅 모음입니다. 스크롤 종료·sticky stuck 감지를 타이머 추정 없이 정확하게 다룹니다.
 
@@ -25,7 +25,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/scroll-end
+pnpm add @cbcruk/scroll-end
 ```
 
 ## 사용법
@@ -35,7 +35,7 @@ pnpm add @eunsoolib/scroll-end
 `scrollend`를 구독합니다. 핸들러는 ref로 최신화되어 매 렌더마다 리스너를 재등록하지 않습니다(stale closure 안전).
 
 ```tsx
-import { useScrollEnd } from '@eunsoolib/scroll-end'
+import { useScrollEnd } from '@cbcruk/scroll-end'
 
 useScrollEnd({
   onScrollEnd: () => {
@@ -54,7 +54,7 @@ useScrollEnd({ target: ref, onScrollEnd: handleEnd, enabled: isActive })
 sticky 요소 바로 위에 0px sentinel을 두고 IO로 관찰합니다. `isStuck`은 실시간으로 갱신되고, `onStuckChange`는 `scrollend`에서만 호출됩니다.
 
 ```tsx
-import { useStuck } from '@eunsoolib/scroll-end'
+import { useStuck } from '@cbcruk/scroll-end'
 
 function Header() {
   const { sentinelRef, isStuck } = useStuck({
@@ -83,7 +83,7 @@ function Header() {
 여러 sticky 섹션 헤더 중 현재 stuck된(=보고 있는) 섹션을 `scrollend` 시점에 한 번만 판정합니다. 사이드 네비/브레드크럼 동기화에 적합하며 스크롤 중 깜빡임이 없습니다.
 
 ```tsx
-import { useActiveSection } from '@eunsoolib/scroll-end'
+import { useActiveSection } from '@cbcruk/scroll-end'
 
 const sectionRefs = [ref1, ref2, ref3]
 const { activeSection } = useActiveSection(sectionRefs)
@@ -92,7 +92,7 @@ const { activeSection } = useActiveSection(sectionRefs)
 ### `isScrollEndSupported`
 
 ```ts
-import { isScrollEndSupported } from '@eunsoolib/scroll-end'
+import { isScrollEndSupported } from '@cbcruk/scroll-end'
 
 if (!isScrollEndSupported()) {
   /* 폴리필 적용 */
@@ -128,14 +128,14 @@ if (!isScrollEndSupported()) {
 
 ### `installScrollEndPolyfill(target?, options?): () => void`
 
-`@eunsoolib/scroll-end/polyfill` entry. `target` 기본값은 `document`, `idleDelay`(ms) 기본값은 `100`이며 해제 함수를 반환합니다.
+`@cbcruk/scroll-end/polyfill` entry. `target` 기본값은 `document`, `idleDelay`(ms) 기본값은 `100`이며 해제 함수를 반환합니다.
 
 ## 폴리필 (별도 entry)
 
 기본 번들 오염을 막기 위해 폴리필은 별도 경로로 분리되어 있습니다. `scrollend` 미지원 시 스크롤 idle을 감지해 합성 이벤트를 발행합니다.
 
 ```ts
-import { installScrollEndPolyfill } from '@eunsoolib/scroll-end/polyfill'
+import { installScrollEndPolyfill } from '@cbcruk/scroll-end/polyfill'
 
 // 지원 환경이면 no-op, 미지원이면 scroll idle → scrollend 합성
 const uninstall = installScrollEndPolyfill(document, { idleDelay: 100 })

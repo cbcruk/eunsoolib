@@ -40,7 +40,7 @@ function keysChanged(
  *
  * @example 라우트가 바뀌면 자동 리셋
  * ```tsx
- * import { ErrorBoundary } from '@eunsoolib/query-view'
+ * import { ErrorBoundary } from '@cbcruk/query-view'
  *
  * <ErrorBoundary
  *   resetKeys={[pathname]}

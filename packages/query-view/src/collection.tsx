@@ -19,7 +19,7 @@ export type CollectionProps<T> = {
  *
  * @example 이미 받은 목록 렌더하기
  * ```tsx
- * import { Collection } from '@eunsoolib/query-view'
+ * import { Collection } from '@cbcruk/query-view'
  *
  * <Collection items={posts} empty={<p>아직 글이 없습니다</p>}>
  *   {(items) => <PostList posts={items} />}

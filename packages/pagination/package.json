@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/pagination",
+  "name": "@cbcruk/pagination",
   "description": "Instance Hook 패턴 기반 React 페이지네이션",
   "version": "0.0.1",
   "type": "module",

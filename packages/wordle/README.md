@@ -1,4 +1,4 @@
-# @eunsoolib/wordle
+# @cbcruk/wordle
 
 워들 게임 로직, 공유 코드 인코딩, 경과 시간 타이머를 담은 패키지입니다.
 
@@ -7,7 +7,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/wordle
+pnpm add @cbcruk/wordle
 ```
 
 기본 사전 검증기 `hasWordDefinitions`는 `fetch`로 [Free Dictionary API](https://dictionaryapi.dev/)(영어)를 호출하므로 네트워크가 필요합니다.
@@ -15,7 +15,7 @@ pnpm add @eunsoolib/wordle
 ## 사용법
 
 ```ts
-import { GAME_STATUS, Wordle, WordleCodec } from '@eunsoolib/wordle'
+import { GAME_STATUS, Wordle, WordleCodec } from '@cbcruk/wordle'
 
 // 공유 링크의 ?code=YXBwbGU= 에서 정답 복원
 const answer = WordleCodec.decode('YXBwbGU=') // 'apple'

@@ -1,4 +1,4 @@
-# @eunsoolib/download-image
+# @cbcruk/download-image
 
 URL에서 이미지를 내려받아 매직 넘버로 형식을 판별한 뒤 알맞은 확장자로 저장하는 Node
 유틸리티입니다.
@@ -9,17 +9,17 @@ Effect를 직접 실행하므로 호출하는 쪽은 일반 `Promise`로 다룹�
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/download-image
+pnpm add @cbcruk/download-image
 ```
 
-`effect`, `@effect/platform`, `@effect/platform-node`, `@eunsoolib/get-file-type-from-buffer`는
+`effect`, `@effect/platform`, `@effect/platform-node`, `@cbcruk/get-file-type-from-buffer`는
 의존성으로 함께 설치되므로 따로 추가할 필요가 없습니다. `Buffer`와 Node 파일 시스템을 쓰므로
 **Node 전용**입니다.
 
 ## 사용법
 
 ```ts
-import { downloadImage } from '@eunsoolib/download-image'
+import { downloadImage } from '@cbcruk/download-image'
 
 await downloadImage({
   url: 'https://avatars.githubusercontent.com/u/7017895?v=4',
@@ -57,7 +57,7 @@ await downloadImage({
 
 - 성공/실패 결과를 반환하지 않습니다. 성공하면 `console.log`로 저장 경로를, 실패하면
   `console.error`로 메시지를 출력하고 `Promise`는 그대로 resolve됩니다. 저장 경로가 필요하거나
-  실패를 `catch`로 받아야 한다면 이 함수 대신 `@eunsoolib/get-file-type-from-buffer`를 직접
+  실패를 `catch`로 받아야 한다면 이 함수 대신 `@cbcruk/get-file-type-from-buffer`를 직접
   조합하세요.
 - 파일명이 항상 `image.<ext>`라 같은 `dest`에 여러 번 받으면 덮어씁니다.
 - HTTP 상태 코드나 이미지 여부를 따로 확인하지 않습니다. 판별 가능한 형식이면 그대로 저장합니다.

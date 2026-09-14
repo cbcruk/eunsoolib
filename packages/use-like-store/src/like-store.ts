@@ -1,4 +1,4 @@
-import { createStore } from '@eunsoolib/sync-store'
+import { createStore } from '@cbcruk/sync-store'
 import type { Item, LikeItemId } from './like-item'
 
 /**

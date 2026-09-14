@@ -1,11 +1,11 @@
-# @eunsoolib/lane-assignment
+# @cbcruk/lane-assignment
 
 캘린더 UI에서 겹치는 이벤트를 레인(행)에 배치하는 알고리즘
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/lane-assignment
+pnpm add @cbcruk/lane-assignment
 ```
 
 ## 알고리즘 비교
@@ -26,7 +26,7 @@ pnpm add @eunsoolib/lane-assignment
 전체 기간에 대해 한 번만 레인을 할당합니다. 같은 이벤트는 항상 같은 레인 번호를 유지합니다.
 
 ```typescript
-import { assignLanesSimple, visualizeLanes } from '@eunsoolib/lane-assignment'
+import { assignLanesSimple, visualizeLanes } from '@cbcruk/lane-assignment'
 
 const events = [
   { start: '2022-03-05', end: '2022-03-10', title: 'Event A' },
@@ -63,7 +63,7 @@ Total lanes: 3
 각 주마다 독립적으로 레인을 할당합니다. 같은 이벤트도 주가 바뀌면 레인 번호가 달라질 수 있습니다.
 
 ```typescript
-import { assignLanesWeekly, getLaneForDate } from '@eunsoolib/lane-assignment'
+import { assignLanesWeekly, getLaneForDate } from '@cbcruk/lane-assignment'
 import dayjs from 'dayjs'
 
 const events = [{ start: '2022-03-22', end: '2022-04-03', title: 'Project B' }]

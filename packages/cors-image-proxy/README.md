@@ -1,4 +1,4 @@
-# @eunsoolib/cors-image-proxy
+# @cbcruk/cors-image-proxy
 
 cross-origin 이미지를 Blob 으로 변환하기 위한 CORS 프록시 핸들러입니다. Cloudflare Workers 등 표준 `Request`/`Response` 를 사용하는 모든 런타임에서 동작합니다.
 
@@ -7,7 +7,7 @@ cross-origin 이미지를 Blob 으로 변환하기 위한 CORS 프록시 핸들�
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/cors-image-proxy
+pnpm add @cbcruk/cors-image-proxy
 ```
 
 표준 `Request`/`Response`와 `fetch`만 사용하므로 Cloudflare Workers, Deno, Node 18+ 등에서 동작합니다.
@@ -15,7 +15,7 @@ pnpm add @eunsoolib/cors-image-proxy
 ## 사용법
 
 ```ts
-import { corsImageProxy } from '@eunsoolib/cors-image-proxy'
+import { corsImageProxy } from '@cbcruk/cors-image-proxy'
 
 const handler = corsImageProxy({
   allowedOrigins: ['http://localhost:3000', '*.vercel.app'],

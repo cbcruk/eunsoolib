@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/vtt-to-json",
+  "name": "@cbcruk/vtt-to-json",
   "description": "WebVTT 자막을 중복 제거된 cue 배열로 파싱",
   "version": "0.0.1",
   "type": "module",

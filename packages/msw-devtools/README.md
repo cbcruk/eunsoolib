@@ -1,4 +1,4 @@
-# @eunsoolib/msw-devtools
+# @cbcruk/msw-devtools
 
 MSW 핸들러를 브라우저 런타임에서 조작하는 레이어
 
@@ -7,7 +7,7 @@ MSW 핸들러를 브라우저 런타임에서 조작하는 레이어
 ## 설치
 
 ```bash
-pnpm add -D @eunsoolib/msw-devtools
+pnpm add -D @cbcruk/msw-devtools
 ```
 
 `msw@^2`가 peer dependency다.
@@ -33,7 +33,7 @@ import { handlers } from './mocks/handlers'
 const worker = setupWorker(...handlers)
 
 if (import.meta.env.DEV) {
-  const { setupMswDevtools } = await import('@eunsoolib/msw-devtools')
+  const { setupMswDevtools } = await import('@cbcruk/msw-devtools')
   setupMswDevtools(worker)
 }
 
@@ -48,7 +48,7 @@ await worker.start()
 
 ```ts
 import { setupServer } from 'msw/node'
-import { setupMswDevtools } from '@eunsoolib/msw-devtools'
+import { setupMswDevtools } from '@cbcruk/msw-devtools'
 
 const { store, unmount } = setupMswDevtools(server, { ui: false, storage })
 store.importScenario(await readFile('./scenarios/checkout-fails.json', 'utf8'))
