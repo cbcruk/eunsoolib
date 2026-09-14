@@ -2,14 +2,22 @@ import { createStore, type Store } from './create-store'
 
 /**
  * `persist`가 사용하는 저장소 인터페이스. `localStorage` / `sessionStorage`와 호환.
+ *
+ * `persist`는 `getItem`과 `setItem`만 호출하므로 직접 구현할 때는 두 메서드만
+ * 있으면 된다.
  */
 export interface PersistStorage {
   /** 키에 저장된 문자열을 읽는다. 없으면 `null`. */
   getItem: (key: string) => string | null
   /** 키에 문자열을 저장한다. */
   setItem: (key: string, value: string) => void
-  /** 키에 저장된 값을 지운다. */
-  removeItem: (key: string) => void
+  /**
+   * 키에 저장된 값을 지운다.
+   *
+   * `persist`는 호출하지 않는다. `Storage`와 모양을 맞추기 위한 선택 멤버라, 저장분을
+   * 직접 지우는 코드가 필요할 때만 구현한다.
+   */
+  removeItem?: (key: string) => void
 }
 
 /**

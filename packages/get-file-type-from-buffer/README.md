@@ -12,8 +12,8 @@
 pnpm add @cbcruk/get-file-type-from-buffer effect
 ```
 
-반환값이 Effect이므로 실행하려면 `effect`가 필요합니다. 입력 타입이 Node `Buffer`라 **Node
-전용**입니다.
+반환값이 Effect이므로 실행하려면 `effect`가 필요합니다. 입력은 `Uint8Array` 또는 `ArrayBuffer`이며,
+Node `Buffer`는 `Uint8Array`이므로 그대로 넘길 수 있습니다.
 
 ## 사용법
 
@@ -48,9 +48,9 @@ const fileType = await Effect.runPromise(program)
 `Effect<{ ext, mime }, FileTypeFromBufferError>`를 반환합니다. `{ ext, mime }`은 `file-type`의
 판별 결과 객체입니다.
 
-| 인자     | 타입     | 설명                   |
-| -------- | -------- | ---------------------- |
-| `buffer` | `Buffer` | 검사할 파일의 바이너리 |
+| 인자     | 타입                        | 설명                                         |
+| -------- | --------------------------- | -------------------------------------------- |
+| `buffer` | `Uint8Array \| ArrayBuffer` | 검사할 파일의 바이너리(Node `Buffer`도 가능) |
 
 ### `FileTypeFromBufferError`
 

@@ -36,6 +36,8 @@ export type StackError =
     }
   /** 이미 스택에 존재하는 브랜치 이름으로 `add()`를 호출함. */
   | { readonly type: 'BranchExists'; readonly branch: string }
+  /** trunk와 같은 이름의 브랜치로 `add()`를 호출함. */
+  | { readonly type: 'BranchIsTrunk'; readonly branch: string }
   /** 스택에 없는 브랜치를 참조함. */
   | { readonly type: 'BranchNotFound'; readonly branch: string }
   /** layer가 없는 스택에서 이동/병합 연산을 시도함. */

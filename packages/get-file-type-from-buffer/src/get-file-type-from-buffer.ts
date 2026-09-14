@@ -1,7 +1,7 @@
 import { Data, Effect, Option } from 'effect'
 import { fileTypeFromBuffer } from 'file-type'
 
-type GetFileTypeFromBufferParam = Buffer
+type GetFileTypeFromBufferParam = Uint8Array | ArrayBuffer
 
 /**
  * 파일 형식 판별에 실패했을 때 발생하는 태그드 에러
@@ -22,7 +22,7 @@ export class FileTypeFromBufferError extends Data.TaggedError(
  * 확장자나 파일명이 아니라 실제 바이트를 보고 판단하므로 업로드된 파일을
  * 검증할 때 쓸 수 있다.
  *
- * @param buffer - 검사할 파일의 바이너리 버퍼
+ * @param buffer - 검사할 파일의 바이너리. Node `Buffer`는 `Uint8Array`이므로 그대로 넘길 수 있다.
  * @returns 성공 시 `{ ext, mime }`, 실패 시 {@link FileTypeFromBufferError}를
  * 담은 Effect
  * @example

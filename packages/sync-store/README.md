@@ -126,3 +126,5 @@ const audioStore = persist(
 ### `persist<T, P>(initialState, options): Store<T>`
 
 `createStore`와 동일한 `Store<T>`를 반환하되 저장소에 영속화한다. `options`: `name`(키), `storage`(기본 localStorage), `partialize`, `merge`, `version`, `migrate`.
+
+`storage`는 `PersistStorage`(`getItem` / `setItem`, 선택 `removeItem`)를 만족하면 된다. `persist`는 읽기·쓰기만 하고 저장분을 지우지 않으므로 `removeItem`은 구현하지 않아도 된다. `localStorage` / `sessionStorage`는 그대로 넘길 수 있다.

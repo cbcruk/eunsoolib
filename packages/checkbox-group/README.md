@@ -1,11 +1,9 @@
 # @cbcruk/checkbox-group
 
-체크하는 동안의 선택은 폼 안에서만 바꾸고, 제출할 때만 확정 상태로 올려보내는 체크박스
-그룹 컴포넌트입니다.
+선택 상태를 제출 시점에만 올려보내는 체크박스 그룹 컴포넌트
 
-ahooks의 `useSelections`를 두 겹으로 써서 초안(draft) 상태와 확정(commit) 상태를
-분리합니다. 체크박스를 클릭해도 확정 상태는 그대로이고, `Submit` 버튼을 눌러야
-반영됩니다.
+체크하는 동안의 선택(draft)은 폼 안에서만 바뀌고, 제출 버튼을 눌러야 확정(commit)되어
+콜백으로 올라갑니다. 필터 패널처럼 "고른 뒤 적용"하는 UI에 맞춘 컴포넌트입니다.
 
 ## 설치
 
@@ -16,6 +14,7 @@ pnpm add @cbcruk/checkbox-group react
 ## 사용법
 
 ```tsx
+import { useState, type Key } from 'react'
 import { CheckboxGroup } from '@cbcruk/checkbox-group'
 
 const frameworks = [
@@ -25,32 +24,52 @@ const frameworks = [
 ]
 
 function Example() {
-  return <CheckboxGroup list={frameworks} defaultSelected={['react']} />
+  const [applied, setApplied] = useState<Array<Key>>(['react'])
+
+  return (
+    <CheckboxGroup
+      list={frameworks}
+      defaultSelected={applied}
+      onChange={(selected) => setApplied(selected.map((item) => item.key))}
+      submitLabel="적용"
+    />
+  )
 }
 ```
 
-렌더링 결과는 다음 두 부분으로 구성됩니다.
-
-- 확정 상태를 JSON으로 보여 주는 `<pre data-testid="selected">`
-  (`selected`, `noneSelected`, `allSelected`, `partiallySelected`)
-- 체크박스 목록과 `Submit` 버튼이 있는 폼
+- 체크박스를 클릭하는 동안에는 어떤 콜백도 호출되지 않습니다.
+- 제출하면 `onSubmit`이 항상 호출되고, 선택이 직전에 확정된 선택과 달라졌을 때만
+  `onChange`가 먼저 호출됩니다. 처음 확정된 선택은 `defaultSelected`입니다.
+- 두 콜백 모두 선택된 항목(`{ key, label }`)을 클릭 순서가 아닌 `list` 순서로 받습니다.
 
 스타일은 Tailwind 유틸리티 클래스로 작성되어 있습니다.
 
 ## API
 
-### `<CheckboxGroup list defaultSelected />`
+### `<CheckboxGroup />`
 
-| Prop              | Type                                 | Default | Description                   |
-| ----------------- | ------------------------------------ | ------- | ----------------------------- |
-| `list`            | `Array<{ key: Key; label: string }>` | —       | 렌더링할 선택지 목록          |
-| `defaultSelected` | `Array<Key>`                         | —       | 처음에 선택해 둘 항목의 `key` |
+| Prop              | Type                                        | Default    | Description                                           |
+| ----------------- | ------------------------------------------- | ---------- | ----------------------------------------------------- |
+| `list`            | `Array<CheckboxGroupOption>`                | —          | 렌더링할 선택지 목록                                  |
+| `defaultSelected` | `Array<Key>`                                | `[]`       | 처음에 선택해 둘 항목의 `key`. 첫 렌더링에만 쓰임     |
+| `onChange`        | `(selected: CheckboxGroupOption[]) => void` | —          | 제출한 선택이 직전에 확정된 선택과 다를 때 호출       |
+| `onSubmit`        | `(selected: CheckboxGroupOption[]) => void` | —          | 제출할 때마다 호출. 선택이 바뀌었으면 `onChange` 다음 |
+| `submitLabel`     | `ReactNode`                                 | `'Submit'` | 제출 버튼에 표시할 내용                               |
 
-`Key`는 React의 `Key`(`string | number | bigint`) 타입입니다. `defaultSelected`는 첫
-렌더링에만 쓰입니다.
+### 타입
+
+```ts
+type CheckboxGroupOption = { key: Key; label: string }
+type CheckboxGroupProps = {
+  /* 위 표의 props */
+}
+```
+
+`Key`는 React의 `Key`(`string | number | bigint`) 타입입니다. `list`에 없는
+`defaultSelected`의 `key`는 무시됩니다.
 
 ## 제약
 
-확정된 선택값을 컴포넌트 밖으로 받는 콜백 prop(`onChange`, `onSubmit` 등)이 없습니다.
-확정 상태는 컴포넌트 안의 JSON 출력으로만 확인할 수 있어, 현재는 draft/commit 패턴을
-보여 주는 예제에 가깝습니다.
+- 비제어 컴포넌트입니다. `defaultSelected`는 첫 렌더링에만 쓰이므로, 마운트 후 바꿔도
+  체크 상태가 따라가지 않습니다. 선택을 초기화하려면 `key`를 바꿔 다시 마운트하세요.
+- 전체 선택/해제 버튼은 없습니다.

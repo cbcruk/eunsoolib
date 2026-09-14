@@ -29,6 +29,7 @@ Stacked PR은 큰 변경을 작은 PR 여러 개로 쪼개되, 각 PR이 바로 
 - `layers[0].base === trunk` — 맨 아래 레이어는 항상 trunk를 가리킴 (bottom invariant)
 - `layers[i].base === layers[i-1].branch` — 각 레이어는 바로 아래 브랜치를 base로 함 (chain invariant)
 - `add()`는 커서가 top에 있을 때만 허용됨 (`gh stack add` 규칙)
+- 레이어 브랜치 이름은 서로 겹치지 않고 trunk와도 같지 않음
 - `mergeUpTo()`는 항상 bottom-up으로만 병합됨 (`gh-stack` merge 규칙)
 
 ## 사용법
@@ -68,14 +69,14 @@ console.log(stack.render())
 
 ### 조회 (Read)
 
-| 멤버              | 설명                              |
-| ----------------- | --------------------------------- |
-| `current`         | 현재 체크아웃된 브랜치 (커서)     |
-| `size`            | 레이어 개수                       |
-| `isEmpty`         | 레이어가 없는지 여부              |
-| `view()`          | 모든 레이어 스냅샷 (bottom → top) |
-| `indexOf(branch)` | 브랜치의 인덱스 (없으면 `-1`)     |
-| `has(branch)`     | 브랜치 존재 여부                  |
+| 멤버              | 설명                                     |
+| ----------------- | ---------------------------------------- |
+| `current`         | 현재 체크아웃된 브랜치 (커서)            |
+| `size`            | 레이어 개수                              |
+| `isEmpty`         | 레이어가 없는지 여부                     |
+| `view()`          | 모든 레이어의 복사본 배열 (bottom → top) |
+| `indexOf(branch)` | 브랜치의 인덱스 (없으면 `-1`)            |
+| `has(branch)`     | 브랜치 존재 여부                         |
 
 ### 변경 (Mutate)
 
@@ -124,6 +125,7 @@ if (r.ok) {
 | ----------------- | --------------------------------------------------- |
 | `NotOnTop`        | top이 아닌 위치에서 `add()` 호출                    |
 | `BranchExists`    | 이미 존재하는 브랜치를 `add()`                      |
+| `BranchIsTrunk`   | trunk와 같은 이름의 브랜치를 `add()`                |
 | `BranchNotFound`  | 존재하지 않는 브랜치를 참조                         |
 | `EmptyStack`      | 빈 스택에서 이동 시도                               |
 | `BoundaryReached` | 더 이상 위/아래로 이동할 수 없음 (`direction` 포함) |
@@ -143,6 +145,8 @@ if (r.ok) {
 ```
 
 병합 후 커서가 병합된 브랜치 위에 있었다면, 새로운 맨 아래 브랜치(또는 스택이 비면 trunk)로 자동 이동합니다.
+
+`merged`와 `remaining`은 `view()`와 마찬가지로 호출 시점의 복사본 배열입니다. 반환된 배열을 바꿔도 스택은 그대로이고, 이후의 스택 조작도 이미 받은 배열에는 반영되지 않습니다.
 
 ## 설계 포인트
 
