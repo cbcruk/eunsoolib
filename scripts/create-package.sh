@@ -97,6 +97,10 @@ describe('$FUNCTION_NAME', () => {
 })
 EOF
 
+# README.md 생성 (템플릿의 규칙 주석은 작성 가이드로 남겨 둔다)
+sed -e "s/{{name}}/$PACKAGE_NAME/g" -e "s/{{description}}/TODO: 한 줄 설명/g" \
+  "$(dirname "$0")/templates/README.md" > "$PACKAGE_DIR/README.md"
+
 # index.ts 생성
 cat > "$PACKAGE_DIR/src/index.ts" << EOF
 export { $FUNCTION_NAME } from './$PACKAGE_NAME'
@@ -107,6 +111,7 @@ echo ""
 echo "생성된 파일:"
 echo "  $PACKAGE_DIR/"
 echo "  ├── package.json"
+echo "  ├── README.md"
 echo "  ├── tsconfig.json"
 echo "  └── src/"
 echo "      ├── index.ts"
@@ -117,4 +122,5 @@ echo -e "${YELLOW}다음 단계:${NC}"
 echo "  0. $PACKAGE_DIR/package.json의 description과 eunsoolib.category/runtime을 채우세요 (CLAUDE.md 참고)"
 echo "  1. $PACKAGE_DIR/src/$PACKAGE_NAME.ts 파일에서 구현을 작성하세요"
 echo "  2. $PACKAGE_DIR/src/$PACKAGE_NAME.test.ts 파일에서 테스트를 작성하세요"
-echo "  3. pnpm test:run 으로 테스트를 실행하세요"
+echo "  3. $PACKAGE_DIR/README.md를 채우고 pnpm check:readme로 검사하세요"
+echo "  4. pnpm test:run 으로 테스트를 실행하세요"

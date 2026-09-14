@@ -6,6 +6,14 @@
 - **도메인 액션**: core를 얇게 유지하기 위해 store 밖에서 정의(`likeActions`).
 - **React 레이어**: `useStore`(→ `useSyncExternalStore`) 기반의 `useLikes` / `useIsLiked`.
 
+## 설치
+
+```bash
+pnpm add @eunsoolib/use-like-store react
+```
+
+`@eunsoolib/sync-store`와 `zod`(아이템 스키마 검증)에 의존하며, React 훅을 쓰려면 `react`(peer dependency)가 필요합니다.
+
 ## 사용법
 
 ### core / 액션 (React 밖)

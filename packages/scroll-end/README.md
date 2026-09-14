@@ -28,7 +28,7 @@
 pnpm add @eunsoolib/scroll-end
 ```
 
-## API
+## 사용법
 
 ### `useScrollEnd` — 가장 작은 프리미티브
 
@@ -99,6 +99,37 @@ if (!isScrollEndSupported()) {
 }
 ```
 
+## API
+
+### `useScrollEnd(options): void`
+
+| 옵션          | 타입                                           | 기본값       | 설명                         |
+| ------------- | ---------------------------------------------- | ------------ | ---------------------------- |
+| `onScrollEnd` | `(event: Event) => void`                       | (필수)       | 스크롤이 끝났을 때 호출      |
+| `target`      | `RefObject<HTMLElement \| null> \| 'document'` | `'document'` | 관찰할 스크롤 컨테이너       |
+| `enabled`     | `boolean`                                      | `true`       | 언마운트 없이 구독을 끄고 켬 |
+
+### `useStuck(options?): { sentinelRef, isStuck }`
+
+| 옵션            | 타입                         | 기본값 | 설명                                        |
+| --------------- | ---------------------------- | ------ | ------------------------------------------- |
+| `offset`        | `number`                     | `0`    | 위에서 몇 px에 닿으면 stuck으로 볼지        |
+| `onStuckChange` | `(isStuck: boolean) => void` | —      | `scrollend` 시점에만 최신 stuck 상태로 호출 |
+
+`sentinelRef`는 sticky 요소 바로 위의 0px sentinel에 연결하는 `RefCallback`, `isStuck`은 IntersectionObserver가 갱신하는 실시간 상태입니다.
+
+### `useActiveSection(sectionRefs, options?): { activeSection }`
+
+`sectionRefs`(`RefObject<HTMLElement | null>[]`) 중 활성 기준선(`offset`, 기본 `0`)에 top이 닿은 마지막 섹션을 `scrollend`마다 `activeSection`(`HTMLElement | null`)으로 반환합니다.
+
+### `isScrollEndSupported(): boolean`
+
+네이티브 `scrollend` 지원 여부.
+
+### `installScrollEndPolyfill(target?, options?): () => void`
+
+`@eunsoolib/scroll-end/polyfill` entry. `target` 기본값은 `document`, `idleDelay`(ms) 기본값은 `100`이며 해제 함수를 반환합니다.
+
 ## 폴리필 (별도 entry)
 
 기본 번들 오염을 막기 위해 폴리필은 별도 경로로 분리되어 있습니다. `scrollend` 미지원 시 스크롤 idle을 감지해 합성 이벤트를 발행합니다.
@@ -113,7 +144,3 @@ const uninstall = installScrollEndPolyfill(document, { idleDelay: 100 })
 ## SSR
 
 모든 훅은 effect 내부에서만 DOM에 접근하며 초기 `isStuck`/`activeSection`은 `false`/`null`입니다. `window`/`document` 직접 접근은 하지 않습니다.
-
-## 라이선스
-
-MIT

@@ -34,7 +34,9 @@ pnpm add -D playwright pixelmatch pngjs
 | `RESIZED`             | 크기 변경(overflow/reflow 없음)     |      |
 | `OVERFLOW_RESOLVED`   | border-box가 기존 버그를 고침       |      |
 
-## CLI
+## 사용법
+
+### CLI
 
 ```bash
 node box-sizing-audit.example.js <url> [--scope <selector>] [--viewport WxH] [--json]
@@ -50,7 +52,7 @@ node box-sizing-audit.example.js http://localhost:3000/admin --scope main
 
 회귀가 발견되면 non-zero로 종료하므로 CI 게이트로 바로 쓸 수 있다.
 
-## 프로그래밍 방식
+### 프로그래밍 방식
 
 ```ts
 import { boxSizingAudit, formatReport } from '@eunsoolib/box-sizing-audit'

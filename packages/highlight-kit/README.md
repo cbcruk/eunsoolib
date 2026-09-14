@@ -1,4 +1,4 @@
-# 🎨 @eunsoolib/highlight-kit
+# @eunsoolib/highlight-kit
 
 CSS Custom Highlight API 기반 텍스트 하이라이팅 라이브러리. DOM을 건드리지 않고
 텍스트를 하이라이트합니다. 프레임워크 무관 core와 얇은 React 어댑터를 제공합니다.
@@ -12,7 +12,9 @@ pnpm add @eunsoolib/highlight-kit
 ESM 전용 패키지이며 타입 정의가 함께 포함됩니다. React 어댑터(`@eunsoolib/highlight-kit/react`)는
 `react >= 18`을 필요로 하지만 **optional peer dependency**라, core만 쓰면 React 없이 동작합니다.
 
-## Core (프레임워크 무관)
+## 사용법
+
+### Core (프레임워크 무관)
 
 ```typescript
 import {
@@ -39,9 +41,9 @@ highlights.clear('search') // name 통째로 제거
 reconcile합니다. 서로 다른 패널 두 곳에서 `'error'` 이름으로 하이라이트해도, CSS는
 `::highlight(error)` 규칙 하나로 둘 다 스타일링됩니다.
 
-## React
+### React
 
-### 선언적 컴포넌트
+#### 선언적 컴포넌트
 
 ```tsx
 import { Highlight } from '@eunsoolib/highlight-kit/react'
@@ -70,7 +72,7 @@ function Article({ keyword }: { keyword: string }) {
 </Highlight>
 ```
 
-### Headless 훅
+#### Headless 훅
 
 ```tsx
 import { useHighlight } from '@eunsoolib/highlight-kit/react'
@@ -93,7 +95,7 @@ function SearchableText({ query }: { query: string }) {
 
 `name`을 생략하면 `useId` 기반 고유 이름이 자동 생성됩니다(인스턴스별 격리).
 
-### 검색 + 네비게이션
+#### 검색 + 네비게이션
 
 ```tsx
 import { useRef, useState } from 'react'
@@ -124,22 +126,28 @@ function Search() {
 하이라이트되고 자동으로 `scrollIntoView`됩니다. `options.name`으로 기본 이름을 바꿀 수
 있습니다. `<HighlightStyles />`는 이 두 이름의 기본 색상을 넣어 줍니다.
 
-### 한 컨테이너에 여러 패턴: `Highlight.Root` + `Highlight.Match`
+#### 한 컨테이너에 여러 패턴: `Highlight.Root` + `Highlight.Match`
 
 ```tsx
 import { Highlight } from '@eunsoolib/highlight-kit/react'
-;<Highlight.Root name="log-info" as="pre">
-  {logs}
-  <Highlight.Match name="log-error" pattern={/ERROR:[^\n]*/} />
-  <Highlight.Match name="log-warn" pattern={/WARN:[^\n]*/} />
-  <Highlight.Match pattern={/INFO:[^\n]*/} /> {/* name 생략 → Root의 name */}
-</Highlight.Root>
+
+function Logs({ logs }: { logs: string }) {
+  return (
+    <Highlight.Root name="log-info" as="pre">
+      {logs}
+      <Highlight.Match name="log-error" pattern={/ERROR:[^\n]*/} />
+      <Highlight.Match name="log-warn" pattern={/WARN:[^\n]*/} />
+      {/* name 생략 → Root의 name */}
+      <Highlight.Match pattern={/INFO:[^\n]*/} />
+    </Highlight.Root>
+  )
+}
 ```
 
 `Highlight.Match`는 effect-only(`return null`)입니다. Root 컨테이너를 스캔해 하이라이트만
 등록하며, 기본으로 DOM 변경을 `MutationObserver`로 추적합니다.
 
-### 상태만 구독 / 지원 여부
+#### 상태만 구독 / 지원 여부
 
 ```tsx
 import {
@@ -152,7 +160,7 @@ const all = useHighlightSnapshots() // { [name]: { count, active } }
 const supported = useHighlightSupport() // SSR 중엔 false
 ```
 
-### 테스트 / controller 주입
+#### 테스트 / controller 주입
 
 jsdom에는 `Highlight`가 없으므로, 부수효과 없는 sink로 만든 controller를 주입해
 bookkeeping만 검증합니다.
@@ -249,7 +257,3 @@ pnpm test:run packages/highlight-kit   # Vitest (jsdom)
 
 `src/highlight-api.d.ts`는 `lib.dom`이 아직 불완전하게 타입한 `HighlightRegistry`의
 maplike 멤버(`set`/`get`/`delete` 등)를 보강하는 빌드 전용 선언입니다.
-
-## License
-
-MIT

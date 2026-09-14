@@ -27,7 +27,7 @@ pnpm add @eunsoolib/async-context
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 기본 사용법
+## 사용법
 
 ### 1. 컨텍스트 생성
 
@@ -76,7 +76,149 @@ export async function GET(request: Request) {
 }
 ```
 
-## API Reference
+### Next.js Route Handler 통합
+
+#### 단일 컨텍스트 래퍼
+
+```typescript
+import { createRouteWrapper } from '@eunsoolib/async-context'
+
+const withAuth = createRouteWrapper(userContext, async (request) => {
+  return await authenticate(request)
+})
+
+// route.ts
+export const GET = withAuth(async () => {
+  const user = userContext.get()
+  return Response.json({ user })
+})
+```
+
+#### 다중 컨텍스트 래퍼
+
+```typescript
+import { createMultiRouteWrapper } from '@eunsoolib/async-context'
+
+const withContext = createMultiRouteWrapper({
+  user: {
+    context: userContext,
+    setup: (req) => authenticate(req),
+  },
+  db: {
+    context: dbContext,
+    setup: () => getDbConnection(),
+  },
+  logger: {
+    context: loggerContext,
+    setup: () => createLogger(),
+  },
+})
+
+export const GET = withContext(async () => {
+  const user = userContext.get()
+  const db = dbContext.get()
+  const logger = loggerContext.get()
+
+  logger.info('Fetching profile', { userId: user.id })
+  return Response.json(await db.getProfile(user.id))
+})
+```
+
+### 미들웨어 패턴
+
+Express/Koa 스타일의 미들웨어 체인을 구성할 수 있습니다.
+
+```typescript
+import {
+  createContextMiddleware,
+  runWithMiddlewares,
+} from '@eunsoolib/async-context'
+
+// 미들웨어 정의
+const requestMiddleware = createContextMiddleware(requestContext, (req) => ({
+  id: crypto.randomUUID(),
+  startTime: Date.now(),
+}))
+
+const authMiddleware = createContextMiddleware(userContext, async (req) => {
+  const token = req.headers.get('authorization')
+  return await validateToken(token)
+})
+
+// 미들웨어 체인 실행
+const result = await runWithMiddlewares(
+  request,
+  [requestMiddleware, authMiddleware],
+  async () => handleRequest(),
+)
+```
+
+### 디버깅
+
+```typescript
+import { debugContexts } from '@eunsoolib/async-context'
+
+const status = debugContexts({
+  user: userContext,
+  db: dbContext,
+})
+
+console.log(status)
+// {
+//   user: { active: true, value: { id: "123", ... } },
+//   db: { active: false, value: undefined }
+// }
+```
+
+### 실제 사용 예제: 의료 예약 시스템
+
+```typescript
+// contexts.ts
+export const userContext = createAsyncContext<User>({ name: 'user' })
+export const dbContext = createAsyncContext<DbConnection>({ name: 'db' })
+
+// services/appointment.ts
+export async function createAppointment(data: AppointmentInput) {
+  const user = userContext.get()
+  const db = dbContext.get()
+
+  return db.transaction(async (trx) => {
+    const appointment = await trx.insert('appointments', {
+      ...data,
+      patientId: user.id,
+    })
+
+    // 중첩 함수에서도 컨텍스트 접근 가능
+    await notifyDoctor(data.doctorId, appointment)
+
+    return appointment
+  })
+}
+
+async function notifyDoctor(doctorId: string, appointment: Appointment) {
+  const user = userContext.get() // 여전히 접근 가능
+  const db = dbContext.get()
+
+  await db.insert('notifications', {
+    userId: doctorId,
+    message: `새 예약: ${user.name}님`,
+  })
+}
+
+// route.ts
+const withContext = createMultiRouteWrapper({
+  user: { context: userContext, setup: authenticate },
+  db: { context: dbContext, setup: getDbConnection },
+})
+
+export const POST = withContext(async (req) => {
+  const body = await req.json()
+  const appointment = await createAppointment(body)
+  return Response.json(appointment)
+})
+```
+
+## API
 
 ### `createAsyncContext<T>(options?)`
 
@@ -125,148 +267,6 @@ const { user, db } = getContextValues({
 })
 ```
 
-## Next.js Route Handler 통합
-
-### 단일 컨텍스트 래퍼
-
-```typescript
-import { createRouteWrapper } from '@eunsoolib/async-context'
-
-const withAuth = createRouteWrapper(userContext, async (request) => {
-  return await authenticate(request)
-})
-
-// route.ts
-export const GET = withAuth(async () => {
-  const user = userContext.get()
-  return Response.json({ user })
-})
-```
-
-### 다중 컨텍스트 래퍼
-
-```typescript
-import { createMultiRouteWrapper } from '@eunsoolib/async-context'
-
-const withContext = createMultiRouteWrapper({
-  user: {
-    context: userContext,
-    setup: (req) => authenticate(req),
-  },
-  db: {
-    context: dbContext,
-    setup: () => getDbConnection(),
-  },
-  logger: {
-    context: loggerContext,
-    setup: () => createLogger(),
-  },
-})
-
-export const GET = withContext(async () => {
-  const user = userContext.get()
-  const db = dbContext.get()
-  const logger = loggerContext.get()
-
-  logger.info('Fetching profile', { userId: user.id })
-  return Response.json(await db.getProfile(user.id))
-})
-```
-
-## 미들웨어 패턴
-
-Express/Koa 스타일의 미들웨어 체인을 구성할 수 있습니다.
-
-```typescript
-import {
-  createContextMiddleware,
-  runWithMiddlewares,
-} from '@eunsoolib/async-context'
-
-// 미들웨어 정의
-const requestMiddleware = createContextMiddleware(requestContext, (req) => ({
-  id: crypto.randomUUID(),
-  startTime: Date.now(),
-}))
-
-const authMiddleware = createContextMiddleware(userContext, async (req) => {
-  const token = req.headers.get('authorization')
-  return await validateToken(token)
-})
-
-// 미들웨어 체인 실행
-const result = await runWithMiddlewares(
-  request,
-  [requestMiddleware, authMiddleware],
-  async () => handleRequest(),
-)
-```
-
-## 디버깅
-
-```typescript
-import { debugContexts } from '@eunsoolib/async-context'
-
-const status = debugContexts({
-  user: userContext,
-  db: dbContext,
-})
-
-console.log(status)
-// {
-//   user: { active: true, value: { id: "123", ... } },
-//   db: { active: false, value: undefined }
-// }
-```
-
-## 실제 사용 예제: 의료 예약 시스템
-
-```typescript
-// contexts.ts
-export const userContext = createAsyncContext<User>({ name: 'user' })
-export const dbContext = createAsyncContext<DbConnection>({ name: 'db' })
-
-// services/appointment.ts
-export async function createAppointment(data: AppointmentInput) {
-  const user = userContext.get()
-  const db = dbContext.get()
-
-  return db.transaction(async (trx) => {
-    const appointment = await trx.insert('appointments', {
-      ...data,
-      patientId: user.id,
-    })
-
-    // 중첩 함수에서도 컨텍스트 접근 가능
-    await notifyDoctor(data.doctorId, appointment)
-
-    return appointment
-  })
-}
-
-async function notifyDoctor(doctorId: string, appointment: Appointment) {
-  const user = userContext.get() // 여전히 접근 가능
-  const db = dbContext.get()
-
-  await db.insert('notifications', {
-    userId: doctorId,
-    message: `새 예약: ${user.name}님`,
-  })
-}
-
-// route.ts
-const withContext = createMultiRouteWrapper({
-  user: { context: userContext, setup: authenticate },
-  db: { context: dbContext, setup: getDbConnection },
-})
-
-export const POST = withContext(async (req) => {
-  const body = await req.json()
-  const appointment = await createAppointment(body)
-  return Response.json(appointment)
-})
-```
-
 ## 주의사항
 
 1. **Node.js 전용**: 브라우저에서는 동작하지 않습니다.
@@ -278,7 +278,3 @@ export const POST = withContext(async (req) => {
 - [Nico's Blog - Use Async Local Storage to prevent props drilling](https://www.nico.fyi/blog/async-local-storage-to-prevent-props-drilling)
 - React Context API
 - Express/Koa 미들웨어 패턴
-
-## 라이선스
-
-MIT

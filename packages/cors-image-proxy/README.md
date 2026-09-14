@@ -4,6 +4,14 @@ cross-origin 이미지를 Blob 으로 변환하기 위한 CORS 프록시 핸들�
 
 `allowedOrigins` 와 `allowedTargetDomains` 로 클라이언트와 대상 도메인을 모두 제한하여 open proxy 가 되는 것을 방지합니다.
 
+## 설치
+
+```bash
+pnpm add @eunsoolib/cors-image-proxy
+```
+
+표준 `Request`/`Response`와 `fetch`만 사용하므로 Cloudflare Workers, Deno, Node 18+ 등에서 동작합니다.
+
 ## 사용법
 
 ```ts
@@ -45,16 +53,7 @@ npx wrangler dev      # 로컬 개발
 npx wrangler deploy   # 배포
 ```
 
-## 옵션
-
-| 옵션                   | 타입        | 설명                                                                       |
-| ---------------------- | ----------- | -------------------------------------------------------------------------- |
-| `allowedOrigins`       | `string[]`  | 프록시를 사용할 수 있는 클라이언트 origin. `*.example.com` 와일드카드 지원 |
-| `allowedTargetDomains` | `string[]`  | 프록시가 fetch 할 수 있는 이미지 호스트 (하위 도메인 포함)                 |
-| `cacheTtl`             | `number`    | 캐시 수명(초). 기본값 `3600`                                               |
-| `fetch`                | `FetchLike` | fetch 구현체. 테스트용 주입 가능. 기본값은 전역 `fetch`                    |
-
-## 클라이언트 사용 예시
+### 클라이언트 사용 예시
 
 ```ts
 const PROXY_URL = 'https://cors-image-proxy.your-subdomain.workers.dev'
@@ -65,7 +64,22 @@ async function fetchImageAsBlob(imageUrl: string): Promise<Blob> {
 }
 ```
 
-## 동작
+## API
+
+### `corsImageProxy(options)`
+
+`(request: Request) => Promise<Response>` 핸들러를 반환합니다.
+
+#### 옵션
+
+| 옵션                   | 타입        | 설명                                                                       |
+| ---------------------- | ----------- | -------------------------------------------------------------------------- |
+| `allowedOrigins`       | `string[]`  | 프록시를 사용할 수 있는 클라이언트 origin. `*.example.com` 와일드카드 지원 |
+| `allowedTargetDomains` | `string[]`  | 프록시가 fetch 할 수 있는 이미지 호스트 (하위 도메인 포함)                 |
+| `cacheTtl`             | `number`    | 캐시 수명(초). 기본값 `3600`                                               |
+| `fetch`                | `FetchLike` | fetch 구현체. 테스트용 주입 가능. 기본값은 전역 `fetch`                    |
+
+## 설계 노트
 
 - `OPTIONS` (preflight): 허용된 origin 이면 204 + CORS 헤더, 아니면 403
 - `GET`: origin·대상 도메인 검증 후 이미지를 스트리밍으로 프록시

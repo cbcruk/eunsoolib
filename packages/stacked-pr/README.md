@@ -2,6 +2,14 @@
 
 GitHub의 [`gh stack`](https://github.github.com/gh-stack/)을 git이나 네트워크 없이 순수 인메모리 자료구조로 모델링한 Stacked PR 구현체
 
+## 설치
+
+```bash
+pnpm add @eunsoolib/stacked-pr
+```
+
+의존성이 없는 순수 TypeScript 자료구조로, git이나 네트워크에 접근하지 않습니다.
+
 ## 개념
 
 Stacked PR은 큰 변경을 작은 PR 여러 개로 쪼개되, 각 PR이 바로 아래 PR을 base로 삼아 쌓아 올리는 워크플로우입니다. 이 패키지는 git/네트워크 연산을 흉내내지 않고, 자료구조 레벨의 불변식만 보장합니다.

@@ -20,7 +20,7 @@ Google I/O 2025에서 발표된 최신 웹 인증/신원확인 API들을 통합�
 pnpm add @eunsoolib/web-identity
 ```
 
-## Quick Start
+## 사용법
 
 ```ts
 import {
@@ -44,8 +44,6 @@ console.log(support)
 //   ...
 // }
 ```
-
-## 사용 예시
 
 ### 1. 통합 로그인 (비밀번호 + 패스키)
 
@@ -204,7 +202,34 @@ const license = await identity.verifyIdentity([
 ])
 ```
 
-## 에러 처리
+## API
+
+### 구조
+
+```
+WebIdentity (facade)
+├── CredentialManager    ← navigator.credentials.get/create/store
+│   ├── password         ← PasswordCredential
+│   ├── publicKey        ← PublicKeyCredential (passkey)
+│   ├── identity         ← IdentityCredential (FedCM)
+│   └── digital          ← DigitalCredential
+├── Passkeys             ← WebAuthn 전용 API
+│   ├── create/authenticate
+│   ├── conditionalCreate (자동 업그레이드)
+│   ├── Signal API       ← 비밀번호 관리자 동기화
+│   └── serialize        ← 서버 전송용 직렬화
+├── FedCM                ← 제휴 인증
+│   ├── active/passive mode
+│   ├── multi-provider
+│   └── disconnect
+├── DigitalCredentials   ← 디지털 지갑
+│   ├── request (선별적 공개)
+│   ├── issue (프로비저닝)
+│   └── Fields (mDL 필드 상수)
+└── DBSC                 ← 기기 바인딩 세션
+```
+
+### 에러 처리
 
 모든 에러는 `WebIdentityError`로 래핑됩니다:
 
@@ -233,7 +258,7 @@ try {
 }
 ```
 
-## 유틸리티
+### 유틸리티
 
 ```ts
 import { toBase64URL, fromBase64URL } from '@eunsoolib/web-identity'
@@ -244,31 +269,6 @@ const decoded = fromBase64URL(encoded)
 
 // 챌린지 생성 (⚠️ 프로덕션에서는 서버에서 생성할 것)
 const challenge = Passkeys.generateChallenge()
-```
-
-## 아키텍처
-
-```
-WebIdentity (facade)
-├── CredentialManager    ← navigator.credentials.get/create/store
-│   ├── password         ← PasswordCredential
-│   ├── publicKey        ← PublicKeyCredential (passkey)
-│   ├── identity         ← IdentityCredential (FedCM)
-│   └── digital          ← DigitalCredential
-├── Passkeys             ← WebAuthn 전용 API
-│   ├── create/authenticate
-│   ├── conditionalCreate (자동 업그레이드)
-│   ├── Signal API       ← 비밀번호 관리자 동기화
-│   └── serialize        ← 서버 전송용 직렬화
-├── FedCM                ← 제휴 인증
-│   ├── active/passive mode
-│   ├── multi-provider
-│   └── disconnect
-├── DigitalCredentials   ← 디지털 지갑
-│   ├── request (선별적 공개)
-│   ├── issue (프로비저닝)
-│   └── Fields (mDL 필드 상수)
-└── DBSC                 ← 기기 바인딩 세션
 ```
 
 ## 브라우저 호환성
@@ -309,7 +309,3 @@ pnpm exec vitest run --project browser packages/web-identity
 - [FedCM Chrome 132 Updates](https://privacysandbox.google.com/blog/fedcm-chrome-132-updates)
 - [Digital Credentials API Origin Trial](https://developer.chrome.com/blog/digital-credentials-api-origin-trial)
 - [DBSC](https://developer.chrome.com/docs/web-platform/device-bound-session-credentials)
-
-## License
-
-MIT
