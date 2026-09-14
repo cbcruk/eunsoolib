@@ -17,8 +17,9 @@ const MOCK_DATA: Product[] = Array.from({ length: 247 }, (_, i) => ({
   id: i + 1,
   name: `상품 ${String(i + 1).padStart(3, '0')}`,
   category: CATEGORIES[i % 4]!,
-  price: (Math.floor(Math.random() * 90) + 10) * 1000,
-  stock: Math.floor(Math.random() * 200),
+  // SSR(문서 사이트) 하이드레이션 불일치를 막기 위해 난수 대신 결정적 값을 쓴다.
+  price: (((i * 37) % 90) + 10) * 1000,
+  stock: (i * 53) % 200,
 }))
 
 /**

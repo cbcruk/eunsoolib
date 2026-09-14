@@ -1,0 +1,30 @@
+{
+  "name": "@eunsoolib/docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-content.mjs",
+    "dev": "pnpm sync && next dev",
+    "build": "pnpm sync && next build"
+  },
+  "dependencies": {
+    "fumadocs-core": "^16.15.9",
+    "fumadocs-mdx": "^15.4.0",
+    "fumadocs-typescript": "^5.4.0",
+    "fumadocs-ui": "^16.15.9",
+    "next": "^16.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.23",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3"
+  }
+}

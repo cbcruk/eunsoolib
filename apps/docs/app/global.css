@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+/* 데모 컴포넌트의 Tailwind 클래스 */
+@source '../../../packages/*/src/demo.tsx';

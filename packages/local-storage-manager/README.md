@@ -66,7 +66,7 @@ userStore.clear()         // 전체 삭제
 
 ## API
 
-### LocalStorageManager<T>
+### `LocalStorageManager<T>`
 
 | 메서드        | 반환 타입   | 설명               |
 | ------------- | ----------- | ------------------ |
@@ -74,7 +74,7 @@ userStore.clear()         // 전체 삭제
 | `save(value)` | `void`      | 데이터 저장        |
 | `remove()`    | `void`      | 데이터 삭제        |
 
-### LocalStorageMapManager<K, V>
+### `LocalStorageMapManager<K, V>`
 
 | 메서드            | 반환 타입                  | 설명                    |
 | ----------------- | -------------------------- | ----------------------- |
