@@ -51,6 +51,12 @@ describe('computeRanges', () => {
     expect(ranges.map((r) => r.toString())).toEqual(['a1', 'b2', 'c3'])
   })
 
+  test('문자열 패턴의 정규식 특수문자는 리터럴로 이스케이프해야 함', () => {
+    const el = mount('<p>price is $5 (five)</p>')
+    const ranges = computeRanges(el, '$5')
+    expect(ranges.map((r) => r.toString())).toEqual(['$5'])
+  })
+
   test('요소 경계를 넘는 매칭은 하지 않아야 함', () => {
     const el = mount('<p>ca<span>t</span></p>')
     expect(computeRanges(el, 'cat')).toHaveLength(0)

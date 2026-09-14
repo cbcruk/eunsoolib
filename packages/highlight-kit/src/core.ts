@@ -33,7 +33,28 @@ const EMPTY_SNAPSHOT: HighlightSnapshot = Object.freeze({
 })
 
 /** A source contributing ranges, keyed by a unique id (e.g. React's useId) */
-type SourceId = string
+export type SourceId = string | symbol
+
+/**
+ * Where reconciled ranges are written. The controller's bookkeeping always
+ * runs; only this side effect is swappable (CSS registry, no-op for tests/SSR).
+ */
+export interface HighlightSink {
+  /** Replace the registered highlight for `name` with `ranges`. */
+  commit(name: string, ranges: Range[], priority: number): void
+  /** Drop the registered highlight for `name`. */
+  remove(name: string): void
+  /**
+   * When this returns false the controller skips bookkeeping entirely, so
+   * snapshots stay empty. Omit it to always track ranges.
+   */
+  isSupported?(): boolean
+}
+
+export interface HighlightControllerOptions {
+  /** Defaults to {@link createCssHighlightSink}. */
+  sink?: HighlightSink
+}
 
 // ---------------------------------------------------------------------------
 // Pure utilities (no global state)
@@ -144,22 +165,65 @@ export function rangesFromOffsets(
 }
 
 // ---------------------------------------------------------------------------
-// Singleton controller
+// Sinks
 // ---------------------------------------------------------------------------
 
+/** Sink that writes to the document-global `CSS.highlights` registry. */
+export function createCssHighlightSink(): HighlightSink {
+  return {
+    commit(name, ranges, priority): void {
+      if (!isHighlightSupported()) return
+      const highlight = new Highlight(...ranges)
+      highlight.priority = priority
+      CSS.highlights.set(name, highlight)
+    },
+    remove(name): void {
+      if (!isHighlightSupported()) return
+      CSS.highlights.delete(name)
+    },
+    isSupported: isHighlightSupported,
+  }
+}
+
+/** Side-effect-free sink: bookkeeping still runs, nothing is painted. */
+export function createNoopSink(): HighlightSink {
+  return { commit(): void {}, remove(): void {} }
+}
+
+// ---------------------------------------------------------------------------
+// Controller
+// ---------------------------------------------------------------------------
+
+interface HighlightEntry {
+  priority: number
+  sources: Map<SourceId, Range[]>
+}
+
+const EMPTY_SNAPSHOTS: Readonly<Record<string, HighlightSnapshot>> =
+  Object.freeze({})
+
 class HighlightController {
+  #sink: HighlightSink
   /** name -> (sourceId -> ranges). Multiple sources may share a name. */
-  #contributions = new Map<string, Map<SourceId, Range[]>>()
+  #entries = new Map<string, HighlightEntry>()
   /** Cached per-name snapshots; refs are stable until that name changes. */
   #snapshots = new Map<string, HighlightSnapshot>()
+  /** Cached name -> snapshot record; rebuilt on every emit. */
+  #allSnapshots: Readonly<Record<string, HighlightSnapshot>> = EMPTY_SNAPSHOTS
   /** External-store listeners. */
   #listeners = new Set<() => void>()
 
-  get supported(): boolean {
-    return isHighlightSupported()
+  constructor({
+    sink = createCssHighlightSink(),
+  }: HighlightControllerOptions = {}) {
+    this.#sink = sink
   }
 
-  /** useSyncExternalStore: stable identity (arrow field on the singleton). */
+  get supported(): boolean {
+    return this.#sink.isSupported?.() ?? true
+  }
+
+  /** useSyncExternalStore: stable identity (arrow field on the instance). */
   subscribe = (listener: () => void): (() => void) => {
     this.#listeners.add(listener)
     return () => this.#listeners.delete(listener)
@@ -170,81 +234,112 @@ class HighlightController {
     return this.#snapshots.get(name) ?? EMPTY_SNAPSHOT
   }
 
+  /** Snapshots of every active name (referentially stable between changes). */
+  getSnapshots = (): Readonly<Record<string, HighlightSnapshot>> => {
+    return this.#allSnapshots
+  }
+
   /** SSR / unsupported: constant empty snapshot. */
   getServerSnapshot = (): HighlightSnapshot => EMPTY_SNAPSHOT
 
-  /** Register/replace a source's ranges under a name, then reconcile. */
-  set(name: string, sourceId: SourceId, ranges: Range[]): void {
+  /** SSR / unsupported: constant empty record. */
+  getServerSnapshots = (): Readonly<Record<string, HighlightSnapshot>> =>
+    EMPTY_SNAPSHOTS
+
+  /** Union of every source's ranges currently registered under `name`. */
+  getRanges(name: string): Range[] {
+    const entry = this.#entries.get(name)
+    return entry ? this.#merge(entry) : []
+  }
+
+  /**
+   * Register/replace a source's ranges under a name, then reconcile.
+   * `priority` applies to the whole name; the most recent call wins.
+   */
+  set(name: string, sourceId: SourceId, ranges: Range[], priority = 0): void {
     if (!this.supported) return
-    let bySource = this.#contributions.get(name)
-    if (!bySource) {
-      bySource = new Map()
-      this.#contributions.set(name, bySource)
+    let entry = this.#entries.get(name)
+    if (!entry) {
+      entry = { priority, sources: new Map() }
+      this.#entries.set(name, entry)
+    } else {
+      entry.priority = priority
     }
-    bySource.set(sourceId, ranges)
+    entry.sources.set(sourceId, ranges)
     this.#reconcile(name)
     this.#emit()
   }
 
   /** Remove a single source's contribution to a name. */
   remove(name: string, sourceId: SourceId): void {
-    const bySource = this.#contributions.get(name)
-    if (!bySource || !bySource.delete(sourceId)) return
-    if (bySource.size === 0) this.#contributions.delete(name)
+    const entry = this.#entries.get(name)
+    if (!entry || !entry.sources.delete(sourceId)) return
+    if (entry.sources.size === 0) this.#entries.delete(name)
     this.#reconcile(name)
     this.#emit()
   }
 
   /** Drop a name entirely, regardless of sources. */
   clear(name: string): void {
-    if (!this.#contributions.delete(name)) return
+    if (!this.#entries.delete(name)) return
     this.#reconcile(name)
     this.#emit()
   }
 
   /** Drop everything this controller manages. */
   clearAll(): void {
-    const names = [...this.#contributions.keys()]
-    this.#contributions.clear()
-    if (this.supported) {
-      for (const name of names) CSS.highlights.delete(name)
-    }
+    const names = [...this.#entries.keys()]
+    this.#entries.clear()
+    for (const name of names) this.#sink.remove(name)
     this.#snapshots.clear()
     this.#emit()
   }
 
-  /** Union all sources for `name` into one Highlight and update the snapshot. */
-  #reconcile(name: string): void {
-    if (!this.supported) return
-    const bySource = this.#contributions.get(name)
-
-    if (!bySource || bySource.size === 0) {
-      CSS.highlights.delete(name)
-      this.#snapshots.set(name, EMPTY_SNAPSHOT)
-      return
-    }
-
+  #merge(entry: HighlightEntry): Range[] {
     const all: Range[] = []
-    for (const ranges of bySource.values()) all.push(...ranges)
+    for (const ranges of entry.sources.values()) all.push(...ranges)
+    return all
+  }
 
-    if (all.length === 0) {
-      CSS.highlights.delete(name)
+  /** Union all sources for `name` into one highlight and update the snapshot. */
+  #reconcile(name: string): void {
+    const entry = this.#entries.get(name)
+    const all = entry ? this.#merge(entry) : []
+
+    if (!entry || all.length === 0) {
+      this.#sink.remove(name)
       this.#snapshots.set(name, EMPTY_SNAPSHOT)
       return
     }
 
-    CSS.highlights.set(name, new Highlight(...all))
+    this.#sink.commit(name, all, entry.priority)
     // New object => new reference => subscribers of this name re-render.
     this.#snapshots.set(name, { active: true, count: all.length })
   }
 
   #emit(): void {
+    const next: Record<string, HighlightSnapshot> = {}
+    for (const [name, snapshot] of this.#snapshots) {
+      if (snapshot.active) next[name] = snapshot
+    }
+    this.#allSnapshots = next
     for (const listener of this.#listeners) listener()
   }
 }
 
+/**
+ * Create an isolated controller. Useful for tests (with {@link createNoopSink})
+ * or for scoping subscriptions via the React `HighlightProvider`. Highlight
+ * *names* are still document-global once painted by a CSS sink.
+ */
+export function createHighlightController(
+  options?: HighlightControllerOptions,
+): HighlightController {
+  return new HighlightController(options)
+}
+
 /** The shared singleton. */
-export const highlights = new HighlightController()
+export const highlights = createHighlightController()
 export type { HighlightController }
 
 // ---------------------------------------------------------------------------

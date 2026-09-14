@@ -1,10 +1,17 @@
 {
   "name": "@eunsoolib/mole",
+  "description": "두더지 잡기 게임 엔진 (스포너·타이머·점수·랭킹)",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "eunsoolib": {
+    "category": "lab",
+    "runtime": [
+      "universal"
+    ]
   }
 }

@@ -1,6 +1,6 @@
 {
-  "name": "@eunsoolib/cors-image-proxy",
-  "description": "open proxy를 막는 cross-origin 이미지 CORS 프록시 핸들러",
+  "name": "@eunsoolib/utils",
+  "description": "난수·휴대폰 번호 파싱·시간 포맷 등 작은 유틸",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,10 +9,9 @@
     ".": "./src/index.ts"
   },
   "eunsoolib": {
-    "category": "async",
+    "category": "utils",
     "runtime": [
-      "edge",
-      "node"
+      "universal"
     ]
   }
 }

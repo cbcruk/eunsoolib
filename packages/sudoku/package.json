@@ -1,10 +1,17 @@
 {
   "name": "@eunsoolib/sudoku",
+  "description": "스도쿠 퍼즐 생성·풀이·게임 엔진",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "eunsoolib": {
+    "category": "lab",
+    "runtime": [
+      "universal"
+    ]
   }
 }

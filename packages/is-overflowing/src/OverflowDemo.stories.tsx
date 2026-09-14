@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { OverflowDemo } from './is-overflowing'
+import { OverflowDemo } from './overflow-demo'
 
 const meta = {
   title: 'Components/OverflowDemo',

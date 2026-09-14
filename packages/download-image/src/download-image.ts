@@ -1,6 +1,6 @@
 import { Data, Effect } from 'effect'
 import { FileSystem, HttpClient, FetchHttpClient } from '@effect/platform'
-import { getfileTypeFromBuffer } from '@eunsoolib/get-file-type-from-buffer'
+import { getFileTypeFromBuffer } from '@eunsoolib/get-file-type-from-buffer'
 import { NodeContext } from '@effect/platform-node'
 
 export class DownloadImageError extends Data.TaggedError('DownloadImageError')<{
@@ -24,7 +24,7 @@ export const downloadImage = ({ url, dest }: DownloadImageParams) => {
 
     const response = yield* client.get(url)
     const buffer = Buffer.from(yield* response.arrayBuffer)
-    const fileType = yield* getfileTypeFromBuffer(buffer)
+    const fileType = yield* getFileTypeFromBuffer(buffer)
     const filePath = `${dest}/image.${fileType.ext}`
 
     yield* fs.writeFile(filePath, buffer)

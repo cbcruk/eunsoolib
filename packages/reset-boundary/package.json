@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/reset-boundary",
+  "description": "deps 변경 시 key 기반 remount로 상태를 초기화하는 컴포넌트",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,5 +10,11 @@
   },
   "peerDependencies": {
     "react": "^19.1.1"
+  },
+  "eunsoolib": {
+    "category": "react",
+    "runtime": [
+      "browser"
+    ]
   }
 }

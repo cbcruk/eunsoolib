@@ -1,6 +1,7 @@
 import { render, screen, act } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
-import { useOverflowDetection, OverflowDemo } from './is-overflowing'
+import { useOverflowDetection } from './is-overflowing'
+import { OverflowDemo } from './overflow-demo'
 
 const mockUseSize = vi.hoisted(() => vi.fn())
 

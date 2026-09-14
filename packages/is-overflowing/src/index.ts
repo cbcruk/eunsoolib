@@ -1,6 +1,1 @@
-export {
-  useOverflowDetection,
-  OverflowDemo,
-  type OverflowDetection,
-  type OverflowDemoProps,
-} from './is-overflowing'
+export { useOverflowDetection, type OverflowDetection } from './is-overflowing'

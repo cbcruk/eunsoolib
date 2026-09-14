@@ -37,12 +37,17 @@ mkdir -p "$PACKAGE_DIR/src"
 cat > "$PACKAGE_DIR/package.json" << EOF
 {
   "name": "@eunsoolib/$PACKAGE_NAME",
+  "description": "TODO: 한 줄 설명",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "eunsoolib": {
+    "category": "utils",
+    "runtime": ["universal"]
   }
 }
 EOF
@@ -109,6 +114,7 @@ echo "      ├── $PACKAGE_NAME.ts"
 echo "      └── $PACKAGE_NAME.test.ts"
 echo ""
 echo -e "${YELLOW}다음 단계:${NC}"
+echo "  0. $PACKAGE_DIR/package.json의 description과 eunsoolib.category/runtime을 채우세요 (CLAUDE.md 참고)"
 echo "  1. $PACKAGE_DIR/src/$PACKAGE_NAME.ts 파일에서 구현을 작성하세요"
 echo "  2. $PACKAGE_DIR/src/$PACKAGE_NAME.test.ts 파일에서 테스트를 작성하세요"
 echo "  3. pnpm test:run 으로 테스트를 실행하세요"

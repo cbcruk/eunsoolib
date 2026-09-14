@@ -7,7 +7,7 @@ description: packages/ 하위에 사용자가 임시로 만든 폴더(flat한 in
 
 사용자가 `packages/<name>/` 아래에 느슨하게 만든 폴더(예: 채팅에서 받은 코드를 통째로 붙인 `index.ts`, `console.log` 기반 `test.ts`, `README.md`)를 이 레포의 표준 패키지 구조로 리팩토링한다.
 
-기준 컨벤션 패키지: `packages/lane-assignment`, `packages/local-storage-manager`, `packages/stacked` (이미 정리된 형태). 빈 패키지를 새로 만드는 건 `scripts/create-package.sh`가 담당하며, 이 스킬은 **이미 내용이 채워진 폴더를 정리**한다.
+기준 컨벤션 패키지: `packages/lane-assignment`, `packages/local-storage-manager`, `packages/stacked-pr` (이미 정리된 형태). 빈 패키지를 새로 만드는 건 `scripts/create-package.sh`가 담당하며, 이 스킬은 **이미 내용이 채워진 폴더를 정리**한다.
 
 ## 목표 구조
 
@@ -34,7 +34,7 @@ packages/<name>/
 - **배럴 `src/index.ts`**: 공개할 클래스/함수/타입만 re-export. 내부 헬퍼(`Resolver` 같은)는 노출하지 않는다.
 - **명시적 반환 타입**, strict TypeScript, 코드 내 문자열은 영어.
 - **불필요한 인라인 주석/영역 구분 주석 금지.** 의미 있는 설명은 JSDoc으로.
-- `package.json`의 패키지 이름이 이미 있으면 **보존**한다 (예: `stacked` 폴더 → `@eunsoolib/stacked-pr`). 없으면 `@eunsoolib/<folder-name>`.
+- `package.json`의 패키지 이름이 이미 있으면 **보존**한다 (폴더명도 패키지명과 맞춘다. 예: `packages/stacked-pr` → `@eunsoolib/stacked-pr`). 없으면 `@eunsoolib/<folder-name>`.
 
 ## 절차
 

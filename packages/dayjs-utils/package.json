@@ -1,6 +1,6 @@
 {
-  "name": "@eunsoolib/logo-soup-utils",
-  "description": "로고들을 지각적으로 같은 크기로 맞추는 정규화 알고리즘",
+  "name": "@eunsoolib/dayjs-utils",
+  "description": "dayjs 기반 시간대 판정(TimeRange)과 날짜 커서(DateNavigator)",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -8,8 +8,11 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "dependencies": {
+    "dayjs": "^1.11.13"
+  },
   "eunsoolib": {
-    "category": "media",
+    "category": "utils",
     "runtime": [
       "universal"
     ]
