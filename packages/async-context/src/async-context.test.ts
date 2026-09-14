@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, expectTypeOf, vi } from 'vitest'
 import {
   createAsyncContext,
   composeContexts,
@@ -76,6 +76,33 @@ describe('createAsyncContext', () => {
     })
   })
 
+  it('defaultValue가 있으면 getOptional도 컨텍스트 외부에서 기본값을 반환해야 함', () => {
+    const ctx = createAsyncContext<string>({
+      name: 'optional-default',
+      defaultValue: 'fallback',
+    })
+
+    expect(ctx.getOptional()).toBe('fallback')
+    expect(ctx.getOptional()).toBe(ctx.get())
+    expect(ctx.isActive()).toBe(false)
+
+    ctx.run('override', () => {
+      expect(ctx.getOptional()).toBe('override')
+    })
+  })
+
+  it('컨텍스트 값이 null이면 getOptional이 기본값 대신 null을 반환해야 함', () => {
+    const ctx = createAsyncContext<string | null>({
+      name: 'nullable',
+      defaultValue: 'fallback',
+    })
+
+    ctx.run(null, () => {
+      expect(ctx.getOptional()).toBeNull()
+      expect(ctx.get()).toBeNull()
+    })
+  })
+
   it('isActive가 컨텍스트 활성 상태를 올바르게 반환해야 함', () => {
     const ctx = createAsyncContext<string>({ name: 'active' })
 
@@ -120,6 +147,20 @@ describe('composeContexts', () => {
     )
 
     expect(result).toEqual({ userName: 'Alice', theme: 'dark' })
+  })
+
+  it('콜백의 반환 타입을 그대로 추론해야 함', async () => {
+    const ctx = createAsyncContext<number>({ name: 'typed' })
+
+    const sync = composeContexts({ n: ctx }, { n: 21 }, () => ctx.get() * 2)
+    expectTypeOf(sync).toEqualTypeOf<number>()
+    expect(sync).toBe(42)
+
+    const asyncResult = composeContexts({ n: ctx }, { n: 1 }, async () =>
+      String(ctx.get()),
+    )
+    expectTypeOf(asyncResult).toEqualTypeOf<Promise<string>>()
+    expect(await asyncResult).toBe('1')
   })
 
   it('빈 컨텍스트 맵도 처리할 수 있어야 함', () => {

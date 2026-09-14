@@ -141,6 +141,10 @@ export class WebIdentity {
   /**
    * Silently upgrade a password user to passkey (Chrome 136+).
    * Call this after a successful password login.
+   *
+   * Delegates to {@link Passkeys.conditionalCreate}: resolves to `null` when
+   * conditional creation is unavailable or declined, and throws a
+   * `WebIdentityError` for other failures.
    */
   async upgradeToPasskey(
     options: PasskeyCreateOptions,
@@ -167,17 +171,25 @@ export class WebIdentity {
 
   /**
    * Detect which Web Identity features are available in the current browser.
+   *
+   * Passkey capabilities come from `PublicKeyCredential.getClientCapabilities()`
+   * and `isConditionalMediationAvailable()`; any feature the browser does not
+   * confirm is reported as `false`.
    */
   async detectFeatures(): Promise<FeatureSupport> {
-    const conditionalMediation =
-      await Passkeys.isConditionalMediationSupported()
+    const [conditionalMediation, immediateMediation, passkeyConditionalCreate] =
+      await Promise.all([
+        Passkeys.isConditionalMediationSupported(),
+        Passkeys.isImmediateMediationAvailable(),
+        Passkeys.isConditionalCreateAvailable(),
+      ])
 
     return {
       credentialManager: typeof navigator.credentials?.get === 'function',
       webauthn: Passkeys.isSupported(),
       conditionalMediation,
-      immediateMediation: Passkeys.isSupported(), // Requires Chrome 136+ flag
-      passkeyConditionalCreate: Passkeys.isSupported(), // Chrome 136+
+      immediateMediation,
+      passkeyConditionalCreate,
       signalAPI: Passkeys.isSignalAPISupported(),
       fedcm: FedCM.isSupported(),
       fedcmActiveMode: FedCM.isActiveModeSupported(),

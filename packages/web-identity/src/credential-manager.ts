@@ -4,6 +4,7 @@ import type {
   MediationType,
 } from './types'
 import { assertCredentialsAPI, wrapError } from './utils'
+import { Passkeys } from './passkeys'
 
 /**
  * Unified Credential Manager that wraps `navigator.credentials.get()` and
@@ -132,15 +133,51 @@ export class CredentialManager {
   }
 
   /**
-   * Check if a given mediation type is supported.
+   * Synchronously check if a given mediation type is supported.
+   *
+   * `'silent'`, `'optional'`, and `'required'` are part of the base Credential
+   * Management API, so they are supported whenever `navigator.credentials.get`
+   * exists. `'conditional'` and `'immediate'` can only be detected
+   * asynchronously, so this returns `false` for them; use
+   * {@link CredentialManager.isMediationAvailable} instead.
+   *
+   * @returns `true` only when support can be confirmed synchronously.
    */
   static isMediationSupported(mediation: MediationType): boolean {
-    // 'immediate' mediation is experimental (Chrome 136+)
-    if (mediation === 'immediate') {
-      // Feature detection: check if the browser doesn't throw on immediate
-      return typeof navigator.credentials?.get === 'function'
+    if (mediation === 'conditional' || mediation === 'immediate') {
+      return false
     }
-    return typeof navigator.credentials?.get === 'function'
+    return (
+      typeof navigator !== 'undefined' &&
+      typeof navigator.credentials?.get === 'function'
+    )
+  }
+
+  /**
+   * Check if a given mediation type is available, including the ones that
+   * need asynchronous detection.
+   *
+   * - `'conditional'`: `PublicKeyCredential.isConditionalMediationAvailable()`
+   *   (see {@link Passkeys.isConditionalMediationSupported}).
+   * - `'immediate'`: the `immediateGet` client capability
+   *   (see {@link Passkeys.isImmediateMediationAvailable}).
+   * - Others: same as {@link CredentialManager.isMediationSupported}.
+   *
+   * @returns `false` whenever the browser does not confirm support.
+   */
+  static async isMediationAvailable(
+    mediation: MediationType,
+  ): Promise<boolean> {
+    if (typeof navigator === 'undefined' || !navigator.credentials) {
+      return false
+    }
+    if (mediation === 'conditional') {
+      return Passkeys.isConditionalMediationSupported()
+    }
+    if (mediation === 'immediate') {
+      return Passkeys.isImmediateMediationAvailable()
+    }
+    return CredentialManager.isMediationSupported(mediation)
   }
 
   private classifyCredential(credential: Credential): CredentialResult {

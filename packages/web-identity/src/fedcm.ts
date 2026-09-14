@@ -182,10 +182,35 @@ export class FedCM {
 
   /**
    * Check if FedCM active mode is supported (Chrome 132+).
+   *
+   * Uses the probe recommended by Chrome: `navigator.credentials.get()` is
+   * called with an `identity` object whose `mode` getter records whether the
+   * browser reads that option. The request has no `providers`, so it is
+   * rejected during option parsing without showing any UI.
+   *
+   * @returns `false` when FedCM is unsupported or the browser ignores `mode`.
+   * @see https://developer.chrome.com/docs/identity/fedcm/implement/relying-party
    */
   static isActiveModeSupported(): boolean {
-    // Active mode is supported if FedCM is supported and the mode option is accepted.
-    return FedCM.isSupported()
+    if (!FedCM.isSupported()) return false
+    if (typeof navigator.credentials?.get !== 'function') return false
+
+    let supported = false
+    const identity = Object.defineProperty({}, 'mode', {
+      get() {
+        supported = true
+        return undefined
+      },
+    })
+
+    try {
+      const pending = navigator.credentials.get({
+        identity,
+      } as CredentialRequestOptions)
+      void Promise.resolve(pending).catch(() => {})
+    } catch {}
+
+    return supported
   }
 
   /**

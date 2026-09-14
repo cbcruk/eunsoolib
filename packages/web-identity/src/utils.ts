@@ -69,3 +69,32 @@ export function assertCredentialsAPI(): void {
     )
   }
 }
+
+/**
+ * Read `PublicKeyCredential.getClientCapabilities()`, resolving to an empty
+ * object when WebAuthn or the method is unavailable or the call rejects.
+ *
+ * A missing key means the capability is unknown and must be treated as unsupported.
+ */
+export async function getClientCapabilities(): Promise<
+  Record<string, boolean>
+> {
+  if (
+    typeof window === 'undefined' ||
+    !window.isSecureContext ||
+    typeof PublicKeyCredential === 'undefined'
+  ) {
+    return {}
+  }
+
+  const pkc = PublicKeyCredential as unknown as {
+    getClientCapabilities?: () => Promise<Record<string, boolean>>
+  }
+  if (typeof pkc.getClientCapabilities !== 'function') return {}
+
+  try {
+    return (await pkc.getClientCapabilities()) ?? {}
+  } catch {
+    return {}
+  }
+}

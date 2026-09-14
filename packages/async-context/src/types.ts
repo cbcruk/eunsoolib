@@ -22,8 +22,11 @@ export interface AsyncContext<T> {
   get(): T
 
   /**
-   * 현재 컨텍스트 값을 안전하게 가져온다.
-   * 컨텍스트가 설정되지 않은 경우 undefined를 반환한다.
+   * 현재 컨텍스트 값을 에러 없이 가져온다.
+   *
+   * 컨텍스트 밖이면 `defaultValue`를, 그것도 없으면 `undefined`를 반환한다.
+   * 컨텍스트 밖이어도 `get()`과 같은 값을 돌려주므로, 값이 실제로 설정됐는지
+   * 구분하려면 `isActive()`를 쓴다.
    */
   getOptional(): T | undefined
 

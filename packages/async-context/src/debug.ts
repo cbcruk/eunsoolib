@@ -4,7 +4,7 @@ import type { AsyncContext } from './types'
 export interface ContextDebugInfo {
   /** {@linkcode AsyncContext.isActive}의 결과. */
   active: boolean
-  /** {@linkcode AsyncContext.getOptional}의 결과. 비활성이면 `undefined`. */
+  /** {@linkcode AsyncContext.getOptional}의 결과. 비활성이면 `defaultValue` 또는 `undefined`. */
   value: unknown
 }
 

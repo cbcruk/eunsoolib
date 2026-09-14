@@ -83,5 +83,7 @@ async function fetchImageAsBlob(imageUrl: string): Promise<Blob> {
 
 - `OPTIONS` (preflight): 허용된 origin 이면 204 + CORS 헤더, 아니면 403
 - `GET`: origin·대상 도메인 검증 후 이미지를 스트리밍으로 프록시
-- 그 외 메서드: 405
+- `HEAD`: `GET` 과 같은 검증 후 upstream 에도 `HEAD` 로 요청하고, 본문 없이 상태·헤더만 반환
+- 그 외 메서드: 405 (`Allow: GET, HEAD, OPTIONS`)
 - upstream 오류: 상태 코드 그대로 전파 / fetch 실패: 502
+- 허용된 origin 의 요청이면 400·403·405·upstream 오류·502 등 에러 응답에도 CORS 헤더를 붙여, 브라우저 클라이언트가 네트워크 에러 대신 실제 상태 코드를 확인할 수 있습니다. 허용되지 않은 origin 에는 CORS 헤더를 붙이지 않습니다.

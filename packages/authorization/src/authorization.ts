@@ -15,11 +15,43 @@ export interface AuthStrategy {
   authorize(request: Request): AuthResult | Response
 }
 
+const BASIC_SCHEME = /^basic[ \t]+([^ \t]+)[ \t]*$/i
+
+/** base64 자격 증명을 UTF-8 문자열로 디코딩한다. 잘못된 base64나 UTF-8이면 던진다. */
+function decodeCredentials(encoded: string): string {
+  const binary = atob(encoded)
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+}
+
+/**
+ * 두 문자열의 UTF-8 바이트를 내용과 무관한 시간에 비교한다.
+ *
+ * 첫 불일치에서 멈추지 않고 긴 쪽 길이만큼 모두 비교해, 응답 시간으로
+ * 일치하는 접두사 길이를 추측할 수 없게 한다.
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  const encoder = new TextEncoder()
+  const left = encoder.encode(a)
+  const right = encoder.encode(b)
+  const length = Math.max(left.length, right.length)
+  let diff = left.length ^ right.length
+
+  for (let i = 0; i < length; i++) {
+    diff |= (left[i] ?? 0) ^ (right[i] ?? 0)
+  }
+
+  return diff === 0
+}
+
 /**
  * HTTP Basic 인증 전략
  *
  * `Authorization: Basic <base64>` 헤더를 파싱해 생성자에 넘긴 자격 증명과
- * 비교한다.
+ * 비교한다. 스킴 이름은 대소문자를 구분하지 않고, 자격 증명은 UTF-8로 디코딩한
+ * 뒤 첫 번째 `:`에서 사용자명과 비밀번호로 나눈다(RFC 7617). 사용자명과
+ * 비밀번호는 둘 다 상수 시간으로 비교한다.
  *
  * @example
  * ```ts
@@ -35,8 +67,8 @@ export interface AuthStrategy {
  */
 export class BasicAuthStrategy implements AuthStrategy {
   /**
-   * @param username - 기대하는 사용자명
-   * @param password - 기대하는 비밀번호
+   * @param username - 기대하는 사용자명. RFC 7617에 따라 `:`를 포함할 수 없다
+   * @param password - 기대하는 비밀번호. `:`와 non-ASCII 문자를 포함할 수 있다
    */
   constructor(
     private username: string,
@@ -49,25 +81,39 @@ export class BasicAuthStrategy implements AuthStrategy {
    * @param request - 검증할 요청
    * @returns 자격 증명이 일치하면 `{ ok: true }`, 아니면 401 `Response`
    */
-  authorize(request: Request) {
+  authorize(request: Request): AuthResult | Response {
     const authorization = request.headers.get('authorization')
+    const match = authorization?.match(BASIC_SCHEME)
 
-    if (!authorization || !authorization.startsWith('Basic ')) {
+    if (!match) {
       return this.unauthorized()
     }
 
-    try {
-      const [, encoded] = authorization.split(' ')
-      const decoded = atob(encoded)
-      const [username, password] = decoded.split(':')
+    let decoded: string
 
-      if (username === this.username && password === this.password) {
-        return {
-          ok: true,
-        }
-      }
+    try {
+      decoded = decodeCredentials(match[1])
     } catch {
       return this.unauthorized()
+    }
+
+    const separator = decoded.indexOf(':')
+
+    if (separator === -1) {
+      return this.unauthorized()
+    }
+
+    const usernameOk = timingSafeEqual(
+      decoded.slice(0, separator),
+      this.username,
+    )
+    const passwordOk = timingSafeEqual(
+      decoded.slice(separator + 1),
+      this.password,
+    )
+
+    if (usernameOk && passwordOk) {
+      return { ok: true }
     }
 
     return this.unauthorized()

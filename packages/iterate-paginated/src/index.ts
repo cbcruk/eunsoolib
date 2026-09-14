@@ -1,1 +1,6 @@
-export { iteratePaginated, type PagedFetch } from './iterate-paginated'
+export {
+  iteratePaginated,
+  RepeatedCursorError,
+  type IteratePaginatedOptions,
+  type PagedFetch,
+} from './iterate-paginated'

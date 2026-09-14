@@ -234,16 +234,20 @@ const ctx = createAsyncContext<string>({
 
 **반환 객체:**
 
-| 메서드                 | 설명                            |
-| ---------------------- | ------------------------------- |
-| `run(value, callback)` | 값을 설정하고 콜백 실행         |
-| `get()`                | 현재 값 반환 (없으면 에러)      |
-| `getOptional()`        | 현재 값 반환 (없으면 undefined) |
-| `isActive()`           | 컨텍스트 활성 여부              |
+| 메서드                 | 설명                                                          |
+| ---------------------- | ------------------------------------------------------------- |
+| `run(value, callback)` | 값을 설정하고 콜백 실행                                       |
+| `get()`                | 현재 값 반환 (없으면 `defaultValue`, 그것도 없으면 에러)      |
+| `getOptional()`        | 현재 값 반환 (없으면 `defaultValue`, 그것도 없으면 undefined) |
+| `isActive()`           | 컨텍스트 활성 여부 (`defaultValue`와 무관)                    |
+
+`defaultValue`를 준 컨텍스트에서는 컨텍스트 밖에서도 `get()`과 `getOptional()`이 같은 값을
+반환합니다. 값이 실제로 `run()`으로 설정됐는지 구분하려면 `isActive()`를 쓰세요.
 
 ### `composeContexts(contexts, values, callback)`
 
-여러 컨텍스트를 동시에 설정합니다.
+여러 컨텍스트를 동시에 설정하고 `callback`의 반환값을 그대로 돌려줍니다. 반환 타입도 `callback`에서
+추론되므로(`() => R` → `R`) 단언이 필요 없습니다.
 
 ```typescript
 const result = await composeContexts(
