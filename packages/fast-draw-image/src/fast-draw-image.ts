@@ -6,6 +6,26 @@ import type {
   BrowserType,
 } from './types'
 
+/** A caller waiting on a shared pending load. */
+interface PendingWaiter {
+  /** Whether this caller asked for the result to be cached. */
+  cache: boolean
+}
+
+/** One in-flight load shared by every concurrent caller for the same URL. */
+interface PendingLoad {
+  /** Resolves with the bitmap once the underlying load finishes; set when the load starts. */
+  promise?: Promise<ImageBitmap>
+  /** Aborts the underlying load; fired once every waiter has aborted. */
+  controller: AbortController
+  /** Callers still waiting on this load. */
+  waiters: Set<PendingWaiter>
+}
+
+function createAbortError(): DOMException {
+  return new DOMException('Image loading aborted', 'AbortError')
+}
+
 /**
  * Non-blocking cross-browser image rendering library for Canvas.
  *
@@ -17,7 +37,7 @@ import type {
  */
 export class FastDrawImage {
   private cache: Map<string, ImageBitmap> = new Map()
-  private pendingLoads: Map<string, Promise<ImageBitmap>> = new Map()
+  private pendingLoads: Map<string, PendingLoad> = new Map()
   private browserType: BrowserType
 
   /** Create an instance with its own cache and detect the browser type. */
@@ -53,7 +73,14 @@ export class FastDrawImage {
    * Load an image as ImageBitmap without blocking the main thread.
    * Uses a browser-specific strategy for optimal performance.
    *
-   * Concurrent calls for the same URL share one pending load.
+   * Concurrent calls for the same URL share one pending load, which runs on an
+   * internal `AbortController`. Each call's `signal` cancels only that call's
+   * wait; the shared load itself is aborted once every waiting call has aborted.
+   * The result is cached if any call still waiting when the load finishes
+   * passed `cache: true`.
+   *
+   * @throws An `AbortError` `DOMException` if this call's `signal` is aborted
+   * before the image is loaded.
    */
   async loadImage(
     url: string,
@@ -65,24 +92,95 @@ export class FastDrawImage {
       return this.cache.get(url)!
     }
 
-    if (this.pendingLoads.has(url)) {
-      return this.pendingLoads.get(url)!
+    if (signal?.aborted) {
+      throw createAbortError()
     }
 
-    const loadPromise = this.loadImageInternal(url, signal)
-    this.pendingLoads.set(url, loadPromise)
+    const pending = this.pendingLoads.get(url) ?? this.createPendingLoad(url)
+    const waiter: PendingWaiter = { cache }
 
-    try {
-      const bitmap = await loadPromise
+    pending.waiters.add(waiter)
 
-      if (cache) {
-        this.cache.set(url, bitmap)
+    return new Promise<ImageBitmap>((resolve, reject) => {
+      const onAbort = (): void => {
+        pending.waiters.delete(waiter)
+        reject(createAbortError())
+
+        if (pending.waiters.size === 0) {
+          if (this.pendingLoads.get(url) === pending) {
+            this.pendingLoads.delete(url)
+          }
+          pending.controller.abort()
+        }
       }
 
-      return bitmap
-    } finally {
-      this.pendingLoads.delete(url)
+      // Listen before starting the load so an abort fired during start is seen.
+      signal?.addEventListener('abort', onAbort, { once: true })
+
+      this.startPendingLoad(url, pending).then(
+        (bitmap) => {
+          signal?.removeEventListener('abort', onAbort)
+          resolve(bitmap)
+        },
+        (error: unknown) => {
+          signal?.removeEventListener('abort', onAbort)
+          reject(error)
+        },
+      )
+    })
+  }
+
+  /**
+   * Register a pending load that concurrent callers for the same URL can join.
+   */
+  private createPendingLoad(url: string): PendingLoad {
+    const pending: PendingLoad = {
+      controller: new AbortController(),
+      waiters: new Set(),
     }
+
+    this.pendingLoads.set(url, pending)
+
+    return pending
+  }
+
+  /**
+   * Start the underlying load for a pending entry once and return its promise.
+   */
+  private startPendingLoad(
+    url: string,
+    pending: PendingLoad,
+  ): Promise<ImageBitmap> {
+    if (pending.promise) {
+      return pending.promise
+    }
+
+    const { controller, waiters } = pending
+
+    pending.promise = this.loadImageInternal(url, controller.signal)
+      .then((bitmap) => {
+        if (waiters.size === 0) {
+          // Every caller aborted while the bitmap was being created.
+          bitmap.close()
+          throw createAbortError()
+        }
+
+        if ([...waiters].some((waiter) => waiter.cache)) {
+          this.cache.set(url, bitmap)
+        }
+
+        return bitmap
+      })
+      .finally(() => {
+        if (this.pendingLoads.get(url) === pending) {
+          this.pendingLoads.delete(url)
+        }
+      })
+
+    // Waiters handle the rejection; avoid an unhandled rejection when none are left.
+    pending.promise.catch(() => {})
+
+    return pending.promise
   }
 
   private async loadImageInternal(
@@ -175,7 +273,9 @@ export class FastDrawImage {
   /**
    * Load an image and draw it directly to a canvas without blocking the main thread.
    *
-   * Without `canvas`, the image is only loaded.
+   * Without `canvas`, the image is only loaded. If only one of `width` and
+   * `height` is set, the other is derived from the aspect ratio of the source
+   * (the source rectangle when given, otherwise the whole image).
    *
    * @returns The loaded bitmap
    * @throws If `canvas` is an ID with no matching element, or a 2D context is unavailable.
@@ -222,6 +322,8 @@ export class FastDrawImage {
         sWidth !== undefined &&
         sHeight !== undefined
       ) {
+        const size = resolveDrawSize(width, height, sWidth, sHeight)
+
         ctx.drawImage(
           bitmap,
           sx,
@@ -230,11 +332,18 @@ export class FastDrawImage {
           sHeight,
           x,
           y,
-          width ?? sWidth,
-          height ?? sHeight,
+          size?.width ?? sWidth,
+          size?.height ?? sHeight,
         )
-      } else if (width !== undefined && height !== undefined) {
-        ctx.drawImage(bitmap, x, y, width, height)
+      } else if (width !== undefined || height !== undefined) {
+        const size = resolveDrawSize(
+          width,
+          height,
+          bitmap.width,
+          bitmap.height,
+        )!
+
+        ctx.drawImage(bitmap, x, y, size.width, size.height)
       } else {
         ctx.drawImage(bitmap, x, y)
       }
@@ -341,6 +450,32 @@ export class FastDrawImage {
   getCached(url: string): ImageBitmap | undefined {
     return this.cache.get(url)
   }
+}
+
+/**
+ * Fill in a missing destination dimension from the source aspect ratio.
+ *
+ * @returns `undefined` when neither `width` nor `height` is set
+ */
+function resolveDrawSize(
+  width: number | undefined,
+  height: number | undefined,
+  sourceWidth: number,
+  sourceHeight: number,
+): { width: number; height: number } | undefined {
+  if (width !== undefined && height !== undefined) {
+    return { width, height }
+  }
+
+  if (width !== undefined) {
+    return { width, height: (width * sourceHeight) / sourceWidth }
+  }
+
+  if (height !== undefined) {
+    return { width: (height * sourceWidth) / sourceHeight, height }
+  }
+
+  return undefined
 }
 
 /** Shared {@link FastDrawImage} instance used by the standalone functions. */

@@ -132,18 +132,32 @@ try {
 | `cache`  | `boolean`     | `true`  | 캐싱 활성화   |
 | `signal` | `AbortSignal` | -       | 취소용 시그널 |
 
+같은 URL을 동시에 요청하면 실제 로드는 한 번만 일어나고 모든 호출이 결과를 공유합니다.
+
+- 공유 로드는 내부 `AbortController`로 실행됩니다. 각 호출의 `signal`은 **그 호출의 대기만** 취소하고
+  (`AbortError`로 reject), 대기 중인 호출이 모두 abort되면 실제 로드도 abort됩니다.
+- 로드가 끝났을 때 아직 대기 중인 호출 중 하나라도 `cache: true`면 결과를 캐시합니다.
+
 ### `drawImage(url, options?)`
 
 이미지를 로드하고 Canvas에 그립니다.
 
-| Option                          | Type                          | Default   | Description          |
-| ------------------------------- | ----------------------------- | --------- | -------------------- |
-| `canvas`                        | `HTMLCanvasElement \| string` | -         | 타겟 Canvas          |
-| `x`, `y`                        | `number`                      | `0`       | 그릴 위치            |
-| `width`, `height`               | `number`                      | 원본 크기 | 그릴 크기            |
-| `sx`, `sy`, `sWidth`, `sHeight` | `number`                      | -         | 소스 영역 (sprite용) |
-| `cache`                         | `boolean`                     | `true`    | 캐싱 활성화          |
-| `signal`                        | `AbortSignal`                 | -         | 취소용 시그널        |
+| Option                          | Type                          | Default   | Description           |
+| ------------------------------- | ----------------------------- | --------- | --------------------- |
+| `canvas`                        | `HTMLCanvasElement \| string` | -         | 타겟 Canvas           |
+| `x`, `y`                        | `number`                      | `0`       | 그릴 위치             |
+| `width`, `height`               | `number`                      | 원본 크기 | 그릴 크기 (아래 참고) |
+| `sx`, `sy`, `sWidth`, `sHeight` | `number`                      | -         | 소스 영역 (sprite용)  |
+| `cache`                         | `boolean`                     | `true`    | 캐싱 활성화           |
+| `signal`                        | `AbortSignal`                 | -         | 취소용 시그널         |
+
+`width`와 `height` 중 하나만 주면 나머지는 원본 비율로 계산합니다. 소스 영역이 있으면 소스 영역(`sWidth`/`sHeight`)의 비율,
+없으면 이미지 전체 비율을 따릅니다. 둘 다 없으면 소스 영역 크기 또는 이미지 원본 크기로 그립니다.
+
+```typescript
+// 400×300 이미지 → 200×150으로 그림
+await drawImage('photo.jpg', { canvas: 'myCanvas', width: 200 })
+```
 
 ### `preload(urls, options?)`
 
