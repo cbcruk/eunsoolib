@@ -40,14 +40,31 @@ cat > "$PACKAGE_DIR/package.json" << EOF
   "description": "TODO: 한 줄 설명",
   "version": "0.0.1",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/$PACKAGE_NAME"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/utils/$PACKAGE_NAME/",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "eunsoolib": {
     "category": "utils",
     "runtime": ["universal"]
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
   }
 }
 EOF
@@ -119,8 +136,9 @@ echo "      ├── $PACKAGE_NAME.ts"
 echo "      └── $PACKAGE_NAME.test.ts"
 echo ""
 echo -e "${YELLOW}다음 단계:${NC}"
-echo "  0. $PACKAGE_DIR/package.json의 description과 eunsoolib.category/runtime을 채우세요 (CLAUDE.md 참고)"
+echo "  0. $PACKAGE_DIR/package.json의 description과 eunsoolib.category/runtime을 채우고, homepage 경로의 category도 맞추세요 (CLAUDE.md 참고)"
 echo "  1. $PACKAGE_DIR/src/$PACKAGE_NAME.ts 파일에서 구현을 작성하세요"
 echo "  2. $PACKAGE_DIR/src/$PACKAGE_NAME.test.ts 파일에서 테스트를 작성하세요"
 echo "  3. $PACKAGE_DIR/README.md를 채우고 pnpm check:readme로 검사하세요"
 echo "  4. pnpm test:run 으로 테스트를 실행하세요"
+echo "  5. pnpm --filter @cbcruk/$PACKAGE_NAME build 후 pnpm check:packages $PACKAGE_NAME 으로 배포 산출물을 검사하세요"

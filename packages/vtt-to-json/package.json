@@ -3,15 +3,34 @@
   "description": "WebVTT 자막을 중복 제거된 cue 배열로 파싱",
   "version": "0.0.1",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/vtt-to-json"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/media/vtt-to-json/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "eunsoolib": {
     "category": "media",
     "runtime": [
       "universal"
     ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    }
   }
 }
