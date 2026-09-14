@@ -1,0 +1,17 @@
+{
+  "name": "@eunsoolib/utils",
+  "description": "난수·휴대폰 번호 파싱·시간 포맷 등 작은 유틸",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "eunsoolib": {
+    "category": "utils",
+    "runtime": [
+      "universal"
+    ]
+  }
+}
