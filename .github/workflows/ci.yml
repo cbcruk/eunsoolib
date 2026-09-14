@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: README 형식
+        run: pnpm check:readme
+
+      # browser 프로젝트는 Playwright 브라우저 설치가 필요해 CI에서는 unit만 돌린다.
+      - name: 단위 테스트
+        run: pnpm vitest run --project unit
+
+      - name: 패키지 빌드
+        run: pnpm build
+
+      - name: 배포 산출물 검사
+        run: pnpm check:packages

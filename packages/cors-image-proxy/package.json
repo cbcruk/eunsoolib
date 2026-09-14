@@ -3,10 +3,22 @@
   "description": "open proxy를 막는 cross-origin 이미지 CORS 프록시 핸들러",
   "version": "0.0.1",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/cors-image-proxy"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/async/cors-image-proxy/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "eunsoolib": {
     "category": "async",
@@ -14,5 +26,12 @@
       "edge",
       "node"
     ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    }
   }
 }

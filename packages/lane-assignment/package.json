@@ -3,10 +3,22 @@
   "description": "캘린더에서 겹치는 이벤트를 레인(행)에 배치하는 알고리즘",
   "version": "0.0.1",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/lane-assignment"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/utils/lane-assignment/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "peerDependencies": {
     "dayjs": "^1.11.0"
@@ -16,5 +28,12 @@
     "runtime": [
       "universal"
     ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    }
   }
 }

@@ -2,9 +2,8 @@
   "name": "@cbcruk/wordle",
   "description": "워들 게임 로직·공유 코드 인코딩·타이머",
   "version": "0.0.1",
+  "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
   },

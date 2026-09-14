@@ -7,6 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Test**: `pnpm test` - Run all tests with Vitest
 - **Test UI**: `pnpm test:ui` - Run tests with Vitest UI interface
 - **Test Run**: `pnpm test:run` - Run tests once without watch mode
+- **Build**: `pnpm build` - Build publishable packages to `dist/` with tsdown (one process per package)
+- **Check Packages**: `pnpm check:packages [name...]` - `pnpm pack` each built package and lint the tarball (metadata, d.ts, publint, attw)
+- **Check README**: `pnpm check:readme` - Validate package READMEs against the template
 
 ## Architecture Overview
 
@@ -18,7 +21,7 @@ This is a TypeScript monorepo containing utility packages organized by functiona
 - **State Management**: XState for complex state machines, Zustand for simpler stores
 - **Storage**: Dexie for IndexedDB operations
 - **Effect System**: Effect library for functional programming patterns
-- **Build**: Vite for bundling and development
+- **Build**: tsdown for publishable packages, Vite for Storybook and development
 
 ### Package Structure
 
@@ -50,6 +53,16 @@ Every `packages/*/package.json` carries a Korean `description` and an `eunsoolib
 - **runtime**: one or more of `universal`, `browser`, `node`, `edge`
 - Folder name must match the package name (`packages/stacked-pr` → `@cbcruk/stacked-pr`)
 - Demo components/functions (`demo.tsx`, `*.example.ts`, `overflow-demo.tsx`) are not re-exported from `src/index.ts`
+
+### Build & Publish
+
+Packages are published to npm under `@cbcruk/*`, except `lab` packages which are `"private": true` and have no build.
+
+- **Dev vs publish exports**: `exports` points to `./src/*.ts` so tests, the docs app, and workspace dependents use source directly. `publishConfig.exports` points to `./dist/*.js` and replaces it on `pnpm pack`/`publish`. Don't add `main`/`types` fields.
+- **Build**: every publishable package has `"build": "tsdown --config ../../tsdown.config.ts"`. The shared root `tsdown.config.ts` derives entries from `exports` and `platform` from `eunsoolib.runtime`, and rewrites `exports`/`publishConfig.exports` (`devExports`). Run it from the package folder — building all packages in one tsdown process runs out of memory.
+- **Dependencies**: anything imported from `node_modules` must be declared in `dependencies`/`peerDependencies`; the build fails otherwise (`deps.onlyBundle: []`). Workspace dependencies use `workspace:*`.
+- **Required metadata** (checked by `pnpm check:packages`): `license: MIT`, `repository.directory: packages/<name>`, `homepage: https://cbcruk.github.io/eunsoolib/docs/<category>/<name>/`, `files: ["dist"]`, `publishConfig.access: public`
+- **No `sideEffects: false`**: some packages register dayjs plugins at module load
 
 ### Notable Packages
 

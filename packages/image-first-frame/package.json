@@ -3,15 +3,34 @@
   "description": "애니메이션 이미지(GIF·WebP·APNG)의 첫 프레임을 Blob으로 추출",
   "version": "0.0.1",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/image-first-frame"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/media/image-first-frame/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "eunsoolib": {
     "category": "media",
     "runtime": [
       "browser"
     ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    }
   }
 }

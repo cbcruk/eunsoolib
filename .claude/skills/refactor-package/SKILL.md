@@ -13,7 +13,7 @@ description: packages/ 하위에 사용자가 임시로 만든 폴더(flat한 in
 
 ```
 packages/<name>/
-├── package.json          # @cbcruk/<name>, main/types/exports → ./src/index.ts
+├── package.json          # @cbcruk/<name>, exports → ./src (publishConfig.exports → ./dist), build 스크립트
 ├── tsconfig.json         # ../../tsconfig.json extends
 ├── README.md             # 한국어, 설치/사용법/API 섹션
 └── src/
@@ -57,14 +57,15 @@ packages/<name>/
    - 스냅샷 테스트가 있으면 `__snapshots__/<test-file>.snap`으로 파일명을 새 테스트 파일명에 **정확히 맞춰** 이동한다 (vitest가 파일명으로 스냅샷을 찾음).
 
 4. **`package.json` / `tsconfig.json` 보강.** 없으면 `scripts/create-package.sh`의 템플릿과 동일하게 생성한다.
-   - `package.json`: `name`(기존 보존 또는 `@cbcruk/<name>`), `version: 0.0.1`, `type: module`, `main`/`types`/`exports` 모두 `./src/index.ts`.
+   - `package.json`: `name`(기존 보존 또는 `@cbcruk/<name>`), `version: 0.0.1`, `type: module`, `exports`는 `./src/index.ts`. 배포 메타데이터(`license`, `repository`, `homepage`, `files`, `scripts.build`, `publishConfig`)는 `create-package.sh` 템플릿과 같게 채우고 `main`/`types`는 두지 않는다. `lab` 카테고리면 `"private": true`만 두고 배포 필드와 build 스크립트는 생략한다.
+   - 코드가 import하는 외부 패키지는 모두 `dependencies`/`peerDependencies`에 선언한다 (선언하지 않으면 빌드가 실패한다).
    - `tsconfig.json`: `extends: ../../tsconfig.json`, `outDir: ./dist`, `rootDir: ./src`, `include: ["src"]`.
 
 5. **README 정리.** `scripts/templates/README.md` 템플릿을 따른다 — `# @cbcruk/<name>` 제목 + 한 줄 설명, `## 설치` → `## 사용법` → `## API` 순서. 작성 후 `pnpm check:readme`로 검사한다. 본문이 채팅 로그 형태면 정식 문서로 재구성한다. **파일 경로 참조(테스트 파일명 등)와 설치 스니펫을 새 구조에 맞게 갱신**한다.
 
 6. **불필요해진 원본 파일 제거.** flat한 `index.ts`/`test.ts`/`__snapshots__/` 등 src로 옮겨간 원본을 삭제한다.
 
-7. **검증.** `pnpm test:run packages/<name>` 으로 테스트 통과를 확인한다. 실패하면 고친다.
+7. **검증.** `pnpm test:run packages/<name>` 으로 테스트 통과를 확인한다. 배포 대상이면 `pnpm --filter @cbcruk/<name> build` 후 `pnpm check:packages <name>`도 통과시킨다. 실패하면 고친다.
 
 8. **보고.** before → after 디렉터리 트리와 핵심 변경점(분리한 파일, 테스트 변환 여부, 추가한 설정)을 요약한다.
 
