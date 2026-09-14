@@ -10,6 +10,32 @@ import {
 
 const DEFAULT_CACHE_TTL = 3600
 
+/**
+ * Creates a fetch handler that proxies whitelisted images and adds CORS headers.
+ *
+ * The handler answers `OPTIONS` preflights for allowed origins with `204`, and
+ * rejects other non-`GET` methods with `405`. A `GET` must come from an allowed
+ * origin and carry a `?url=` whose hostname is in `allowedTargetDomains`;
+ * otherwise it responds with `403` or `400`. A non-OK upstream response is
+ * returned as `Upstream error: <status>` with the same status, and a thrown
+ * fetch results in `502`.
+ *
+ * @example Cloudflare Workers entry
+ * ```ts
+ * import { corsImageProxy } from '@cbcruk/cors-image-proxy'
+ *
+ * const handler = corsImageProxy({
+ *   allowedOrigins: ['http://localhost:3000', '*.vercel.app'],
+ *   allowedTargetDomains: ['s3.amazonaws.com', 'your-cdn.cloudfront.net'],
+ * })
+ *
+ * export default {
+ *   fetch(request: Request): Promise<Response> {
+ *     return handler(request)
+ *   },
+ * }
+ * ```
+ */
 export function corsImageProxy(
   options: CorsImageProxyOptions,
 ): CorsImageProxyHandler {

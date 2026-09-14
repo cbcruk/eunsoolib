@@ -1,16 +1,18 @@
-/**
- * 프레임워크에 의존하지 않는 store core.
- *
- * React 등 특정 UI 레이어를 몰라도 동작하는 싱글턴 상태 컨테이너다.
- * `getState` / `setState` / `subscribe` 세 가지 원시 연산만 제공하며,
- * React 바인딩(`useStore`)은 이 core 위에 `useSyncExternalStore`로 얹는다.
- */
-
+/** 상태가 바뀔 때 인자 없이 호출되는 구독 콜백. */
 export type Listener = () => void
 
 /** 다음 상태를 값 또는 이전 상태를 받는 함수로 전달할 수 있다. */
 export type Updater<T> = T | ((prev: T) => T)
 
+/**
+ * 프레임워크에 의존하지 않는 store core.
+ *
+ * React 등 특정 UI 레이어를 몰라도 동작하는 싱글턴 상태 컨테이너다.
+ * `getState` / `setState` / `subscribe` 원시 연산만 제공하며,
+ * React 바인딩(`useStore`)은 이 core 위에 `useSyncExternalStore`로 얹는다.
+ *
+ * @template T - 상태 타입
+ */
 export interface Store<T> {
   /** 현재 상태를 반환한다. */
   getState: () => T
@@ -37,6 +39,8 @@ function isUpdaterFn<T>(updater: Updater<T>): updater is (prev: T) => T {
  *
  * @example
  * ```ts
+ * import { createStore } from '@cbcruk/sync-store'
+ *
  * const counter = createStore({ count: 0 })
  * counter.subscribe(() => console.log(counter.getState()))
  * counter.setState((prev) => ({ count: prev.count + 1 })) // { count: 1 }

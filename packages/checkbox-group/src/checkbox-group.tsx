@@ -79,6 +79,8 @@ function CheckboxForm({ list, defaultSelected, onSubmit }: CheckboxFormProps) {
  *
  * @example
  * ```tsx
+ * import { CheckboxGroup } from '@cbcruk/checkbox-group'
+ *
  * <CheckboxGroup
  *   list={[
  *     { key: 'a', label: '옵션 A' },

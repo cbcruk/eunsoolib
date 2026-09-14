@@ -12,6 +12,8 @@ import { assertCredentialsAPI, wrapError } from './utils'
  *
  * @example
  * ```ts
+ * import { CredentialManager } from '@cbcruk/web-identity';
+ *
  * const cm = new CredentialManager();
  *
  * // Unified sign-in: passwords + passkeys in one prompt

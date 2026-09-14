@@ -1,5 +1,6 @@
 import type { PaginationItem } from './types'
 
+/** 페이지 번호 목록에서 생략 구간을 나타내는 값. */
 export const DOTS = '...' as const
 
 export function range(start: number, end: number): number[] {
@@ -19,6 +20,14 @@ export interface PaginationRangeParams {
  * - `totalPages`가 충분히 작으면 전부 표시한다.
  * - 양 끝 `boundaryCount`개와 현재 페이지 주변 `siblingCount`개를 남기고
  *   나머지 구간은 DOTS로 접는다.
+ *
+ * @example
+ * ```ts
+ * import { getPaginationRange } from '@cbcruk/pagination'
+ *
+ * getPaginationRange({ page: 5, totalPages: 10 })
+ * // [1, '...', 4, 5, 6, '...', 10]
+ * ```
  */
 export function getPaginationRange({
   page,

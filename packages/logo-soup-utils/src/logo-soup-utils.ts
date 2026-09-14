@@ -1,23 +1,36 @@
+/** 원본 이미지 좌표계(px)의 사각형 영역. */
 export interface BoundingBox {
+  /** 왼쪽 위 x 좌표 */
   x: number
+  /** 왼쪽 위 y 좌표 */
   y: number
+  /** 너비 */
   width: number
+  /** 높이 */
   height: number
 }
 
+/** 픽셀 가중치로 구한 로고의 시각적 중심. */
 export interface VisualCenter {
   /** 원본 좌표계 기준 시각적 질량 중심 */
   x: number
+  /** 원본 좌표계 기준 시각적 질량 중심의 y 좌표 */
   y: number
   /** 콘텐츠 박스 중심 대비 오프셋(콘텐츠 좌표계). transform 계산에 쓰임 */
   offsetX: number
+  /** 콘텐츠 박스 중심 대비 세로 오프셋. 양수면 시각중심이 아래로 치우쳤다는 뜻 */
   offsetY: number
 }
 
+/** {@link scanPixels}가 반환하는 로고 측정 결과. */
 export interface MeasurementResult {
+  /** 원본 이미지 너비 */
   width: number
+  /** 원본 이미지 높이 */
   height: number
+  /** 배경을 제외한 콘텐츠 영역. 콘텐츠가 없으면 이미지 전체 */
   contentBox: BoundingBox
+  /** 시각적 질량 중심과 콘텐츠 박스 중심 대비 오프셋 */
   visualCenter: VisualCenter
   /** 0~1, 채움면적비 × 평균불투명도. 미요청 시 undefined */
   pixelDensity?: number
@@ -25,7 +38,17 @@ export interface MeasurementResult {
   backgroundLuminance?: number
 }
 
+/** 0~255 범위의 `[r, g, b]` 색. */
 export type RGB = [number, number, number]
+
+/**
+ * {@link getVisualCenterTransform}의 정렬 방식.
+ *
+ * - `'bounds'`: 보정 없음(기하중심 그대로)
+ * - `'visual-center'`: 가로·세로 모두 시각중심으로 보정
+ * - `'visual-center-x'`: 가로만 보정
+ * - `'visual-center-y'`: 세로만 보정
+ */
 export type AlignmentMode =
   | 'bounds'
   | 'visual-center'
@@ -42,6 +65,15 @@ export type AlignmentMode =
  */
 const PIXEL_BUDGET = 2_048
 
+/**
+ * 총 픽셀 수가 약 2,048이 되도록 비율을 유지한 스캔용 축소 크기를 계산한다.
+ *
+ * 원본이 2,048픽셀 이하이면 원본 크기를 그대로 돌려준다. 각 변은 반올림하며 최소 1이다.
+ *
+ * @param w - 원본 너비(px)
+ * @param h - 원본 높이(px)
+ * @returns 축소 너비 `sw`와 축소 높이 `sh`
+ */
 export function downsampleDimensions(
   w: number,
   h: number,
@@ -69,15 +101,21 @@ export function asUint32(data: Uint8ClampedArray | Uint8Array): Uint32Array {
   return new Uint32Array(data.buffer, data.byteOffset, data.length >> 2)
 }
 
+/** {@link analyzePerimeter}가 추정한 배경 정보. */
 export interface PerimeterAnalysis {
   /** 테두리의 10% 이상이 투명 → 투명 배경 로고로 판단 */
   transparent: boolean
+  /** 추정 배경색의 R 채널(0~255). 불투명 테두리 픽셀이 없으면 255 */
   bgR: number
+  /** 추정 배경색의 G 채널(0~255). 불투명 테두리 픽셀이 없으면 255 */
   bgG: number
+  /** 추정 배경색의 B 채널(0~255). 불투명 테두리 픽셀이 없으면 255 */
   bgB: number
 }
 
 /**
+ * 이미지 테두리 픽셀로 배경색과 투명 배경 여부를 추정한다.
+ *
  * 로고는 보통 중앙에 놓이고 가장자리는 배경이다. 따라서 이미지 테두리
  * (맨 윗줄·아랫줄·좌우 끝열)만 표본으로 모으면 배경색을 알 수 있다.
  *
@@ -159,24 +197,32 @@ export function analyzePerimeter(
   }
 }
 
+/** {@link scanPixels}의 입력. */
 export interface ScanOptions {
   /** 원본 이미지 크기(결과 좌표를 여기에 맞춰 되돌림) */
   width: number
+  /** 원본 이미지 높이(결과 좌표를 여기에 맞춰 되돌림) */
   height: number
   /** 다운샘플된 RGBA를 Uint32로 본 것 */
   data32: Uint32Array
   /** 다운샘플 크기 */
   sw: number
+  /** 다운샘플 높이 */
   sh: number
-  /** 콘텐츠 판별 대비 임계값(채널당). 기본 10 */
+  /**
+   * 콘텐츠 판별 대비 임계값(채널당). 알파가 이 값 이하인 픽셀도 콘텐츠에서 제외한다.
+   * @default 10
+   */
   contrastThreshold?: number
-  /** 밀도 계산 포함 여부 */
+  /** 밀도 계산 포함 여부 @default false */
   includeDensity?: boolean
   /** 배경색을 강제 지정. 없으면 analyzePerimeter로 추정 */
   backgroundColor?: RGB
 }
 
 /**
+ * 다운샘플된 픽셀을 훑어 콘텐츠 박스·시각적 중심·밀도·배경 휘도를 측정한다.
+ *
  * 한 번의 순회로 네 가지를 동시에 구한다(캐시 효율). 픽셀마다:
  *   1) 배경이면 건너뜀
  *   2) 콘텐츠면 bbox(min/max XY) 갱신
@@ -375,14 +421,39 @@ export function scanPixels(opts: ScanOptions): MeasurementResult {
   return result
 }
 
+/** {@link calculateNormalizedDimensions}의 옵션. */
 export interface NormalizeOptions {
-  baseSize?: number // 기본 48
-  scaleFactor?: number // 기본 0.5
-  densityFactor?: number // 기본 0(보정 없음). 라이브러리 컴포넌트 기본은 0.5
+  /** 정사각형 로고의 기준 너비(px) @default 48 */
+  baseSize?: number
+  /** 종횡비를 너비에 반영하는 지수. 0이면 너비 통일, 1이면 높이 통일 @default 0.5 */
+  scaleFactor?: number
+  /** 밀도 보정 강도. 0이면 보정 없음. 라이브러리 컴포넌트 기본은 0.5 @default 0 */
+  densityFactor?: number
 }
 
 /**
  * 측정 결과를 최종 렌더 치수로 변환한다. 세 단계가 순서대로 곱해진다.
+ *
+ * 1. 종횡비를 `scaleFactor` 지수로 감쇠한 비례 정규화
+ * 2. 불투명 이미지(`backgroundLuminance`가 있을 때)의 조사 착시 보정(최대 8% 축소)
+ * 3. `densityFactor > 0`이고 `pixelDensity`가 있을 때 밀도 보정(0.5~2배)
+ *
+ * @returns 반올림한 렌더 너비·높이. 콘텐츠 크기가 0이면 `baseSize` 정사각형
+ *
+ * @example
+ * ```ts
+ * import {
+ *   calculateNormalizedDimensions,
+ *   type MeasurementResult,
+ * } from '@cbcruk/logo-soup-utils'
+ *
+ * declare const measurement: MeasurementResult
+ *
+ * const { width, height } = calculateNormalizedDimensions(measurement, {
+ *   baseSize: 48,
+ *   densityFactor: 0.5,
+ * })
+ * ```
  */
 export function calculateNormalizedDimensions(
   m: MeasurementResult,
@@ -454,6 +525,10 @@ export function calculateNormalizedDimensions(
  *   "visual-center"   → 가로·세로 모두
  *   "visual-center-x" → 가로만
  *   "visual-center-y" → 세로만(라이브러리 기본값)
+ *
+ * @param renderWidth - {@link calculateNormalizedDimensions}로 구한 렌더 너비(px)
+ * @param renderHeight - 렌더 높이(px)
+ * @returns CSS `translate(...)` 문자열. 보정이 필요 없으면 `undefined`
  */
 export function getVisualCenterTransform(
   m: MeasurementResult,

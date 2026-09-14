@@ -1,6 +1,23 @@
 import { ok, err } from './result'
 import type { Layer, PullRequest, Result, StackError } from './types'
 
+/**
+ * trunk 위에 브랜치를 쌓아 올리는 gh-stack 스타일의 PR 스택 모델.
+ *
+ * 브랜치 추가·커서 이동·병합을 흉내 내며, 실패는 예외 대신 `Result`로 돌려준다.
+ *
+ * @example
+ * ```ts
+ * import { Stack } from '@cbcruk/stacked-pr'
+ *
+ * const stack = Stack.from('main', ['feat/auth', 'feat/api'])
+ *
+ * stack.attachPR('feat/auth', { number: 1, title: 'Auth', status: 'open' })
+ * stack.mergeUpTo('feat/auth')
+ *
+ * console.log(stack.render())
+ * ```
+ */
 export class Stack {
   /** Trunk 브랜치 — 예: `main`. */
   readonly trunk: string
@@ -11,12 +28,21 @@ export class Stack {
   /** 네비게이션 커서 — 현재 "체크아웃된" 브랜치 (trunk 또는 layer). */
   private cursor: string
 
+  /**
+   * layer 없이 trunk만 있는 빈 스택을 만든다. 커서는 trunk에 있다.
+   *
+   * @param trunk - trunk 브랜치 이름
+   */
   constructor(trunk: string) {
     this.trunk = trunk
     this.cursor = trunk
   }
 
-  /** 완성된 스택을 한 번에 생성하는 편의 메서드 (`gh stack init a b c`). */
+  /**
+   * 완성된 스택을 한 번에 생성하는 편의 메서드 (`gh stack init a b c`).
+   *
+   * @throws 브랜치 추가가 실패하면(예: 이름 중복) `Error`를 던진다.
+   */
   static from(trunk: string, branches: readonly string[]): Stack {
     const s = new Stack(trunk)
     for (const b of branches) {
@@ -42,7 +68,11 @@ export class Stack {
     return this.layers.length === 0
   }
 
-  /** 모든 layer의 스냅샷, 아래 → 위 순서. */
+  /**
+   * 모든 layer를 아래 → 위 순서로 반환한다.
+   *
+   * 복사본이 아니라 내부 배열을 그대로 반환하므로, 이후 stack 조작 결과가 반영된다.
+   */
   view(): readonly Layer[] {
     return this.layers
   }

@@ -9,9 +9,18 @@ import type { Defaults, WithDefaults } from './with-defaults.types'
  * `ref` is forwarded as an ordinary prop (React 19), so no `forwardRef` wrapper
  * is needed — it flows through `props` like any other.
  *
+ * When `displayName` is omitted, it becomes `withDefaults(<name>)` using the
+ * wrapped component's `displayName`, its `name`, or the tag string.
+ *
+ * @param displayName - Display name for the wrapper in React DevTools
+ *
  * @example
+ * ```tsx
+ * import { withDefaults } from '@cbcruk/with-defaults'
+ *
  * const Body2Gray = withDefaults(Text, { type: 'body2_600', color: 'gray' }, 'Body2Gray')
  * <Body2Gray>{name}</Body2Gray>
+ * ```
  */
 export function withDefaults<C extends ElementType, D extends Defaults<C>>(
   Component: C,

@@ -6,6 +6,7 @@ import {
   type RefCallback,
 } from 'react'
 
+/** Options for {@link useStuck}. */
 export interface UseStuckOptions {
   /** Distance from the top (px) at which the element counts as stuck. @default 0 */
   offset?: number
@@ -13,6 +14,7 @@ export interface UseStuckOptions {
   onStuckChange?: (isStuck: boolean) => void
 }
 
+/** Value returned by {@link useStuck}. */
 export interface UseStuckReturn {
   /** Attach to a 0px sentinel placed right above the sticky element. */
   sentinelRef: RefCallback<HTMLElement>

@@ -1,5 +1,11 @@
 import type { AsyncContext } from './types'
 
+/**
+ * 입력을 받아 `next`로 다음 단계를 실행하는 미들웨어.
+ *
+ * @template TInput - 체인에 넘기는 입력(예: 요청)의 타입
+ * @template TOutput - 핸들러가 돌려주는 결과의 타입
+ */
 export type MiddlewareFunction<TInput, TOutput> = (
   input: TInput,
   next: () => Promise<TOutput>,
@@ -11,6 +17,8 @@ export type MiddlewareFunction<TInput, TOutput> = (
  *
  * @example
  * ```ts
+ * import { createContextMiddleware, runWithMiddlewares } from "@cbcruk/async-context";
+ *
  * const authMiddleware = createContextMiddleware(
  *   userContext,
  *   async (req) => authenticate(req.headers.authorization)

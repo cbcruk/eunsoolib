@@ -1,5 +1,6 @@
 import { isScrollEndSupported } from './feature-detection'
 
+/** Options for {@link installScrollEndPolyfill}. */
 export interface ScrollEndPolyfillOptions {
   /** Idle time (ms) without a scroll event before `scrollend` is dispatched. @default 100 */
   idleDelay?: number
@@ -10,7 +11,17 @@ export interface ScrollEndPolyfillOptions {
  * by detecting scroll idle. Kept as a separate entry so it never pollutes the
  * main bundle.
  *
+ * Does nothing when `scrollend` is natively supported.
+ *
+ * @param target - Element or document to watch for `scroll` and dispatch `scrollend` on
  * @returns A cleanup function that removes the polyfill listener.
+ *
+ * @example
+ * ```ts
+ * import { installScrollEndPolyfill } from '@cbcruk/scroll-end/polyfill'
+ *
+ * const uninstall = installScrollEndPolyfill(document, { idleDelay: 150 })
+ * ```
  */
 export function installScrollEndPolyfill(
   target: Document | HTMLElement = document,

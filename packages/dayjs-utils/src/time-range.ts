@@ -24,6 +24,8 @@ type EndTime = Time
  *
  * @example
  * ```ts
+ * import { TimeRange } from '@cbcruk/dayjs-utils'
+ *
  * const range = new TimeRange('09:00:00', '18:00:00')
  * range.isActive() // 지금이 영업 시간인지
  * range.getRemainingTime() // { HH: '02', mm: '30', ss: '00' }

@@ -51,7 +51,7 @@ export class DevtoolsStore {
   private storage: Storage | undefined
 
   /**
-   * @param storage 영속 대상. 생략하면 `globalThis.localStorage`를 쓰고,
+   * @param storage - 영속 대상. 생략하면 `globalThis.localStorage`를 쓰고,
    *   그것도 없으면 메모리에만 남는다.
    */
   constructor(storage: Storage | undefined = globalThis.localStorage) {
@@ -162,6 +162,7 @@ export class DevtoolsStore {
     }))
   }
 
+  /** 활성 시나리오에서 해당 id의 오버라이드를 지운다. */
   removeOverride(id: string): void {
     this.patchActive((s) => {
       const { [id]: _removed, ...rest } = s.overrides
@@ -178,7 +179,7 @@ export class DevtoolsStore {
   /**
    * 지금 편집 중인 내용을 이름 붙은 시나리오로 굳힌다.
    *
-   * @param name 시나리오 이름.
+   * @param name - 시나리오 이름.
    * @returns 새로 만들어져 활성화된 시나리오.
    */
   saveAsScenario(name: string): Scenario {
@@ -216,7 +217,7 @@ export class DevtoolsStore {
   /**
    * 다른 기기·탭·버그 리포트에서 온 시나리오를 받는다.
    *
-   * @param json {@linkcode DevtoolsStore.exportScenario}가 만든 문자열.
+   * @param json - {@linkcode DevtoolsStore.exportScenario}가 만든 문자열.
    * @returns 새로 만들어져 활성화된 시나리오.
    * @throws JSON이 아니거나 `overrides` 객체가 없으면 던진다.
    */

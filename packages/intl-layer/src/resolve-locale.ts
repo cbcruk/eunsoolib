@@ -58,6 +58,17 @@ function negotiate(candidates: string[], supported: string[]): string | null {
 /**
  * locale 결정의 단일 지점. 우선순위 `urlSegment > cookie > Accept-Language > fallback`.
  * `supported`를 주면 협상 후 매칭되는 태그만, 없으면 첫 후보를 그대로 돌려준다.
+ *
+ * @example
+ * ```ts
+ * import { resolveLocale } from '@cbcruk/intl-layer'
+ *
+ * resolveLocale({
+ *   cookie: null,
+ *   acceptLanguage: 'ko;q=0.9,en-US',
+ *   supported: ['ko-KR', 'en-US'],
+ * }) // 'en-US'
+ * ```
  */
 export function resolveLocale(sources: ResolveLocaleSources): string {
   const {

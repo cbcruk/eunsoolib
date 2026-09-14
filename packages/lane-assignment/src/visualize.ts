@@ -11,12 +11,22 @@ import { getLaneForDate, type WeekStartsOn } from './lane-weekly'
 /**
  * 레인 할당 결과를 ASCII로 시각화
  * @example
- * ```
- *          03/05  03/06  03/07  03/08  03/09  03/10
- * Lane 0:  [====== Event A ======]
- * Lane 1:                [======== Event B ========]
+ * ```ts
+ * import { assignLanesSimple, visualizeLanes } from '@cbcruk/lane-assignment'
  *
- * Total lanes: 2
+ * const { events } = assignLanesSimple([
+ *   { start: '2024-03-05', end: '2024-03-07', title: 'Event A' },
+ *   { start: '2024-03-06', end: '2024-03-08', title: 'Event B' },
+ * ])
+ *
+ * console.log(visualizeLanes(events))
+ * //            03/05  03/06  03/07  03/08
+ * // Lane 0:     [===   ====   ===]
+ * //          ↳ Event A
+ * // Lane 1:            [===   ====   ===]
+ * //                 ↳ Event B
+ * //
+ * // Total lanes: 2
  * ```
  */
 export function visualizeLanes(

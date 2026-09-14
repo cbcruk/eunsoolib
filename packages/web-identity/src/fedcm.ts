@@ -14,6 +14,8 @@ import { assertCredentialsAPI, wrapError } from './utils'
  *
  * @example
  * ```ts
+ * import { FedCM } from '@cbcruk/web-identity';
+ *
  * const fedcm = new FedCM();
  *
  * // Active mode: show sign-in prompt after user clicks a button

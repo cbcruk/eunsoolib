@@ -4,11 +4,20 @@ import { createStore, type Store } from './create-store'
  * `persist`가 사용하는 저장소 인터페이스. `localStorage` / `sessionStorage`와 호환.
  */
 export interface PersistStorage {
+  /** 키에 저장된 문자열을 읽는다. 없으면 `null`. */
   getItem: (key: string) => string | null
+  /** 키에 문자열을 저장한다. */
   setItem: (key: string, value: string) => void
+  /** 키에 저장된 값을 지운다. */
   removeItem: (key: string) => void
 }
 
+/**
+ * {@linkcode persist}의 옵션.
+ *
+ * @template T - store 상태 타입
+ * @template P - 실제로 저장하는 부분 상태 타입
+ */
 export interface PersistOptions<T, P = T> {
   /** 저장 키 */
   name: string
@@ -50,6 +59,8 @@ function getDefaultStorage(): PersistStorage | undefined {
  *
  * @example
  * ```ts
+ * import { persist } from '@cbcruk/sync-store'
+ *
  * const store = persist(
  *   { volume: 1, isLooping: false, currentTime: 0 },
  *   { name: 'audio', partialize: ({ volume, isLooping }) => ({ volume, isLooping }) },

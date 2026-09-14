@@ -1,24 +1,40 @@
+/** Options for `createScrollSpy`. */
 export interface ScrollSpyOptions {
-  /** Root element for intersection observation (default: null = viewport) */
+  /**
+   * Root element for intersection observation; `null` means the viewport.
+   * In native mode, scroll events are listened to on this element (or `window`).
+   *
+   * @default null
+   */
   root?: Element | null
-  /** Margin around root (default: "0px 0px -50% 0px" - trigger at 50% viewport) */
+  /**
+   * Margin around root, used by the `IntersectionObserver` fallback. The default
+   * triggers at 50% of the viewport.
+   *
+   * @default '0px 0px -50% 0px'
+   */
   rootMargin?: string
-  /** Intersection threshold (default: 0) */
+  /** Intersection threshold, used by the `IntersectionObserver` fallback. @default 0 */
   threshold?: number | number[]
-  /** CSS class for active link (default: "active") */
+  /** CSS class for active link. @default 'active' */
   activeClass?: string
-  /** Attribute to mark current target (default: "data-current") */
+  /** Attribute set (with an empty value) on the active link. @default 'data-current' */
   currentAttribute?: string
-  /** Callback when active section changes */
+  /** Callback when active section changes; `id` and `element` are `null` when none is active. */
   onChange?: (id: string | null, element: Element | null) => void
 }
 
+/** Handle returned by `createScrollSpy`. */
 export interface ScrollSpyInstance {
   /** Currently active section ID */
   readonly currentId: string | null
   /** Whether using native CSS scroll-target-group */
   readonly isNative: boolean
-  /** Manually set active section */
+  /**
+   * Manually set active section.
+   *
+   * In native mode this clicks the matching link, so the browser navigates to it.
+   */
   setActive: (id: string) => void
   /** Refresh observer (call after DOM changes) */
   refresh: () => void
@@ -26,19 +42,20 @@ export interface ScrollSpyInstance {
   destroy: () => void
 }
 
+/** Options for `generateToc`. */
 export interface TocOptions {
-  /** Container to scan for headings (default: document.body) */
+  /** Container to scan for headings. @default document.body */
   container?: HTMLElement
-  /** Heading levels to include (default: ['h2', 'h3']) */
+  /** Heading tag selectors to include. @default ['h2', 'h3'] */
   levels?: string[]
-  /** List type (default: 'ul') */
+  /** List type. @default 'ul' */
   listType?: 'ul' | 'ol'
-  /** CSS class for the nav element */
+  /** CSS class for the nav element. @default 'scroll-spy-nav' */
   navClass?: string
-  /** CSS class for the list element */
+  /** CSS class for the list element. @default 'scroll-spy-list' */
   listClass?: string
-  /** CSS class for list items */
+  /** CSS class for list items. @default 'scroll-spy-item' */
   itemClass?: string
-  /** CSS class for links */
+  /** CSS class for links. @default 'scroll-spy-link' */
   linkClass?: string
 }

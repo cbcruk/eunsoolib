@@ -25,6 +25,7 @@ export function isRegression(f: Finding): boolean {
   return f.kind === 'OVERFLOW_INTRODUCED' || f.kind === 'INTERNAL_SHIFT'
 }
 
+/** Count findings for which {@link isRegression} is true. */
 export function countRegressions(findings: Finding[]): number {
   return findings.filter(isRegression).length
 }

@@ -20,6 +20,7 @@ export class FastDrawImage {
   private pendingLoads: Map<string, Promise<ImageBitmap>> = new Map()
   private browserType: BrowserType
 
+  /** Create an instance with its own cache and detect the browser type. */
   constructor() {
     this.browserType = this.detectBrowser()
   }
@@ -51,6 +52,8 @@ export class FastDrawImage {
   /**
    * Load an image as ImageBitmap without blocking the main thread.
    * Uses a browser-specific strategy for optimal performance.
+   *
+   * Concurrent calls for the same URL share one pending load.
    */
   async loadImage(
     url: string,
@@ -171,6 +174,11 @@ export class FastDrawImage {
 
   /**
    * Load an image and draw it directly to a canvas without blocking the main thread.
+   *
+   * Without `canvas`, the image is only loaded.
+   *
+   * @returns The loaded bitmap
+   * @throws If `canvas` is an ID with no matching element, or a 2D context is unavailable.
    */
   async drawImage(
     url: string,
@@ -237,6 +245,11 @@ export class FastDrawImage {
 
   /**
    * Preload multiple images with optional concurrency control.
+   *
+   * Failed loads are logged with `console.warn` and left out of the result.
+   *
+   * @returns Loaded bitmaps keyed by URL
+   * @throws An `AbortError` `DOMException` if `signal` is aborted before a batch starts.
    */
   async preload(
     urls: string[],
@@ -282,6 +295,8 @@ export class FastDrawImage {
 
   /**
    * Remove a single image from the cache and release its bitmap.
+   *
+   * @returns `true` if the URL was cached
    */
   clearCache(url: string): boolean {
     const bitmap = this.cache.get(url)
@@ -328,4 +343,5 @@ export class FastDrawImage {
   }
 }
 
+/** Shared {@link FastDrawImage} instance used by the standalone functions. */
 export const fastDrawImage = new FastDrawImage()

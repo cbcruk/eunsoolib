@@ -22,6 +22,8 @@ export type PagedFetch<T, S> = (
  * @returns 아이템을 하나씩 내보내는 async generator
  * @example
  * ```ts
+ * import { iteratePaginated } from '@cbcruk/iterate-paginated'
+ *
  * for await (const user of iteratePaginated(fetchUsers)) {
  *   console.log(user)
  * }

@@ -8,6 +8,9 @@ export type Coupon = {}
  *
  * @example
  * ```ts
+ * import { CouponManager, type Coupon } from '@cbcruk/shopping'
+ *
+ * const coupon: Coupon = {}
  * const manager = new CouponManager()
  * manager.setCoupon(coupon)
  * manager.getCoupon() // coupon

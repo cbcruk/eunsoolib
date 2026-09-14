@@ -13,7 +13,9 @@ function isOverflowing(e: ElementSnapshot): boolean {
   return e.sw > e.cw + 1 || e.sh > e.ch + 1
 }
 
+/** Result of the geometry pass. */
 export interface GeometryDiff {
+  /** Geometry findings, in the order of the `before` snapshots. */
   findings: Finding[]
   /** ids that pass 1 already reported — pass 2 skips these. */
   flagged: Set<string>

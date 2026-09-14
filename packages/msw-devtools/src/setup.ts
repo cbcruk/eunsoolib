@@ -18,7 +18,9 @@ export interface SetupOptions {
 
 /** {@linkcode setupMswDevtools}가 돌려주는 핸들. */
 export interface DevtoolsHandle {
+  /** 활성 시나리오를 MSW 런타임 핸들러로 설치하는 controller. */
   controller: DevtoolsController
+  /** 오버라이드와 시나리오를 영속하는 store. */
   store: DevtoolsStore
   /** 패널을 떼고, 핸들러를 되돌리고, 채널을 닫는다. */
   unmount(): void
@@ -33,16 +35,18 @@ export interface DevtoolsHandle {
  * > 이 모듈과 호출부는 프로덕션 빌드에서 죽은 코드여야 한다.
  * > `import.meta.env.DEV` 같은 가드로 감싸지 않으면 패널이 그대로 실린다.
  *
- * @param target `setupWorker()` 또는 `setupServer()` 결과.
- * @param options 패널 마운트 여부와 스토리지.
+ * @param target - `setupWorker()` 또는 `setupServer()` 결과.
+ * @param options - 패널 마운트 여부와 스토리지.
  * @returns store · controller와 정리 함수를 담은 핸들.
  *
  * @example 브라우저에서 개발 중에만 켜기
  * ```ts
+ * import { http, HttpResponse } from 'msw'
  * import { setupWorker } from 'msw/browser'
- * import { handlers } from './mocks/handlers'
  *
- * const worker = setupWorker(...handlers)
+ * const worker = setupWorker(
+ *   http.get('/api/user', () => HttpResponse.json({ name: 'John' })),
+ * )
  *
  * if (import.meta.env.DEV) {
  *   const { setupMswDevtools } = await import('@cbcruk/msw-devtools')
@@ -54,9 +58,11 @@ export interface DevtoolsHandle {
  *
  * @example UI 없이 테스트에서 같은 시나리오 재생하기
  * ```ts
+ * import { readFile } from 'node:fs/promises'
  * import { setupServer } from 'msw/node'
  * import { setupMswDevtools } from '@cbcruk/msw-devtools'
  *
+ * const server = setupServer(...handlers)
  * const { store, unmount } = setupMswDevtools(server, { ui: false, storage })
  * store.importScenario(await readFile('./scenarios/checkout-fails.json', 'utf8'))
  * ```

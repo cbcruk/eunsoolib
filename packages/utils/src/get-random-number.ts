@@ -6,6 +6,8 @@
  * @returns `min`과 `max` 사이의 임의의 정수
  * @example
  * ```ts
+ * import { getRandomNumber } from '@cbcruk/utils'
+ *
  * getRandomNumber({ min: 1, max: 6 }) // 1 ~ 6 중 하나
  * ```
  */

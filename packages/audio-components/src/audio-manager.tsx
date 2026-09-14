@@ -1,6 +1,27 @@
 import { useEffect } from 'react'
 import { audioActions } from './audio-actions'
 
+/**
+ * 공유 `Audio` 엘리먼트를 만들어 `audioStore`에 연결하는 컴포넌트.
+ *
+ * 마운트 시 엘리먼트를 만들고 재생·시간·메타데이터·에러 이벤트를 store 상태로
+ * 옮긴다. 언마운트하면 리스너를 떼고 재생을 멈춘다. 아무것도 렌더하지 않으므로
+ * 앱 루트에 한 번만 둔다.
+ *
+ * @example
+ * ```tsx
+ * import { AudioManager, CastAudioPlayer } from '@cbcruk/audio-components'
+ *
+ * function App() {
+ *   return (
+ *     <>
+ *       <AudioManager />
+ *       <CastAudioPlayer src="/episodes/1.mp3" />
+ *     </>
+ *   )
+ * }
+ * ```
+ */
 export function AudioManager() {
   useEffect(() => {
     const audio = new Audio()

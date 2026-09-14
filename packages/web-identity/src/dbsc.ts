@@ -12,6 +12,8 @@ import { WebIdentityError } from './types'
  *
  * @example
  * ```ts
+ * import { DBSC } from '@cbcruk/web-identity';
+ *
  * const dbsc = new DBSC();
  *
  * if (DBSC.isSupported()) {
@@ -25,8 +27,9 @@ export class DBSC {
   /**
    * Check if DBSC is supported in the current browser.
    *
-   * DBSC support is indicated by the browser sending a
-   * `Sec-Session-Registration` header in requests.
+   * Returns `true` when `navigator` exposes the experimental `sessionCredential`
+   * API, and `false` outside the browser. Reliable detection is server-side,
+   * where supporting browsers send a `Sec-Session-Registration` header.
    */
   static isSupported(): boolean {
     // DBSC is a browser-level feature; client-side detection is limited.

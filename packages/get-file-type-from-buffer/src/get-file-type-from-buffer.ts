@@ -27,6 +27,9 @@ export class FileTypeFromBufferError extends Data.TaggedError(
  * 담은 Effect
  * @example
  * ```ts
+ * import { Effect } from 'effect'
+ * import { getFileTypeFromBuffer } from '@cbcruk/get-file-type-from-buffer'
+ *
  * const program = getFileTypeFromBuffer(buffer)
  * const { ext, mime } = await Effect.runPromise(program)
  * ```

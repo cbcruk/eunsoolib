@@ -5,6 +5,8 @@ import type { AsyncContext, ContextValues } from './types'
  *
  * @example
  * ```ts
+ * import { composeContexts } from "@cbcruk/async-context";
+ *
  * const result = await composeContexts(
  *   { user: userContext, request: requestContext },
  *   { user: currentUser, request: req },
@@ -45,6 +47,8 @@ export function composeContexts<
  *
  * @example
  * ```ts
+ * import { getContextValues } from "@cbcruk/async-context";
+ *
  * const { user, request } = getContextValues({
  *   user: userContext,
  *   request: requestContext,

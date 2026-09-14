@@ -97,7 +97,7 @@ export function hasUniqueSolution(board: Board): boolean {
 
 /**
  * 힌트 제공: 다음에 놓을 수 있는 확실한 숫자 찾기
- * @description 후보가 하나인 셀을 우선 찾고, 없으면 정답에서 첫 빈 셀의 값을 반환
+ * @description 후보가 하나인 셀을 우선 찾고, 없으면 현재 보드를 풀어 첫 빈 셀의 값을 반환
  * @param board - 현재 보드 상태
  * @returns 힌트 정보 (위치와 값) 또는 null
  */

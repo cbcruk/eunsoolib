@@ -16,6 +16,8 @@ export interface AsyncContext<T> {
   /**
    * 현재 컨텍스트 값을 가져온다.
    * 컨텍스트가 설정되지 않은 경우 에러를 던진다.
+   *
+   * @throws 컨텍스트 밖에서 호출했고 `defaultValue`도 없으면 `ContextNotFoundError`
    */
   get(): T
 

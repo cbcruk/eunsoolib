@@ -13,7 +13,11 @@ export type {
  * Load an image as ImageBitmap without blocking the main thread.
  *
  * @example
+ * ```ts
+ * import { loadImage } from '@cbcruk/fast-draw-image'
+ *
  * const bitmap = await loadImage('https://example.com/image.jpg');
+ * ```
  */
 export const loadImage = fastDrawImage.loadImage.bind(fastDrawImage)
 
@@ -21,7 +25,11 @@ export const loadImage = fastDrawImage.loadImage.bind(fastDrawImage)
  * Load and draw an image to a canvas without blocking the main thread.
  *
  * @example
+ * ```ts
+ * import { drawImage } from '@cbcruk/fast-draw-image'
+ *
  * await drawImage('image.jpg', { canvas: 'myCanvas', x: 10, y: 20 });
+ * ```
  */
 export const drawImage = fastDrawImage.drawImage.bind(fastDrawImage)
 
@@ -29,10 +37,14 @@ export const drawImage = fastDrawImage.drawImage.bind(fastDrawImage)
  * Preload multiple images with concurrency control.
  *
  * @example
+ * ```ts
+ * import { preload } from '@cbcruk/fast-draw-image'
+ *
  * const images = await preload(['a.jpg', 'b.jpg'], {
  *   concurrency: 2,
  *   onProgress: (loaded, total) => console.log(`${loaded}/${total}`),
  * });
+ * ```
  */
 export const preload = fastDrawImage.preload.bind(fastDrawImage)
 

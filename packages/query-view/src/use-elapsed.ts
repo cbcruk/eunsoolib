@@ -7,8 +7,8 @@ import { useEffect, useState } from 'react'
  * 주기적 리렌더 비용을 물릴 이유가 없으므로, {@linkcode QueryView}는 `placeholder`가
  * 함수 슬롯일 때만 이 훅을 켠다.
  *
- * @param active 시간을 재는 중인지 여부.
- * @param tick 갱신 간격(ms). 기본값 `1000`.
+ * @param active - 시간을 재는 중인지 여부.
+ * @param tick - 갱신 간격(ms). 기본값 `1000`.
  * @returns `active`가 켜진 시점부터 흐른 시간(ms). 꺼져 있으면 `0`.
  *
  * @example 지연 단계에 따라 문구 바꾸기

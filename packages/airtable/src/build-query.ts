@@ -48,6 +48,8 @@ const appendArrayParam = (params: AppendArrayParams) => {
  * @returns URL 쿼리 스트링
  * @example
  * ```ts
+ * import { buildQuery } from '@cbcruk/airtable'
+ *
  * buildQuery({ filterByFormula: '{status} = "active"' })
  * // => "filterByFormula=%7Bstatus%7D+%3D+%22active%22"
  *

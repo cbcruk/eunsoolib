@@ -1,15 +1,23 @@
+/** PR의 상태. */
 export type PRStatus = 'draft' | 'open' | 'merged' | 'closed'
 
+/** layer에 연결된 PR. */
 export interface PullRequest {
+  /** PR 번호. */
   readonly number: number
+  /** PR 제목. */
   readonly title: string
+  /** PR 상태. `Stack.mergeUpTo`로 병합되면 `'merged'`가 된다. */
   readonly status: PRStatus
 }
 
+/** 스택을 이루는 브랜치 하나. */
 export interface Layer {
+  /** 브랜치 이름. */
   readonly branch: string
   /** trunk(layers[0]의 경우) 또는 바로 아래 브랜치. */
   readonly base: string
+  /** `Stack.attachPR`로 연결한 PR. 없으면 `undefined`. */
   readonly pr?: PullRequest
 }
 
@@ -18,6 +26,7 @@ export type Result<T, E> =
   | { readonly ok: true; readonly value: T }
   | { readonly ok: false; readonly error: E }
 
+/** `Stack`의 연산이 실패했을 때 `type`으로 구분되는 에러. */
 export type StackError =
   /** 커서가 top 브랜치에 있지 않은 상태에서 `add()`를 호출함. */
   | {
