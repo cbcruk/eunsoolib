@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/msw-devtools",
+  "description": "MSW 핸들러 응답을 런타임에 조작하는 devtools 패널",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,5 +10,12 @@
   },
   "peerDependencies": {
     "msw": "^2.0.0"
+  },
+  "eunsoolib": {
+    "category": "devtools",
+    "runtime": [
+      "browser",
+      "node"
+    ]
   }
 }

@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/box-sizing-audit",
+  "description": "content-box → border-box 마이그레이션 토글-비교 감사 도구 (Playwright)",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -22,5 +23,11 @@
     "pngjs": {
       "optional": true
     }
+  },
+  "eunsoolib": {
+    "category": "devtools",
+    "runtime": [
+      "node"
+    ]
   }
 }

@@ -1,10 +1,17 @@
 {
   "name": "@eunsoolib/vtt-to-json",
+  "description": "WebVTT 자막을 중복 제거된 cue 배열로 파싱",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "eunsoolib": {
+    "category": "media",
+    "runtime": [
+      "universal"
+    ]
   }
 }

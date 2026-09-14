@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/heif",
+  "description": "브라우저에서 HEIC/HEIF를 JPEG·PNG·WebP로 변환",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,5 +10,11 @@
   },
   "peerDependencies": {
     "libheif-js": "^1.19.0"
+  },
+  "eunsoolib": {
+    "category": "media",
+    "runtime": [
+      "browser"
+    ]
   }
 }

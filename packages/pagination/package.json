@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/pagination",
+  "description": "Instance Hook 패턴 기반 React 페이지네이션",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,5 +10,11 @@
   },
   "peerDependencies": {
     "react": "^19.1.1"
+  },
+  "eunsoolib": {
+    "category": "react",
+    "runtime": [
+      "browser"
+    ]
   }
 }

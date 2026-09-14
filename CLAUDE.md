@@ -29,13 +29,26 @@ Each package follows the same pattern:
 - Some packages include example files (`.example.ts`)
 - React components use `.tsx` extension
 
+### Package Metadata
+
+Every `packages/*/package.json` carries a Korean `description` and an `eunsoolib` block used to group packages (e.g. the docs sidebar):
+
+```json
+"eunsoolib": { "category": "react", "runtime": ["browser"] }
+```
+
+- **category**: `react` (React 컴포넌트·훅), `dom` (DOM·CSS 브라우저 API), `state` (상태·저장소), `async` (비동기·서버), `auth` (인증·신원), `media` (이미지·미디어), `utils` (날짜·포맷 유틸), `devtools` (개발 도구), `lab` (도메인 모델·게임 — 재사용 라이브러리가 아닌 설계 실험)
+- **runtime**: one or more of `universal`, `browser`, `node`, `edge`
+- Folder name must match the package name (`packages/stacked-pr` → `@eunsoolib/stacked-pr`)
+- Demo components/functions (`demo.tsx`, `*.example.ts`, `overflow-demo.tsx`) are not re-exported from `src/index.ts`
+
 ### Notable Packages
 
-- **mole/**: Complete game engine with state machines, timers, spawners, and score management
-- **shopping/**: E-commerce functionality using XState machines for cart and order management
-- **authorization/**: Authentication strategies including Basic Auth
-- **dexie/**: Database utilities using Dexie ORM
-- **wordle/**: Game implementation with codec, timer, and validation utilities
+- **highlight-kit/**: CSS Custom Highlight API core (`.`) + React adapter (`./react`) — absorbed the former `use-highlight-search`
+- **sync-store/**: Reference implementation of the framework-agnostic core + `useSyncExternalStore` pattern
+- **query-view/**: TanStack Query state → view slot layer with async/error boundaries
+- **utils/**, **dayjs-utils/**: Tiny helpers consolidated from former single-function packages
+- **mole/**, **wordle/**, **sudoku/**, **shopping/**, **stacked-pr/**: `lab` category domain models and game engines
 
 ### Testing Patterns
 

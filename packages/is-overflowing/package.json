@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/is-overflowing",
+  "description": "엘리먼트 내용의 가로/세로 오버플로우 감지 훅",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -12,5 +13,11 @@
   },
   "peerDependencies": {
     "react": "^19.1.1"
+  },
+  "eunsoolib": {
+    "category": "react",
+    "runtime": [
+      "browser"
+    ]
   }
 }

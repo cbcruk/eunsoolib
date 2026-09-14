@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/query-view",
+  "description": "TanStack Query 상태 매트릭스를 뷰 슬롯으로 투영하는 레이어",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,5 +10,11 @@
   },
   "peerDependencies": {
     "react": "^19.1.1"
+  },
+  "eunsoolib": {
+    "category": "react",
+    "runtime": [
+      "browser"
+    ]
   }
 }

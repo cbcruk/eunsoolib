@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/download-image",
+  "description": "Effect 기반 이미지 다운로드 후 형식을 판별해 저장",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -13,5 +14,11 @@
     "@effect/platform": "^0.80.18",
     "@effect/platform-node": "^0.77.6",
     "file-type": "^20.5.0"
+  },
+  "eunsoolib": {
+    "category": "media",
+    "runtime": [
+      "node"
+    ]
   }
 }

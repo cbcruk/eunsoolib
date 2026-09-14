@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/shopping",
+  "description": "XState 기반 장바구니·쿠폰·주문 도메인 모델",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -9,5 +10,11 @@
   },
   "dependencies": {
     "xstate": "^5.19.3"
+  },
+  "eunsoolib": {
+    "category": "lab",
+    "runtime": [
+      "universal"
+    ]
   }
 }

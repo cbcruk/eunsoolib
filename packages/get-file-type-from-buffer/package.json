@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/get-file-type-from-buffer",
+  "description": "매직 넘버로 버퍼의 파일 형식을 판별 (Effect)",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -10,5 +11,11 @@
   "dependencies": {
     "effect": "^3.14.18",
     "file-type": "^20.5.0"
+  },
+  "eunsoolib": {
+    "category": "media",
+    "runtime": [
+      "node"
+    ]
   }
 }

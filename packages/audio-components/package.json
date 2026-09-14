@@ -1,5 +1,6 @@
 {
   "name": "@eunsoolib/audio-components",
+  "description": "sync-store 기반 오디오 플레이어 컴포넌트와 상태",
   "version": "0.0.1",
   "type": "module",
   "main": "./src/index.ts",
@@ -13,5 +14,11 @@
   },
   "peerDependencies": {
     "react": "^19.1.1"
+  },
+  "eunsoolib": {
+    "category": "react",
+    "runtime": [
+      "browser"
+    ]
   }
 }
