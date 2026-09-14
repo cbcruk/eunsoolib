@@ -10,6 +10,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "create-package": "./scripts/create-package.sh",
+    "check:readme": "node scripts/check-readmes.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

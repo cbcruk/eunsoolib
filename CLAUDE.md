@@ -29,6 +29,15 @@ Each package follows the same pattern:
 - Some packages include example files (`.example.ts`)
 - React components use `.tsx` extension
 
+### README Convention
+
+Every package has a Korean `README.md` following `scripts/templates/README.md` (`pnpm check:readme` validates it):
+
+- Title `# @eunsoolib/<name>` followed by a one-line description matching `package.json` `description`
+- Required h2 sections in order: `## 설치` → `## 사용법` → `## API`; concept sections may sit between 설치 and 사용법, notes/constraints/browser support go after API
+- No per-package license section (root `package.json` is MIT)
+- Document known constraints honestly (e.g. a `## 제약` section) instead of hiding them
+
 ### Package Metadata
 
 Every `packages/*/package.json` carries a Korean `description` and an `eunsoolib` block used to group packages (e.g. the docs sidebar):

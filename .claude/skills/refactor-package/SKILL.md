@@ -60,7 +60,7 @@ packages/<name>/
    - `package.json`: `name`(기존 보존 또는 `@eunsoolib/<name>`), `version: 0.0.1`, `type: module`, `main`/`types`/`exports` 모두 `./src/index.ts`.
    - `tsconfig.json`: `extends: ../../tsconfig.json`, `outDir: ./dist`, `rootDir: ./src`, `include: ["src"]`.
 
-5. **README 정리.** `lane-assignment/README.md` 패턴을 따른다 — `# @eunsoolib/<name>` 제목 + 한 줄 설명, `## 설치`(pnpm), 사용법/API 섹션. 본문이 채팅 로그 형태면 정식 문서로 재구성한다. **파일 경로 참조(테스트 파일명 등)와 설치 스니펫을 새 구조에 맞게 갱신**한다.
+5. **README 정리.** `scripts/templates/README.md` 템플릿을 따른다 — `# @eunsoolib/<name>` 제목 + 한 줄 설명, `## 설치` → `## 사용법` → `## API` 순서. 작성 후 `pnpm check:readme`로 검사한다. 본문이 채팅 로그 형태면 정식 문서로 재구성한다. **파일 경로 참조(테스트 파일명 등)와 설치 스니펫을 새 구조에 맞게 갱신**한다.
 
 6. **불필요해진 원본 파일 제거.** flat한 `index.ts`/`test.ts`/`__snapshots__/` 등 src로 옮겨간 원본을 삭제한다.
 
