@@ -27,14 +27,15 @@ import { WebIdentity, DigitalCredentials, Passkeys } from '@cbcruk/web-identity'
 
 const identity = new WebIdentity('example.com')
 
-// 지원 기능 감지
+// 지원 기능 감지 — 브라우저가 지원을 확인해 주지 않는 기능은 false
 const support = await identity.detectFeatures()
 console.log(support)
 // {
 //   credentialManager: true,
 //   webauthn: true,
 //   conditionalMediation: true,
-//   immediateMediation: true,
+//   immediateMediation: false, // getClientCapabilities()의 immediateGet
+//   passkeyConditionalCreate: true, // getClientCapabilities()의 conditionalCreate
 //   signalAPI: true,
 //   fedcm: true,
 //   ...
@@ -105,8 +106,13 @@ await identity.upgradeToPasskey({
   challenge: serverChallenge,
 })
 // → 성공 시 패스키 생성됨 (UI 표시 없음)
-// → 미지원 환경에선 null 반환 (에러 없음)
+// → 미지원 환경이거나 브라우저가 거절(NotAllowedError)하면 null 반환
+// → 그 밖의 에러(InvalidStateError 등)는 WebIdentityError로 던짐
 ```
+
+지원 여부는 `PublicKeyCredential.getClientCapabilities()`의 `conditionalCreate`로 먼저 확인하므로, 미지원 브라우저에서 일반 등록 UI가 뜨지 않습니다. `timeout`은 그대로 전달됩니다(생략 시 브라우저 기본값).
+
+`identity.passkeys.create({ ...options, conditional: true })`도 조건부 생성을 요청하지만, `null` 대신 에러를 던집니다(미지원이면 `NOT_SUPPORTED`, 생성되지 않으면 `NOT_ALLOWED`).
 
 ### 4. Autofill을 통한 패스키 로그인 (Conditional UI)
 
@@ -224,6 +230,22 @@ WebIdentity (facade)
 │   └── Fields (mDL 필드 상수)
 └── DBSC                 ← 기기 바인딩 세션
 ```
+
+### 기능 감지
+
+확인할 수 있는 신호가 없으면 `true`로 추정하지 않고 `false`를 반환합니다. 비동기로만 알 수 있는 기능은 비동기 메서드를 사용하세요.
+
+| 메서드                                       | 판단 근거                                                |
+| -------------------------------------------- | -------------------------------------------------------- |
+| `Passkeys.isConditionalCreateAvailable()`    | `getClientCapabilities()`의 `conditionalCreate` (비동기) |
+| `Passkeys.isImmediateMediationAvailable()`   | `getClientCapabilities()`의 `immediateGet` (비동기)      |
+| `Passkeys.isConditionalMediationSupported()` | `PublicKeyCredential.isConditionalMediationAvailable()`  |
+| `CredentialManager.isMediationAvailable(m)`  | 위 비동기 감지를 mediation 종류별로 사용                 |
+| `CredentialManager.isMediationSupported(m)`  | 동기. `'conditional'`·`'immediate'`는 항상 `false`       |
+| `FedCM.isActiveModeSupported()`              | `identity.mode` 옵션을 브라우저가 읽는지 프로브 (동기)   |
+| `passkeys.isConditionalCreateSupported()`    | **deprecated** — 동기 신호가 없어 항상 `false`           |
+
+`signalAllAcceptedCredentials`의 옵션 타입은 `SignalAllAcceptedCredentialsOptions`입니다. 기존 이름 `SignalAllKnownCredentialsOptions`는 deprecated 별칭으로 남아 있습니다.
 
 ### 에러 처리
 

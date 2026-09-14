@@ -37,6 +37,34 @@ describe('FedCM.isSupported', () => {
   })
 })
 
+describe('FedCM.isActiveModeSupported', () => {
+  it('브라우저가 identity.mode 옵션을 읽으면 지원으로 판단해야 함', () => {
+    const get = vi.fn((options: { identity?: { mode?: unknown } }) => {
+      void options.identity?.mode
+      return Promise.reject(new TypeError('providers required'))
+    })
+    mockFedCM(get)
+
+    expect(FedCM.isActiveModeSupported()).toBe(true)
+  })
+
+  it('FedCM은 있지만 mode 옵션을 읽지 않으면 미지원으로 판단해야 함', () => {
+    mockFedCM(vi.fn().mockRejectedValue(new TypeError('providers required')))
+    expect(FedCM.isActiveModeSupported()).toBe(false)
+  })
+
+  it('FedCM이 없으면 credentials.get을 호출하지 않고 미지원으로 판단해야 함', () => {
+    const get = vi.fn()
+    vi.stubGlobal('navigator', { credentials: { get } })
+    vi.stubGlobal('IdentityCredential', undefined)
+    // stubGlobal(undefined) keeps the key, so remove it from window explicitly.
+    delete (window as unknown as Record<string, unknown>).IdentityCredential
+
+    expect(FedCM.isActiveModeSupported()).toBe(false)
+    expect(get).not.toHaveBeenCalled()
+  })
+})
+
 describe('FedCM.signIn', () => {
   it('자격증명을 반환해야 함', async () => {
     const credential = { type: 'identity' }

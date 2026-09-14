@@ -90,7 +90,8 @@ export interface PasskeyCreateOptions {
   pubKeyCredParams?: PublicKeyCredentialParameters[]
   /**
    * Time in milliseconds the browser waits for the user.
-   * {@link Passkeys.create} uses 300000 when omitted; {@link Passkeys.conditionalCreate} ignores this option.
+   * {@link Passkeys.create} uses 300000 when omitted; {@link Passkeys.conditionalCreate}
+   * (and `create` with `conditional: true`) leaves it to the browser default when omitted.
    */
   timeout?: number
   /**
@@ -103,11 +104,15 @@ export interface PasskeyCreateOptions {
   /** WebAuthn client extension inputs. */
   extensions?: AuthenticationExtensionsClientInputs
   /**
-   * Intended to request conditional creation (auto passkey creation after
-   * password login, Chrome 136+).
+   * Make {@link Passkeys.create} request conditional creation (auto passkey
+   * creation after password login, Chrome 136+) instead of showing the regular
+   * registration UI.
    *
-   * Currently not read by {@link Passkeys.create}; call
-   * {@link Passkeys.conditionalCreate} to use conditional creation.
+   * Unlike {@link Passkeys.conditionalCreate}, `create` throws instead of
+   * resolving to `null`: `NOT_SUPPORTED` when conditional creation is
+   * unavailable and `NOT_ALLOWED` when no passkey was created.
+   * {@link Passkeys.conditionalCreate} ignores this option.
+   * @default false
    */
   conditional?: boolean
 }
@@ -186,7 +191,7 @@ export interface SignalOptions {
 }
 
 /** Options for {@link Passkeys.signalAllAcceptedCredentials}. */
-export interface SignalAllKnownCredentialsOptions {
+export interface SignalAllAcceptedCredentialsOptions {
   /** Relying party ID the credentials belong to. */
   rpId: string
   /** User handle whose credentials are being listed. */
@@ -194,6 +199,14 @@ export interface SignalAllKnownCredentialsOptions {
   /** Every credential ID the server still accepts for this user. */
   allAcceptedCredentialIds: BufferSource[]
 }
+
+/**
+ * Options for {@link Passkeys.signalAllAcceptedCredentials}.
+ *
+ * @deprecated Use {@link SignalAllAcceptedCredentialsOptions}, which matches the method name.
+ */
+export type SignalAllKnownCredentialsOptions =
+  SignalAllAcceptedCredentialsOptions
 
 /** FedCM prompt mode: `'active'` after a user gesture, `'passive'` shown automatically. */
 export type FedCMMode = 'active' | 'passive'
@@ -316,7 +329,12 @@ export type CredentialResult =
   | { type: 'digital'; credential: Credential }
   | null
 
-/** Result of {@link WebIdentity.detectFeatures}. */
+/**
+ * Result of {@link WebIdentity.detectFeatures}.
+ *
+ * Every flag is `false` when the browser gives no signal that confirms support,
+ * so a `true` value is safe to branch UI on.
+ */
 export interface FeatureSupport {
   /** `navigator.credentials.get` is available. */
   credentialManager: boolean
@@ -324,15 +342,15 @@ export interface FeatureSupport {
   webauthn: boolean
   /** Passkey autofill (conditional mediation) is available. */
   conditionalMediation: boolean
-  /** Immediate mediation is assumed available; currently mirrors `webauthn`. */
+  /** Immediate mediation is available, per the `immediateGet` client capability. */
   immediateMediation: boolean
-  /** Conditional passkey creation is assumed available; currently mirrors `webauthn`. */
+  /** Conditional passkey creation is available, per the `conditionalCreate` client capability. */
   passkeyConditionalCreate: boolean
   /** The WebAuthn Signal API (`signalUnknownCredential`) is available. */
   signalAPI: boolean
   /** FedCM (`IdentityCredential`) is available. */
   fedcm: boolean
-  /** FedCM active mode is assumed available; currently mirrors `fedcm`. */
+  /** FedCM active mode is available, i.e. the browser reads the `identity.mode` option. */
   fedcmActiveMode: boolean
   /** The Digital Credentials API is available. */
   digitalCredentials: boolean

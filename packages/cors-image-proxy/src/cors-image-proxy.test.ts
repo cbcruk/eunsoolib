@@ -51,7 +51,7 @@ describe('corsImageProxy', () => {
     expect(res.status).toBe(403)
   })
 
-  test('GET이 아닌 메서드는 405를 반환한다', async () => {
+  test('GET·HEAD·OPTIONS가 아닌 메서드는 405를 반환한다', async () => {
     const handler = corsImageProxy(OPTIONS)
     const res = await handler(
       makeRequest('https://proxy.test/', {
@@ -61,6 +61,54 @@ describe('corsImageProxy', () => {
     )
 
     expect(res.status).toBe(405)
+    expect(res.headers.get('Allow')).toBe('GET, HEAD, OPTIONS')
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+      'http://localhost:3000',
+    )
+  })
+
+  test('preflight가 허용한 HEAD 요청은 본문 없이 200과 헤더를 반환한다', async () => {
+    const fetchImpl: FetchLike = vi.fn(
+      async () =>
+        new Response(null, {
+          status: 200,
+          headers: { 'Content-Type': 'image/png', 'Content-Length': '11' },
+        }),
+    )
+    const handler = corsImageProxy({ ...OPTIONS, fetch: fetchImpl })
+    const res = await handler(
+      makeRequest('https://proxy.test/?url=https://s3.amazonaws.com/a.png', {
+        method: 'HEAD',
+        origin: 'http://localhost:3000',
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(res.body).toBeNull()
+    expect(res.headers.get('Content-Type')).toBe('image/png')
+    expect(res.headers.get('Content-Length')).toBe('11')
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+      'http://localhost:3000',
+    )
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://s3.amazonaws.com/a.png',
+      expect.objectContaining({ method: 'HEAD' }),
+    )
+  })
+
+  test('HEAD 요청도 허용되지 않은 origin이면 403을 반환한다', async () => {
+    const fetchImpl = okFetch()
+    const handler = corsImageProxy({ ...OPTIONS, fetch: fetchImpl })
+    const res = await handler(
+      makeRequest('https://proxy.test/?url=https://s3.amazonaws.com/a.png', {
+        method: 'HEAD',
+        origin: 'https://evil.com',
+      }),
+    )
+
+    expect(res.status).toBe(403)
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBeNull()
+    expect(fetchImpl).not.toHaveBeenCalled()
   })
 
   test('허용되지 않은 origin의 GET은 403을 반환한다', async () => {
@@ -192,6 +240,9 @@ describe('corsImageProxy', () => {
     )
 
     expect(res.status).toBe(404)
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+      'http://localhost:3000',
+    )
   })
 
   test('fetch가 실패하면 502를 반환한다', async () => {
@@ -208,6 +259,41 @@ describe('corsImageProxy', () => {
     )
 
     expect(res.status).toBe(502)
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+      'http://localhost:3000',
+    )
     expect(await res.text()).toContain('network down')
+  })
+
+  test('허용된 origin의 400·403 에러 응답에도 CORS 헤더를 붙인다', async () => {
+    const handler = corsImageProxy(OPTIONS)
+    const urls = [
+      'https://proxy.test/',
+      'https://proxy.test/?url=not-a-url',
+      'https://proxy.test/?url=https://evil.com/a.png',
+    ]
+
+    for (const url of urls) {
+      const res = await handler(
+        makeRequest(url, { origin: 'http://localhost:3000' }),
+      )
+
+      expect(res.status).toBeGreaterThanOrEqual(400)
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3000',
+      )
+    }
+  })
+
+  test('허용되지 않은 origin의 에러 응답에는 CORS 헤더를 붙이지 않는다', async () => {
+    const handler = corsImageProxy(OPTIONS)
+    const res = await handler(
+      makeRequest('https://proxy.test/?url=https://s3.amazonaws.com/a.png', {
+        origin: 'https://evil.com',
+      }),
+    )
+
+    expect(res.status).toBe(403)
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBeNull()
   })
 })

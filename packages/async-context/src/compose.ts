@@ -3,6 +3,12 @@ import type { AsyncContext, ContextValues } from './types'
 /**
  * 여러 컨텍스트를 조합하여 한 번에 설정한다.
  *
+ * `contexts`의 키 순서대로 `run()`을 중첩한 뒤 가장 안쪽에서 `callback`을 실행하고,
+ * 그 반환값을 그대로 돌려준다.
+ *
+ * @template T - 키별 {@linkcode AsyncContext} 맵
+ * @template R - `callback`의 반환 타입. 비동기 콜백이면 `Promise`
+ * @param values - `contexts`와 같은 키에 각 컨텍스트에 설정할 값
  * @example
  * ```ts
  * import { composeContexts } from "@cbcruk/async-context";
@@ -20,16 +26,13 @@ import type { AsyncContext, ContextValues } from './types'
  */
 export function composeContexts<
   T extends Record<string, AsyncContext<unknown>>,
->(
-  contexts: T,
-  values: ContextValues<T>,
-  callback: () => unknown,
-): ReturnType<typeof callback> {
+  R = unknown,
+>(contexts: T, values: ContextValues<T>, callback: () => R): R {
   const entries = Object.entries(contexts) as Array<
     [keyof T, AsyncContext<unknown>]
   >
 
-  const runNested = (index: number): unknown => {
+  const runNested = (index: number): R => {
     const entry = entries[index]
     if (!entry) {
       return callback()
@@ -39,7 +42,7 @@ export function composeContexts<
     return context.run(values[key], () => runNested(index + 1))
   }
 
-  return runNested(0) as ReturnType<typeof callback>
+  return runNested(0)
 }
 
 /**

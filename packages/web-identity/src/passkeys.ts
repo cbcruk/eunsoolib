@@ -1,7 +1,7 @@
 import type {
   PasskeyCreateOptions,
   SignalOptions,
-  SignalAllKnownCredentialsOptions,
+  SignalAllAcceptedCredentialsOptions,
   PublicKeyCredentialRequestConfig,
   MediationType,
 } from './types'
@@ -10,8 +10,37 @@ import {
   assertCredentialsAPI,
   wrapError,
   toBase64URL,
-  fromBase64URL,
+  getClientCapabilities,
 } from './utils'
+
+const DEFAULT_PUB_KEY_CRED_PARAMS: PublicKeyCredentialParameters[] = [
+  { type: 'public-key', alg: -7 }, // ES256
+  { type: 'public-key', alg: -257 }, // RS256
+]
+
+function buildCreationOptions(
+  options: PasskeyCreateOptions,
+  timeout: number | undefined,
+): PublicKeyCredentialCreationOptions {
+  return {
+    rp: options.rp,
+    user: {
+      id: options.user.id,
+      name: options.user.name,
+      displayName: options.user.displayName,
+    },
+    challenge: options.challenge,
+    pubKeyCredParams: options.pubKeyCredParams ?? DEFAULT_PUB_KEY_CRED_PARAMS,
+    timeout,
+    authenticatorSelection: options.authenticatorSelection ?? {
+      residentKey: 'required',
+      requireResidentKey: true,
+      userVerification: 'preferred',
+    },
+    attestation: options.attestation ?? 'none',
+    extensions: options.extensions,
+  }
+}
 
 /**
  * Passkey (WebAuthn) utilities for registration, authentication, Signal API,
@@ -55,33 +84,36 @@ export class Passkeys {
   /**
    * Create (register) a new passkey.
    *
+   * With `options.conditional: true`, conditional creation is requested instead
+   * of the regular registration UI (see {@link Passkeys.conditionalCreate}).
+   *
    * @param options - Passkey creation options.
    * @returns The PublicKeyCredential from the authenticator.
+   * @throws {@link WebIdentityError} `NOT_ALLOWED` when creation is cancelled or no
+   * passkey was created, `NOT_SUPPORTED` when `conditional: true` is passed but
+   * conditional creation is unavailable, or the wrapped native error otherwise.
    */
   async create(options: PasskeyCreateOptions): Promise<PublicKeyCredential> {
     assertCredentialsAPI()
 
-    const publicKey: PublicKeyCredentialCreationOptions = {
-      rp: options.rp,
-      user: {
-        id: options.user.id,
-        name: options.user.name,
-        displayName: options.user.displayName,
-      },
-      challenge: options.challenge,
-      pubKeyCredParams: options.pubKeyCredParams ?? [
-        { type: 'public-key', alg: -7 }, // ES256
-        { type: 'public-key', alg: -257 }, // RS256
-      ],
-      timeout: options.timeout ?? 300_000,
-      authenticatorSelection: options.authenticatorSelection ?? {
-        residentKey: 'required',
-        requireResidentKey: true,
-        userVerification: 'preferred',
-      },
-      attestation: options.attestation ?? 'none',
-      extensions: options.extensions,
+    if (options.conditional) {
+      if (!(await Passkeys.isConditionalCreateAvailable())) {
+        throw new WebIdentityError(
+          'NOT_SUPPORTED',
+          'Conditional passkey creation is not supported.',
+        )
+      }
+      const credential = await this.requestConditionalCreate(options)
+      if (!credential) {
+        throw new WebIdentityError(
+          'NOT_ALLOWED',
+          'Conditional passkey creation did not create a passkey.',
+        )
+      }
+      return credential
     }
+
+    const publicKey = buildCreationOptions(options, options.timeout ?? 300_000)
 
     try {
       const credential = await navigator.credentials.create({ publicKey })
@@ -102,10 +134,20 @@ export class Passkeys {
    *
    * After a successful password login, call this to silently upgrade the user
    * to a passkey. If the browser/password manager supports it, the passkey is
-   * created in the background. If not, nothing happens — no UI interruption.
+   * created in the background without interrupting the user.
+   *
+   * Support is checked with {@link Passkeys.isConditionalCreateAvailable} first,
+   * so browsers that would fall back to the regular registration UI are skipped.
+   * `options.timeout` is passed through (browser default when omitted), and
+   * `options.conditional` is ignored.
    *
    * Available from Chrome 136+.
    *
+   * @returns The created credential, or `null` when conditional creation is
+   * unavailable or the browser declined (`NotAllowedError`).
+   * @throws {@link WebIdentityError} for any other failure, such as
+   * `INVALID_STATE` when a listed credential already exists or `SECURITY_ERROR`
+   * for an invalid relying party ID.
    * @see https://developer.chrome.com/docs/identity/webauthn-conditional-create
    */
   async conditionalCreate(
@@ -113,30 +155,25 @@ export class Passkeys {
   ): Promise<PublicKeyCredential | null> {
     assertCredentialsAPI()
 
-    if (!this.isConditionalCreateSupported()) {
+    if (!(await Passkeys.isConditionalCreateAvailable())) {
       return null
     }
 
-    const publicKey: PublicKeyCredentialCreationOptions = {
-      rp: options.rp,
-      user: {
-        id: options.user.id,
-        name: options.user.name,
-        displayName: options.user.displayName,
-      },
-      challenge: options.challenge,
-      pubKeyCredParams: options.pubKeyCredParams ?? [
-        { type: 'public-key', alg: -7 },
-        { type: 'public-key', alg: -257 },
-      ],
-      authenticatorSelection: options.authenticatorSelection ?? {
-        residentKey: 'required',
-        requireResidentKey: true,
-        userVerification: 'preferred',
-      },
-      attestation: options.attestation ?? 'none',
-      extensions: options.extensions,
+    try {
+      return await this.requestConditionalCreate(options)
+    } catch (error) {
+      const wrapped = wrapError(error)
+      if (wrapped.code === 'NOT_ALLOWED') {
+        return null
+      }
+      throw wrapped
     }
+  }
+
+  private async requestConditionalCreate(
+    options: PasskeyCreateOptions,
+  ): Promise<PublicKeyCredential | null> {
+    const publicKey = buildCreationOptions(options, options.timeout)
 
     try {
       const credential = await navigator.credentials.create({
@@ -145,9 +182,8 @@ export class Passkeys {
         mediation: 'conditional',
       })
       return credential as PublicKeyCredential | null
-    } catch {
-      // Conditional create is best-effort; swallow errors silently.
-      return null
+    } catch (error) {
+      throw wrapError(error)
     }
   }
 
@@ -245,7 +281,7 @@ export class Passkeys {
    * @see https://developer.chrome.com/docs/identity/webauthn-signal-api
    */
   async signalAllAcceptedCredentials(
-    options: SignalAllKnownCredentialsOptions,
+    options: SignalAllAcceptedCredentialsOptions,
   ): Promise<void> {
     assertCredentialsAPI()
 
@@ -325,12 +361,42 @@ export class Passkeys {
   }
 
   /**
-   * Check if conditional (auto) passkey creation is supported.
+   * Synchronously check if conditional (auto) passkey creation is supported.
+   *
+   * Browsers expose this capability only through the asynchronous
+   * `PublicKeyCredential.getClientCapabilities()`, so there is no synchronous
+   * signal and this always returns `false` rather than guessing.
+   *
+   * @deprecated Use {@link Passkeys.isConditionalCreateAvailable}, which reads the
+   * `conditionalCreate` client capability.
    */
   isConditionalCreateSupported(): boolean {
-    if (!Passkeys.isSupported()) return false
-    const pkc = PublicKeyCredential as any
-    return typeof pkc.getClientCapabilities === 'function' || true // Optimistic for Chrome 136+
+    return false
+  }
+
+  /**
+   * Check if conditional (auto) passkey creation is available, using the
+   * `conditionalCreate` client capability.
+   *
+   * @returns `false` when WebAuthn or `getClientCapabilities()` is unavailable,
+   * or when the capability is not reported as `true`.
+   */
+  static async isConditionalCreateAvailable(): Promise<boolean> {
+    const capabilities = await getClientCapabilities()
+    return capabilities.conditionalCreate === true
+  }
+
+  /**
+   * Check if immediate mediation (`mediation: 'immediate'`) is available for
+   * passkey requests, using the `immediateGet` client capability.
+   *
+   * @returns `false` when WebAuthn or `getClientCapabilities()` is unavailable,
+   * or when the capability is not reported as `true`.
+   * @see https://developer.chrome.com/blog/webauthn-immediate-mediation-ot
+   */
+  static async isImmediateMediationAvailable(): Promise<boolean> {
+    const capabilities = await getClientCapabilities()
+    return capabilities.immediateGet === true
   }
 
   /**

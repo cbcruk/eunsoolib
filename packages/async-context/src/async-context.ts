@@ -24,7 +24,10 @@ export interface ContextOptions<T> {
   name?: string
 
   /**
-   * 기본값 (설정하면 get()이 에러 대신 기본값 반환).
+   * 컨텍스트 밖에서 쓸 기본값.
+   *
+   * 설정하면 컨텍스트 밖에서 `get()`은 에러 대신, `getOptional()`은 `undefined`
+   * 대신 이 값을 반환한다. `isActive()`는 기본값과 무관하게 `false`다.
    */
   defaultValue?: T
 
@@ -88,7 +91,9 @@ export function createAsyncContext<T>(
     get,
 
     getOptional(): T | undefined {
-      return storage.getStore()
+      const store = storage.getStore()
+
+      return store === undefined ? defaultValue : store
     },
 
     isActive(): boolean {

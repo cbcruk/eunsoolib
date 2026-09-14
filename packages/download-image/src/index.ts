@@ -1,1 +1,6 @@
-export { downloadImage, DownloadImageError } from './download-image'
+export {
+  downloadImage,
+  downloadImageEffect,
+  DownloadImageError,
+  type DownloadImageParams,
+} from './download-image'
