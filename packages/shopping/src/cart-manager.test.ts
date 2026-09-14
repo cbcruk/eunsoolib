@@ -45,6 +45,17 @@ describe('CartManager', () => {
     expect(() => cart.add(productD)).toThrowError('장바구니가 가득 찼습니다.')
   })
 
+  it('최대 상품 수에 도달해도 이미 담긴 ID는 덮어쓸 수 있다', () => {
+    cart.add(productA)
+    cart.add(productB)
+    cart.add(productC)
+
+    const updatedA = { id: 'a', name: 'updated' }
+
+    expect(() => cart.add(updatedA)).not.toThrow()
+    expect(cart.getItems()).toEqual([updatedA, productB, productC])
+  })
+
   it('직렬화/역직렬화가 정상적으로 동작한다', () => {
     cart.add(productA)
     cart.add(productB)

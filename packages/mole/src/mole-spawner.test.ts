@@ -1,13 +1,21 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest'
 import { MoleSpawner } from './mole-spawner'
 
 describe('MoleSpawner', () => {
-  let onSpawn: ReturnType<typeof vi.fn>
+  let onSpawn: Mock<(indexes: number[], visibility: number) => void>
 
   beforeEach(() => {
     vi.useFakeTimers()
 
-    onSpawn = vi.fn()
+    onSpawn = vi.fn<(indexes: number[], visibility: number) => void>()
   })
 
   afterEach(() => {
@@ -77,5 +85,38 @@ describe('MoleSpawner', () => {
 
     expect(visibility).toBeLessThan(1500)
     expect(visibility).toBeGreaterThanOrEqual(300)
+  })
+
+  it('멈춘 스포너에서 updateDelay를 호출해도 다시 시작하지 않는다', () => {
+    const spawner = new MoleSpawner({
+      totalSlots: 9,
+      spawnCount: 3,
+      onSpawn,
+    })
+
+    spawner.updateDelay(500)
+    vi.advanceTimersByTime(2000)
+
+    expect(onSpawn).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(0)
+
+    spawner.start()
+    vi.advanceTimersByTime(500)
+
+    expect(onSpawn).toHaveBeenCalledTimes(1)
+  })
+
+  it('동작 중인 스포너에서 updateDelay를 호출하면 새 간격으로 다시 시작한다', () => {
+    const spawner = new MoleSpawner({
+      totalSlots: 9,
+      spawnCount: 3,
+      onSpawn,
+    })
+
+    spawner.start()
+    spawner.updateDelay(500)
+    vi.advanceTimersByTime(2000)
+
+    expect(onSpawn).toHaveBeenCalledTimes(4)
   })
 })

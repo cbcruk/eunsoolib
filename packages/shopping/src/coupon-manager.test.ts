@@ -34,9 +34,27 @@ describe('CouponManager', () => {
   it('직렬화/역직렬화가 동작해야 한다', () => {
     manager.setCoupon(sampleCoupon)
 
-    const json = manager.toJSON()
+    const json = JSON.stringify(manager)
     const restored = CouponManager.fromJSON(json)
 
     expect(restored.getCoupon()).toEqual(sampleCoupon)
+  })
+
+  it('toJSON은 문자열이 아닌 쿠폰 값을 반환해 한 번만 인코딩된다', () => {
+    manager.setCoupon(sampleCoupon)
+
+    expect(manager.toJSON()).toEqual(sampleCoupon)
+    expect(JSON.parse(JSON.stringify(manager))).toEqual(sampleCoupon)
+  })
+
+  it('쿠폰이 없으면 null로 직렬화되고 미적용 상태로 복원된다', () => {
+    const restored = CouponManager.fromJSON(JSON.stringify(manager))
+
+    expect(manager.toJSON()).toBeNull()
+    expect(restored.getCoupon()).toBeNull()
+  })
+
+  it('빈 문자열이면 미적용 상태로 복원된다', () => {
+    expect(CouponManager.fromJSON('').getCoupon()).toBeNull()
   })
 })

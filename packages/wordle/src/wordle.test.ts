@@ -1,6 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Wordle } from './wordle'
-import { GAME_STATUS, GUESS_STATUS, MESSAGES } from './wordle.constants'
+import {
+  ANSWER_MAX_LENGTH,
+  GAME_RESULT,
+  GAME_STATUS,
+  GUESS_MAX_LENGTH,
+  GUESS_STATUS,
+  MAX_GUESSES,
+  MESSAGES,
+  WORD_LENGTH,
+} from './wordle.constants'
 import type { DictionaryValidator } from './wordle.types'
 
 const VALID_WORD = 'apple'
@@ -72,6 +81,30 @@ describe('Wordle', () => {
         '더 이상 입력할 수 없습니다.',
       )
     })
+
+    it('정답을 맞힌 뒤에는 추측을 추가할 수 없어야 한다', async () => {
+      const game = await Wordle.create(VALID_WORD, mockValidator)
+      game.addGuessItem('grape')
+      game.addGuessItem('apple')
+
+      expect(() => game.addGuessItem('lemon')).toThrow(MESSAGES.GAME_OVER_ERROR)
+      expect(game.guessList).toEqual(['grape', 'apple'])
+      expect(game.getGuessListWithStatus()).toHaveLength(2)
+    })
+
+    it('guessList를 외부에서 바꿔도 게임 상태는 바뀌지 않아야 한다', async () => {
+      const game = await Wordle.create(VALID_WORD, mockValidator)
+      game.addGuessItem('grape')
+
+      const list = game.guessList as string[]
+      list.push('apple')
+
+      expect(() => {
+        ;(game as unknown as { guessList: string[] }).guessList = ['apple']
+      }).toThrow(TypeError)
+      expect(game.guessList).toEqual(['grape'])
+      expect(game.getGameStatus()).toBe(GAME_STATUS.Playing)
+    })
   })
 
   describe('getGameStatus()', () => {
@@ -97,6 +130,45 @@ describe('Wordle', () => {
       }
 
       expect(game.getGameStatus()).toBe(GAME_STATUS.Over)
+    })
+  })
+
+  describe('getGameResult()', () => {
+    it('진행 중이면 null이어야 한다', async () => {
+      const game = await Wordle.create(VALID_WORD, mockValidator)
+      game.addGuessItem('grape')
+
+      expect(game.getGameResult()).toBeNull()
+    })
+
+    it('정답을 맞히면 Won이어야 한다', async () => {
+      const game = await Wordle.create(VALID_WORD, mockValidator)
+
+      for (let i = 0; i < 5; i++) {
+        game.addGuessItem('grape')
+      }
+      game.addGuessItem('apple')
+
+      expect(game.getGameResult()).toBe(GAME_RESULT.Won)
+    })
+
+    it('6회를 모두 틀리면 Lost여야 한다', async () => {
+      const game = await Wordle.create(VALID_WORD, mockValidator)
+
+      for (let i = 0; i < 6; i++) {
+        game.addGuessItem('grape')
+      }
+
+      expect(game.getGameResult()).toBe(GAME_RESULT.Lost)
+    })
+  })
+
+  describe('상수', () => {
+    it('이전 상수 이름은 새 이름과 같은 값을 가져야 한다', () => {
+      expect(WORD_LENGTH).toBe(5)
+      expect(MAX_GUESSES).toBe(6)
+      expect(ANSWER_MAX_LENGTH).toBe(WORD_LENGTH)
+      expect(GUESS_MAX_LENGTH).toBe(MAX_GUESSES)
     })
   })
 })

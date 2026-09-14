@@ -61,7 +61,7 @@ game.hit() // 기본 10점
 | --------------- | ------------------------------------------------- | --------------------------- |
 | `config`        | `GameConfig`                                      | 필수                        |
 | `onTick`        | `(remainingTime: number) => void`                 | 1초마다 남은 초             |
-| `onTimeout`     | `() => void`                                      | 시간 종료 (`Ended` 전환 후) |
+| `onTimeout`     | `() => void`                                      | 60초 시점 (`Ended` 전환 후) |
 | `onScoreUpdate` | `(score: number, rank: string) => void`           | `hit()` 직후                |
 | `onSpawn`       | `(indexes: number[], visibility: number) => void` | `Playing`일 때만 호출       |
 | `onStateChange` | `(state: GameState) => void`                      | 상태가 바뀔 때마다          |
@@ -70,16 +70,16 @@ game.hit() // 기본 10점
 | ------------------------------------------------------------------- | --------------------------------------------------- |
 | `start()`                                                           | `Idle`/`Ended`에서만 동작. 점수·타이머(60초) 초기화 |
 | `pause()` / `resume()`                                              | 타이머와 스포너를 멈추고 다시 시작                  |
-| `end()`                                                             | `Ended`로 전환                                      |
-| `reset()`                                                           | `Idle`로 전환하고 타이머·점수 초기화                |
+| `end()`                                                             | `Playing`/`Paused`에서만 `Ended`로 전환             |
+| `reset()`                                                           | `Idle`로 전환하고 타이머·스포너 정지, 점수 초기화   |
 | `hit(points = 10)`                                                  | `Playing`일 때만 점수 추가                          |
 | `getScore()` / `getRank()` / `getRemainingSeconds()` / `getState()` | 현재 값 조회                                        |
 | `getConfig()`                                                       | 설정의 복사본                                       |
 
 ### 구성 요소 (단독 사용 가능)
 
-- **`new MoleSpawner({ totalSlots, spawnCount, getRemainingSeconds?, onSpawn })`** — `start()` / `stop()` / `updateDelay(ms)`. 기본 1000ms마다 Fisher-Yates로 칸을 고르고, 보이는 시간은 `300 + 1200 × (남은 초 / 60)`ms(0~1로 clamp, `getRemainingSeconds`가 없으면 60초로 간주).
-- **`new PauseableTimer(totalSeconds, onTick?, onTimeout?)`** — 1초 단위 카운트다운. `start()` / `pause()` / `resume()` / `reset()` / `isRunning()` / `isTimeout()` / `getRemainingSeconds()` / `getProgress()`(남은 비율 %).
+- **`new MoleSpawner({ totalSlots, spawnCount, getRemainingSeconds?, onSpawn })`** — `start()` / `stop()` / `updateDelay(ms)`(동작 중일 때만 새 간격으로 재시작, 멈춰 있으면 간격만 바꿈). 기본 1000ms마다 Fisher-Yates로 칸을 고르고, 보이는 시간은 `300 + 1200 × (남은 초 / 60)`ms(0~1로 clamp, `getRemainingSeconds`가 없으면 60초로 간주).
+- **`new PauseableTimer(totalSeconds, onTick?, onTimeout?)`** — 1초 단위 카운트다운. 남은 시간이 `0`이 되는 틱에서 `onTick(0)` 직후 `onTimeout`을 호출합니다. `start()`(시간이 다 됐으면 `reset()` 후 호출) / `pause()` / `resume()` / `reset()` / `isRunning()` / `isTimeout()` / `getRemainingSeconds()` / `getProgress()`(남은 비율 %).
 - **`new ScoreManager(initialScore = 0)`** — `add(point)` / `getScore()` / `resetScore()` / `getRank()`(`{ name, point }`) / `getRankName()`.
 - **`new RankManager()`** — 메모리 내 상위 10개 기록. `add(score, rank)` / `getTop10()`(점수 내림차순 `RankEntry[]` 복사본) / `reset()`.
 
@@ -94,7 +94,6 @@ stateDiagram-v2
   Ended --> Playing: start()
   Playing --> Paused: pause()
   Paused --> Playing: resume()
-  Idle --> Ended: end()
   Playing --> Ended: end() / 시간 종료
   Paused --> Ended: end()
   Playing --> Idle: reset()
@@ -102,11 +101,11 @@ stateDiagram-v2
   Ended --> Idle: reset()
 ```
 
-허용되지 않은 호출(예: `Idle`에서 `pause()`)은 조용히 무시됩니다. `reset()`은 상태와 무관하게 항상 `Idle`로 보냅니다.
+허용되지 않은 호출(예: `Idle`에서 `pause()`나 `end()`)은 조용히 무시됩니다. `reset()`은 상태와 무관하게 항상 `Idle`로 보내고 타이머와 스포너를 모두 멈춥니다.
 
 ### 규칙
 
 - 랭크 기준: `S` ≥ 100, `A` ≥ 70, `B` ≥ 40, `C` ≥ 10, 그 외 `D`
-- 타이머는 남은 시간이 0이 된 **다음 틱**에 `onTimeout`을 부르므로, 60초 게임은 약 61초 시점에 `Ended`가 됩니다.
-- 타이머·스포너 모두 `setInterval` 기반이라 일시정지하면 진행 중이던 1초 미만 구간은 버려집니다.
+- 타이머는 남은 시간을 밀리초로 들고 실제 경과 시간으로 차감합니다. 남은 시간이 0이 되는 틱에서 바로 `onTimeout`을 부르므로 60초 게임은 60초 시점에 `Ended`가 되고, 일시정지해도 진행 중이던 1초 미만 구간이 보존됩니다. `getRemainingSeconds()`는 1초 미만 구간을 올림합니다.
+- 스포너는 `setInterval` 기반이라 재개하면 출현 주기가 재개 시점부터 다시 1초로 시작합니다.
 - `RankManager`는 `MoleGameManager`와 연결되어 있지 않고, 영속화도 하지 않습니다. 게임 종료 시 직접 기록합니다.

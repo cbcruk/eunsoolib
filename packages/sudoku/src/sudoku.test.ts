@@ -7,14 +7,22 @@ import {
   isBoardSolved,
   getPossibleNumbers,
 } from './sudoku.utils'
-import { solve, hasUniqueSolution, generateSolvedBoard } from './sudoku.solver'
+import {
+  solve,
+  hasUniqueSolution,
+  countSolutions,
+  generateSolvedBoard,
+  getHint,
+} from './sudoku.solver'
 import {
   generatePuzzle,
+  generateQuickPuzzle,
   parseBoard,
   boardToString,
   formatBoard,
 } from './sudoku.generator'
-import type { Board } from './sudoku.types'
+import type { Board, Difficulty } from './sudoku.types'
+import { DIFFICULTY_CELLS_TO_REMOVE } from './sudoku.types'
 
 // 테스트용 샘플 퍼즐
 const SAMPLE_PUZZLE: Board = [
@@ -103,6 +111,39 @@ describe('sudoku.solver', () => {
     expect(hasUniqueSolution(SAMPLE_PUZZLE)).toBe(true)
   })
 
+  test('countSolutions는 해가 여러 개인 보드에서 maxCount까지 센다', () => {
+    // 두 박스에 걸친 직사각형 네 칸(0·3행 × 3·4열, 6과 7이 서로 바뀔 수 있음)을 비우면 해가 둘이 된다
+    const board = SAMPLE_SOLUTION.map((row) => [...row])
+    board[0][3] = 0
+    board[0][4] = 0
+    board[3][3] = 0
+    board[3][4] = 0
+
+    expect(countSolutions(board)).toBe(2)
+    expect(countSolutions(board, 5)).toBe(2)
+    expect(countSolutions(board, 1)).toBe(1)
+    expect(hasUniqueSolution(board)).toBe(false)
+  })
+
+  test('countSolutions는 풀 수 없는 보드에서 0을 반환한다', () => {
+    const board = SAMPLE_PUZZLE.map((row) => [...row])
+    board[0][2] = 5
+
+    expect(countSolutions(board)).toBe(0)
+  })
+
+  test('getHint에 정답을 넘기면 잘못 입력한 값이 있어도 정답 기준 힌트를 준다', () => {
+    const board = SAMPLE_SOLUTION.map((row) => [...row])
+    board[0][2] = 0
+    board[0][3] = 4 // 정답은 6. 이 값 때문에 (0, 2)에 넣을 수 있는 숫자가 없다
+
+    expect(getHint(board)).toBeNull()
+    expect(getHint(board, SAMPLE_SOLUTION)).toEqual({
+      position: { row: 0, col: 2 },
+      value: 4,
+    })
+  })
+
   test('generateSolvedBoard는 완성된 보드를 생성한다', () => {
     const board = generateSolvedBoard()
 
@@ -119,6 +160,23 @@ describe('sudoku.generator', () => {
     expect(difficulty).toBe('easy')
     expect(hasUniqueSolution(puzzle)).toBe(true)
   })
+
+  test.each(Object.keys(DIFFICULTY_CELLS_TO_REMOVE) as Difficulty[])(
+    'generateQuickPuzzle은 %s 난이도에서 유일해 퍼즐을 생성한다',
+    (difficulty) => {
+      const { max } = DIFFICULTY_CELLS_TO_REMOVE[difficulty]
+
+      for (let i = 0; i < 20; i++) {
+        const { puzzle, solution, emptyCells } = generateQuickPuzzle(difficulty)
+        const empty = puzzle.flat().filter((value) => value === 0).length
+
+        expect(hasUniqueSolution(puzzle)).toBe(true)
+        expect(solve(puzzle)).toEqual(solution)
+        expect(emptyCells).toBe(empty)
+        expect(emptyCells).toBeLessThanOrEqual(max)
+      }
+    },
+  )
 
   test('parseBoard는 문자열에서 보드를 파싱한다', () => {
     const str =
@@ -187,6 +245,20 @@ describe('SudokuEngine', () => {
     expect(engine.getCell(0, 2).value).toBe(4)
   })
 
+  test('clearValue를 undo 후 redo하면 원래 clearValue처럼 메모도 지워진다', () => {
+    engine.toggleMemo(0, 2, 4)
+    engine.toggleMemo(0, 2, 6)
+    engine.clearValue(0, 2)
+    expect(engine.getCell(0, 2).memos.size).toBe(0)
+
+    engine.undo()
+    expect(engine.getCell(0, 2).memos.size).toBe(2)
+
+    engine.redo()
+    expect(engine.getCell(0, 2).value).toBe(0)
+    expect(engine.getCell(0, 2).memos.size).toBe(0)
+  })
+
   test('toggleMemo로 메모를 토글할 수 있다', () => {
     engine.toggleMemo(0, 2, 4)
     expect(engine.getCell(0, 2).memos.has(4)).toBe(true)
@@ -210,6 +282,30 @@ describe('SudokuEngine', () => {
     expect(hint).not.toBeNull()
     expect(hint!.value).toBeGreaterThanOrEqual(1)
     expect(hint!.value).toBeLessThanOrEqual(9)
+  })
+
+  test('잘못 입력한 값 때문에 풀 수 없는 보드에서도 정답 기준 힌트를 준다', () => {
+    engine.setValue(0, 2, 1) // 정답은 4, 1은 규칙 위반은 아니지만 풀 수 없게 만든다
+
+    const hint = engine.getHint()
+
+    expect(solve(engine.getBoard())).toBeNull()
+    expect(hint).not.toBeNull()
+    expect(hint!.value).toBe(
+      SAMPLE_SOLUTION[hint!.position.row][hint!.position.col],
+    )
+  })
+
+  test('잘못 입력한 칸만 남으면 그 칸의 정답을 힌트로 준다', () => {
+    engine.autoSolve()
+    engine.setValue(0, 2, 1)
+
+    expect(engine.getHint()).toEqual({ position: { row: 0, col: 2 }, value: 4 })
+
+    engine.applyHint()
+
+    expect(engine.isSolved()).toBe(true)
+    expect(engine.getHint()).toBeNull()
   })
 
   test('checkCell은 정답 여부를 확인한다', () => {
@@ -273,5 +369,28 @@ describe('SudokuEngine', () => {
     expect(engine.getCell(0, 0).value).toBe(1)
     expect(engine.getCell(0, 0).isFixed).toBe(true)
     expect(engine.getCell(1, 1).value).toBe(2)
+  })
+
+  test('loadPuzzle은 풀 수 없는 보드를 로드하지 않고 기존 게임을 유지한다', () => {
+    const unsolvable = SAMPLE_PUZZLE.map((row) => [...row])
+    unsolvable[0][2] = 1 // 규칙 위반은 없지만 해가 없다
+
+    expect(solve(unsolvable)).toBeNull()
+    expect(engine.loadPuzzle(unsolvable)).toBe(false)
+    expect(engine.getBoard()).toEqual(SAMPLE_PUZZLE)
+    expect(engine.getSolution()).toEqual(SAMPLE_SOLUTION)
+  })
+
+  test('loadPuzzle은 주어진 숫자끼리 규칙을 어기는 보드를 로드하지 않는다', () => {
+    const invalid = SAMPLE_PUZZLE.map((row) => [...row])
+    invalid[0][2] = 5 // 같은 행에 5가 이미 있다
+
+    expect(engine.loadPuzzle(invalid)).toBe(false)
+    expect(engine.getBoard()).toEqual(SAMPLE_PUZZLE)
+  })
+
+  test('loadPuzzle은 성공하면 true를 반환하고 풀이를 정답으로 저장한다', () => {
+    expect(engine.loadPuzzle(SAMPLE_PUZZLE)).toBe(true)
+    expect(engine.getSolution()).toEqual(SAMPLE_SOLUTION)
   })
 })
