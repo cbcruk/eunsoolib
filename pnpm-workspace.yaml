@@ -1,3 +1,15 @@
 packages:
   - 'packages/*'
   - 'apps/*'
+
+# pnpm 11+: 의존성의 install 스크립트 실행 허용 목록
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  msgpackr-extract: true
+  msw: false
+
+# 워크스페이스 패키지와 apps가 같은 React 인스턴스를 쓰도록 단일 버전으로 고정
+overrides:
+  react: ^19.2.0
+  react-dom: ^19.2.0
