@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/rw-lock",
+  "name": "@cbcruk/rw-lock",
   "description": "single-threaded async 환경을 위한 Readers–Writer Lock",
   "version": "0.0.1",
   "type": "module",

@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/lane-assignment",
+  "name": "@cbcruk/lane-assignment",
   "description": "캘린더에서 겹치는 이벤트를 레인(행)에 배치하는 알고리즘",
   "version": "0.0.1",
   "type": "module",

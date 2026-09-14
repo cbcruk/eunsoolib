@@ -1,6 +1,6 @@
 import { Data, Effect } from 'effect'
 import { FileSystem, HttpClient, FetchHttpClient } from '@effect/platform'
-import { getFileTypeFromBuffer } from '@eunsoolib/get-file-type-from-buffer'
+import { getFileTypeFromBuffer } from '@cbcruk/get-file-type-from-buffer'
 import { NodeContext } from '@effect/platform-node'
 
 export class DownloadImageError extends Data.TaggedError('DownloadImageError')<{

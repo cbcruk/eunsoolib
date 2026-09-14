@@ -1,11 +1,11 @@
-# @eunsoolib/utils
+# @cbcruk/utils
 
 난수 생성, 휴대폰 번호 파싱, 초 단위 시간 포맷 같은 작은 유틸 모음입니다.
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/utils
+pnpm add @cbcruk/utils
 ```
 
 ## 사용법
@@ -13,7 +13,7 @@ pnpm add @eunsoolib/utils
 ### `getRandomNumber`
 
 ```ts
-import { getRandomNumber } from '@eunsoolib/utils'
+import { getRandomNumber } from '@cbcruk/utils'
 
 getRandomNumber({ min: 1, max: 6 }) // 1 ~ 6 중 하나
 ```
@@ -21,7 +21,7 @@ getRandomNumber({ min: 1, max: 6 }) // 1 ~ 6 중 하나
 ### `parsePhoneNumber`
 
 ```ts
-import { parsePhoneNumber } from '@eunsoolib/utils'
+import { parsePhoneNumber } from '@cbcruk/utils'
 
 const { prefix, middle, suffix } = parsePhoneNumber('01012345678')
 // prefix: '010', middle: '1234', suffix: '5678'
@@ -32,7 +32,7 @@ parsePhoneNumber('010-1234-5678') // throws
 ### `formatTimeFromSeconds`
 
 ```ts
-import { formatTimeFromSeconds } from '@eunsoolib/utils'
+import { formatTimeFromSeconds } from '@cbcruk/utils'
 
 formatTimeFromSeconds(3701) // '1시간 1분 41초'
 formatTimeFromSeconds(3601) // '1시간 1초'

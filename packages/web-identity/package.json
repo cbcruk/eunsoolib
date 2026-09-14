@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/web-identity",
+  "name": "@cbcruk/web-identity",
   "description": "Passkeys·FedCM·Digital Credentials·DBSC 등 Web Identity API 통합",
   "version": "0.0.1",
   "type": "module",

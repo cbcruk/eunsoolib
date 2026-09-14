@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/image-first-frame",
+  "name": "@cbcruk/image-first-frame",
   "description": "애니메이션 이미지(GIF·WebP·APNG)의 첫 프레임을 Blob으로 추출",
   "version": "0.0.1",
   "type": "module",

@@ -13,7 +13,7 @@ description: packages/ 하위에 사용자가 임시로 만든 폴더(flat한 in
 
 ```
 packages/<name>/
-├── package.json          # @eunsoolib/<name>, main/types/exports → ./src/index.ts
+├── package.json          # @cbcruk/<name>, main/types/exports → ./src/index.ts
 ├── tsconfig.json         # ../../tsconfig.json extends
 ├── README.md             # 한국어, 설치/사용법/API 섹션
 └── src/
@@ -34,7 +34,7 @@ packages/<name>/
 - **배럴 `src/index.ts`**: 공개할 클래스/함수/타입만 re-export. 내부 헬퍼(`Resolver` 같은)는 노출하지 않는다.
 - **명시적 반환 타입**, strict TypeScript, 코드 내 문자열은 영어.
 - **불필요한 인라인 주석/영역 구분 주석 금지.** 의미 있는 설명은 JSDoc으로.
-- `package.json`의 패키지 이름이 이미 있으면 **보존**한다 (폴더명도 패키지명과 맞춘다. 예: `packages/stacked-pr` → `@eunsoolib/stacked-pr`). 없으면 `@eunsoolib/<folder-name>`.
+- `package.json`의 패키지 이름이 이미 있으면 **보존**한다 (폴더명도 패키지명과 맞춘다. 예: `packages/stacked-pr` → `@cbcruk/stacked-pr`). 없으면 `@cbcruk/<folder-name>`.
 
 ## 절차
 
@@ -57,10 +57,10 @@ packages/<name>/
    - 스냅샷 테스트가 있으면 `__snapshots__/<test-file>.snap`으로 파일명을 새 테스트 파일명에 **정확히 맞춰** 이동한다 (vitest가 파일명으로 스냅샷을 찾음).
 
 4. **`package.json` / `tsconfig.json` 보강.** 없으면 `scripts/create-package.sh`의 템플릿과 동일하게 생성한다.
-   - `package.json`: `name`(기존 보존 또는 `@eunsoolib/<name>`), `version: 0.0.1`, `type: module`, `main`/`types`/`exports` 모두 `./src/index.ts`.
+   - `package.json`: `name`(기존 보존 또는 `@cbcruk/<name>`), `version: 0.0.1`, `type: module`, `main`/`types`/`exports` 모두 `./src/index.ts`.
    - `tsconfig.json`: `extends: ../../tsconfig.json`, `outDir: ./dist`, `rootDir: ./src`, `include: ["src"]`.
 
-5. **README 정리.** `scripts/templates/README.md` 템플릿을 따른다 — `# @eunsoolib/<name>` 제목 + 한 줄 설명, `## 설치` → `## 사용법` → `## API` 순서. 작성 후 `pnpm check:readme`로 검사한다. 본문이 채팅 로그 형태면 정식 문서로 재구성한다. **파일 경로 참조(테스트 파일명 등)와 설치 스니펫을 새 구조에 맞게 갱신**한다.
+5. **README 정리.** `scripts/templates/README.md` 템플릿을 따른다 — `# @cbcruk/<name>` 제목 + 한 줄 설명, `## 설치` → `## 사용법` → `## API` 순서. 작성 후 `pnpm check:readme`로 검사한다. 본문이 채팅 로그 형태면 정식 문서로 재구성한다. **파일 경로 참조(테스트 파일명 등)와 설치 스니펫을 새 구조에 맞게 갱신**한다.
 
 6. **불필요해진 원본 파일 제거.** flat한 `index.ts`/`test.ts`/`__snapshots__/` 등 src로 옮겨간 원본을 삭제한다.
 

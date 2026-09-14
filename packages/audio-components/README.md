@@ -1,6 +1,6 @@
-# @eunsoolib/audio-components
+# @cbcruk/audio-components
 
-`@eunsoolib/sync-store` 기반의 전역 오디오 상태와, 그 위에 얹은 오디오 플레이어
+`@cbcruk/sync-store` 기반의 전역 오디오 상태와, 그 위에 얹은 오디오 플레이어
 컴포넌트입니다.
 
 앱 전체에서 `HTMLAudioElement` 하나를 공유하는 싱글턴 store(`audioStore`)가 재생 상태를
@@ -10,10 +10,10 @@ localStorage에 저장됩니다.
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/audio-components react
+pnpm add @cbcruk/audio-components react
 ```
 
-브라우저 전용입니다. 내부적으로 `@eunsoolib/sync-store`와 `@use-gesture/react`를 사용합니다.
+브라우저 전용입니다. 내부적으로 `@cbcruk/sync-store`와 `@use-gesture/react`를 사용합니다.
 
 ## 사용법
 
@@ -23,7 +23,7 @@ pnpm add @eunsoolib/audio-components react
 연결한 뒤, 플레이어를 원하는 만큼 렌더링합니다.
 
 ```tsx
-import { AudioManager, CastAudioPlayer } from '@eunsoolib/audio-components'
+import { AudioManager, CastAudioPlayer } from '@cbcruk/audio-components'
 
 function App() {
   return (
@@ -45,7 +45,7 @@ import {
   audioActions,
   formatDuration,
   useAudioStore,
-} from '@eunsoolib/audio-components'
+} from '@cbcruk/audio-components'
 
 function MiniPlayer({ src }: { src: string }) {
   const isPlaying = useAudioStore((state) => state.isPlaying)

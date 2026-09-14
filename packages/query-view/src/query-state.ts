@@ -20,7 +20,7 @@ import type { QueryLike, QueryState } from './types'
  *
  * @example 상태 분류
  * ```ts
- * import { toQueryState } from '@eunsoolib/query-view'
+ * import { toQueryState } from '@cbcruk/query-view'
  *
  * const state = toQueryState({
  *   status: 'error',

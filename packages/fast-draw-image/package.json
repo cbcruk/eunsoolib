@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/fast-draw-image",
+  "name": "@cbcruk/fast-draw-image",
   "description": "Canvas용 논블로킹 크로스브라우저 이미지 렌더링",
   "version": "0.0.1",
   "type": "module",

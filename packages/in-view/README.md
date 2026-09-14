@@ -1,4 +1,4 @@
-# @eunsoolib/in-view
+# @cbcruk/in-view
 
 `IntersectionObserver`로 엘리먼트가 뷰포트에 들어오는 순간을 감지하는 React 컴포넌트와
 훅입니다. 무한 스크롤의 "다음 페이지 불러오기" 트리거 같은 곳에 씁니다.
@@ -6,7 +6,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/in-view react
+pnpm add @cbcruk/in-view react
 ```
 
 브라우저 전용입니다.
@@ -16,7 +16,7 @@ pnpm add @eunsoolib/in-view react
 ### 컴포넌트
 
 ```tsx
-import { InView } from '@eunsoolib/in-view'
+import { InView } from '@cbcruk/in-view'
 
 function NextPageTrigger({ fetchNextPage, hasNextPage }: Props) {
   return (
@@ -32,7 +32,7 @@ function NextPageTrigger({ fetchNextPage, hasNextPage }: Props) {
 ### 훅
 
 ```tsx
-import { useIntersectionObserver } from '@eunsoolib/in-view'
+import { useIntersectionObserver } from '@cbcruk/in-view'
 
 function Sentinel({ onIntersect }: { onIntersect: () => void }) {
   const { ref } = useIntersectionObserver({ onIntersect })

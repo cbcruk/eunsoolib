@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/msw-devtools",
+  "name": "@cbcruk/msw-devtools",
   "description": "MSW 핸들러 응답을 런타임에 조작하는 devtools 패널",
   "version": "0.0.1",
   "type": "module",

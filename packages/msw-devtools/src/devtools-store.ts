@@ -38,7 +38,7 @@ function emptyState(): DevtoolsState {
  *
  * @example 브라우저 밖에서 쓰기
  * ```ts
- * import { DevtoolsStore } from '@eunsoolib/msw-devtools'
+ * import { DevtoolsStore } from '@cbcruk/msw-devtools'
  *
  * const store = new DevtoolsStore(memoryStorage)
  * store.importScenario(await readFile('./scenarios/checkout-fails.json', 'utf8'))

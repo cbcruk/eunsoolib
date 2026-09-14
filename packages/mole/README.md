@@ -1,4 +1,4 @@
-# @eunsoolib/mole
+# @cbcruk/mole
 
 두더지 잡기 게임 엔진입니다. 스포너·타이머·점수·랭킹을 각각의 클래스로 나누고 `MoleGameManager`가 이들을 조립합니다.
 
@@ -7,7 +7,7 @@ UI 없이 게임 규칙만 모델링한 설계 실험입니다. 격자 크기와
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/mole
+pnpm add @cbcruk/mole
 ```
 
 ## 사용법
@@ -18,7 +18,7 @@ import {
   GameState,
   MoleGameManager,
   RankManager,
-} from '@eunsoolib/mole'
+} from '@cbcruk/mole'
 
 const ranks = new RankManager()
 

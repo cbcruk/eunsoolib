@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/shopping",
+  "name": "@cbcruk/shopping",
   "description": "XState 기반 장바구니·쿠폰·주문 도메인 모델",
   "version": "0.0.1",
   "type": "module",

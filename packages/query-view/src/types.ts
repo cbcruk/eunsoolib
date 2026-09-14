@@ -109,7 +109,7 @@ export type QueryState<T> =
  *
  * @example 실패 상태만 받는 함수
  * ```ts
- * import type { QueryStateOf } from '@eunsoolib/query-view'
+ * import type { QueryStateOf } from '@cbcruk/query-view'
  *
  * function retryLabel(state: QueryStateOf<unknown, 'failed'>): string {
  *   return state.retrying ? 'Retrying…' : `Retry (${state.failureCount})`

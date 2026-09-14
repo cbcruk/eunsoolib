@@ -1,4 +1,4 @@
-import { persist } from '@eunsoolib/sync-store'
+import { persist } from '@cbcruk/sync-store'
 
 /**
  * 오디오 재생 상태. 액션 메서드는 포함하지 않는 순수 데이터다.

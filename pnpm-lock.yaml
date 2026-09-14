@@ -163,7 +163,7 @@ importers:
 
   packages/audio-components:
     dependencies:
-      '@eunsoolib/sync-store':
+      '@cbcruk/sync-store':
         specifier: workspace:*
         version: link:../sync-store
       '@use-gesture/react':
@@ -206,15 +206,15 @@ importers:
 
   packages/download-image:
     dependencies:
+      '@cbcruk/get-file-type-from-buffer':
+        specifier: workspace:*
+        version: link:../get-file-type-from-buffer
       '@effect/platform':
         specifier: ^0.80.18
         version: 0.80.18(effect@3.14.18)
       '@effect/platform-node':
         specifier: ^0.77.6
         version: 0.77.6(@effect/cluster@0.30.6(@effect/platform@0.80.18(effect@3.14.18))(@effect/rpc@0.56.6(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/sql@0.33.18(@effect/experimental@0.44.18(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(@effect/rpc@0.56.6(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/sql@0.33.18(@effect/experimental@0.44.18(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(effect@3.14.18)
-      '@eunsoolib/get-file-type-from-buffer':
-        specifier: workspace:*
-        version: link:../get-file-type-from-buffer
       effect:
         specifier: ^3.14.18
         version: 3.14.18
@@ -344,7 +344,7 @@ importers:
 
   packages/use-like-store:
     dependencies:
-      '@eunsoolib/sync-store':
+      '@cbcruk/sync-store':
         specifier: workspace:*
         version: link:../sync-store
       react:

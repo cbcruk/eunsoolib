@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/mole",
+  "name": "@cbcruk/mole",
   "description": "두더지 잡기 게임 엔진 (스포너·타이머·점수·랭킹)",
   "version": "0.0.1",
   "type": "module",

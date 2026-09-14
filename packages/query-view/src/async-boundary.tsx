@@ -40,7 +40,7 @@ export type AsyncBoundaryProps = {
  *
  * @example 라우트 경계로 쓰기
  * ```tsx
- * import { AsyncBoundary, Delayed } from '@eunsoolib/query-view'
+ * import { AsyncBoundary, Delayed } from '@cbcruk/query-view'
  *
  * <AsyncBoundary
  *   placeholder={<Delayed><PostSkeleton /></Delayed>}

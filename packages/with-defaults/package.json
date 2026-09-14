@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/with-defaults",
+  "name": "@cbcruk/with-defaults",
   "description": "컴포넌트에 기본 props를 미리 채워 선택 prop으로 만드는 HOC",
   "version": "0.0.1",
   "type": "module",

@@ -1,4 +1,4 @@
-# @eunsoolib/vtt-to-json
+# @cbcruk/vtt-to-json
 
 WebVTT 자막을 중복 제거된 cue 배열로 파싱합니다.
 
@@ -8,14 +8,14 @@ YouTube 자동 생성 자막처럼 같은 문장이 다음 cue에 반복되고 �
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/vtt-to-json
+pnpm add @cbcruk/vtt-to-json
 ```
 
 ## 사용법
 
 ```ts
 import { readFile } from 'node:fs/promises'
-import { VttParser } from '@eunsoolib/vtt-to-json'
+import { VttParser } from '@cbcruk/vtt-to-json'
 
 const vtt = await readFile('captions.vtt', 'utf-8')
 const cues = new VttParser(vtt).toJson()

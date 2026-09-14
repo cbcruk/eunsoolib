@@ -1,4 +1,4 @@
-# @eunsoolib/checkbox-group
+# @cbcruk/checkbox-group
 
 체크하는 동안의 선택은 폼 안에서만 바꾸고, 제출할 때만 확정 상태로 올려보내는 체크박스
 그룹 컴포넌트입니다.
@@ -10,13 +10,13 @@ ahooks의 `useSelections`를 두 겹으로 써서 초안(draft) 상태와 확정
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/checkbox-group react
+pnpm add @cbcruk/checkbox-group react
 ```
 
 ## 사용법
 
 ```tsx
-import { CheckboxGroup } from '@eunsoolib/checkbox-group'
+import { CheckboxGroup } from '@cbcruk/checkbox-group'
 
 const frameworks = [
   { key: 'react', label: 'React' },

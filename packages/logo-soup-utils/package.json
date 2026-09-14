@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/logo-soup-utils",
+  "name": "@cbcruk/logo-soup-utils",
   "description": "로고들을 지각적으로 같은 크기로 맞추는 정규화 알고리즘",
   "version": "0.0.1",
   "type": "module",

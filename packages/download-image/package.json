@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/download-image",
+  "name": "@cbcruk/download-image",
   "description": "Effect 기반 이미지 다운로드 후 형식을 판별해 저장",
   "version": "0.0.1",
   "type": "module",
@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@eunsoolib/get-file-type-from-buffer": "workspace:*",
+    "@cbcruk/get-file-type-from-buffer": "workspace:*",
     "effect": "^3.14.18",
     "@effect/platform": "^0.80.18",
     "@effect/platform-node": "^0.77.6",

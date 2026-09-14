@@ -1,4 +1,4 @@
-# @eunsoolib/with-defaults
+# @cbcruk/with-defaults
 
 컴포넌트에 기본 props를 미리 채우고, 기본값을 준 prop을 호출부에서 선택(optional)
 prop으로 바꿔 주는 HOC입니다.
@@ -9,7 +9,7 @@ prop으로 바꿔 주는 HOC입니다.
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/with-defaults react
+pnpm add @cbcruk/with-defaults react
 ```
 
 React 19의 ref-as-prop을 전제로 합니다.
@@ -18,7 +18,7 @@ React 19의 ref-as-prop을 전제로 합니다.
 
 ```tsx
 import type { ReactNode } from 'react'
-import { withDefaults } from '@eunsoolib/with-defaults'
+import { withDefaults } from '@cbcruk/with-defaults'
 
 type TextProps = {
   type: 'body2_600' | 'heading1_600' // 필수

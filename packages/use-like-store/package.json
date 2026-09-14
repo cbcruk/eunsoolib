@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/use-like-store",
+  "name": "@cbcruk/use-like-store",
   "description": "sync-store 기반 찜 목록 store와 React 훅",
   "version": "0.0.1",
   "type": "module",
@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@eunsoolib/sync-store": "workspace:*",
+    "@cbcruk/sync-store": "workspace:*",
     "zod": "^3.24.3"
   },
   "peerDependencies": {

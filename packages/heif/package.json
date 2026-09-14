@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/heif",
+  "name": "@cbcruk/heif",
   "description": "브라우저에서 HEIC/HEIF를 JPEG·PNG·WebP로 변환",
   "version": "0.0.1",
   "type": "module",

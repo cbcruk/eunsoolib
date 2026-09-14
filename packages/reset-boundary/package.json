@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/reset-boundary",
+  "name": "@cbcruk/reset-boundary",
   "description": "deps 변경 시 key 기반 remount로 상태를 초기화하는 컴포넌트",
   "version": "0.0.1",
   "type": "module",

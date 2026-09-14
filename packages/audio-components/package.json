@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/audio-components",
+  "name": "@cbcruk/audio-components",
   "description": "sync-store 기반 오디오 플레이어 컴포넌트와 상태",
   "version": "0.0.1",
   "type": "module",
@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@eunsoolib/sync-store": "workspace:*",
+    "@cbcruk/sync-store": "workspace:*",
     "@use-gesture/react": "^10.3.1"
   },
   "peerDependencies": {

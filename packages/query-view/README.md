@@ -1,11 +1,11 @@
-# @eunsoolib/query-view
+# @cbcruk/query-view
 
 TanStack Query의 상태 매트릭스를 손실 없이 뷰 슬롯으로 투영하는 레이어
 
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/query-view
+pnpm add @cbcruk/query-view
 ```
 
 `react`가 peer dependency다. `@tanstack/react-query`는 import하지 않는다 — 아래 [비용](#비용) 참조.
@@ -58,7 +58,7 @@ degraded ⊃ paused ⊃ refreshing ⊃ provisional ⊃ content
 매트릭스 전체가 컴포넌트 안에 있다. 교체 + 중첩 슬롯을 다 받는다.
 
 ```tsx
-import { QueryView } from '@eunsoolib/query-view'
+import { QueryView } from '@cbcruk/query-view'
 
 function PostsPage({ keyword }: { keyword: string }) {
   const query = useQuery({ queryKey: ['posts', keyword], queryFn: fetchPosts })
@@ -107,11 +107,7 @@ function PostsPage({ keyword }: { keyword: string }) {
 경계와 뷰가 경쟁 관계가 아니라 **층으로 분리**된다.
 
 ```tsx
-import {
-  AsyncBoundary,
-  Delayed,
-  SuspenseQueryView,
-} from '@eunsoolib/query-view'
+import { AsyncBoundary, Delayed, SuspenseQueryView } from '@cbcruk/query-view'
 
 function PostsRoute({ keyword }: { keyword: string }) {
   return (

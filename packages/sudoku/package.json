@@ -1,5 +1,5 @@
 {
-  "name": "@eunsoolib/sudoku",
+  "name": "@cbcruk/sudoku",
   "description": "스도쿠 퍼즐 생성·풀이·게임 엔진",
   "version": "0.0.1",
   "type": "module",

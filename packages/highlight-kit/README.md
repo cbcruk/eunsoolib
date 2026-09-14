@@ -1,4 +1,4 @@
-# @eunsoolib/highlight-kit
+# @cbcruk/highlight-kit
 
 CSS Custom Highlight API 기반 텍스트 하이라이팅 라이브러리. DOM을 건드리지 않고
 텍스트를 하이라이트합니다. 프레임워크 무관 core와 얇은 React 어댑터를 제공합니다.
@@ -6,10 +6,10 @@ CSS Custom Highlight API 기반 텍스트 하이라이팅 라이브러리. DOM�
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/highlight-kit
+pnpm add @cbcruk/highlight-kit
 ```
 
-ESM 전용 패키지이며 타입 정의가 함께 포함됩니다. React 어댑터(`@eunsoolib/highlight-kit/react`)는
+ESM 전용 패키지이며 타입 정의가 함께 포함됩니다. React 어댑터(`@cbcruk/highlight-kit/react`)는
 `react >= 18`을 필요로 하지만 **optional peer dependency**라, core만 쓰면 React 없이 동작합니다.
 
 ## 사용법
@@ -21,7 +21,7 @@ import {
   highlights,
   computeRanges,
   injectHighlightStyles,
-} from '@eunsoolib/highlight-kit'
+} from '@cbcruk/highlight-kit'
 
 injectHighlightStyles({
   search: { backgroundColor: '#fef08a', color: '#854d0e' },
@@ -46,7 +46,7 @@ reconcile합니다. 서로 다른 패널 두 곳에서 `'error'` 이름으로 �
 #### 선언적 컴포넌트
 
 ```tsx
-import { Highlight } from '@eunsoolib/highlight-kit/react'
+import { Highlight } from '@cbcruk/highlight-kit/react'
 
 function Article({ keyword }: { keyword: string }) {
   return (
@@ -75,7 +75,7 @@ function Article({ keyword }: { keyword: string }) {
 #### Headless 훅
 
 ```tsx
-import { useHighlight } from '@eunsoolib/highlight-kit/react'
+import { useHighlight } from '@cbcruk/highlight-kit/react'
 
 function SearchableText({ query }: { query: string }) {
   const { ref, count, active } = useHighlight<HTMLDivElement>({
@@ -102,7 +102,7 @@ import { useRef, useState } from 'react'
 import {
   HighlightStyles,
   useHighlightSearch,
-} from '@eunsoolib/highlight-kit/react'
+} from '@cbcruk/highlight-kit/react'
 
 function Search() {
   const ref = useRef<HTMLDivElement>(null)
@@ -129,7 +129,7 @@ function Search() {
 #### 한 컨테이너에 여러 패턴: `Highlight.Root` + `Highlight.Match`
 
 ```tsx
-import { Highlight } from '@eunsoolib/highlight-kit/react'
+import { Highlight } from '@cbcruk/highlight-kit/react'
 
 function Logs({ logs }: { logs: string }) {
   return (
@@ -153,7 +153,7 @@ function Logs({ logs }: { logs: string }) {
 import {
   useHighlightState,
   useHighlightSupport,
-} from '@eunsoolib/highlight-kit/react'
+} from '@cbcruk/highlight-kit/react'
 
 const { count, active } = useHighlightState('search') // 읽기 전용 구독
 const all = useHighlightSnapshots() // { [name]: { count, active } }
@@ -169,8 +169,8 @@ bookkeeping만 검증합니다.
 import {
   createHighlightController,
   createNoopSink,
-} from '@eunsoolib/highlight-kit'
-import { HighlightProvider } from '@eunsoolib/highlight-kit/react'
+} from '@cbcruk/highlight-kit'
+import { HighlightProvider } from '@cbcruk/highlight-kit/react'
 
 const controller = createHighlightController({ sink: createNoopSink() })
 render(
@@ -198,7 +198,7 @@ expect(controller.getSnapshot('search').count).toBe(3)
 | `generateHighlightCSS(styles)`         | `::highlight()` CSS 문자열 생성 (주입 없이 반환)                                                                          |
 | `injectHighlightStyles(styles, id?)`   | `::highlight()` CSS 동적 주입 (`<style>` 삽입)                                                                            |
 
-### react (`@eunsoolib/highlight-kit/react`)
+### react (`@cbcruk/highlight-kit/react`)
 
 | export                                        | 설명                                                                          |
 | --------------------------------------------- | ----------------------------------------------------------------------------- |
@@ -246,7 +246,7 @@ eunsoolib 모노레포 패키지로 통합되어 있습니다. 진입점은
 [src/index.ts](src/index.ts)(core)와 [src/react.tsx](src/react.tsx)(React 어댑터)이며,
 [src/demo.tsx](src/demo.tsx)에 검색·다중 이름·RegExp·range overlay 데모가 있습니다.
 
-> `@eunsoolib/use-highlight-search`는 이 패키지로 통합되었습니다. `HighlightStoreProvider` →
+> `@cbcruk/use-highlight-search`는 이 패키지로 통합되었습니다. `HighlightStoreProvider` →
 > `HighlightProvider`, `createHighlightStore` → `createHighlightController`,
 > `useHighlight(name, ranges)` → `useHighlightRanges(name, ranges)`,
 > `store.getSnapshot()[name]` → `controller.getSnapshot(name).count`로 옮기면 됩니다.

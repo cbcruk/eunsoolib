@@ -17,7 +17,7 @@ export type DelayedProps = {
  *
  * @example Suspense fallback 감싸기
  * ```tsx
- * import { Delayed } from '@eunsoolib/query-view'
+ * import { Delayed } from '@cbcruk/query-view'
  *
  * <Suspense fallback={<Delayed><Skeleton /></Delayed>}>
  *   <Panel />

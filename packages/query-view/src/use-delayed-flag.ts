@@ -26,7 +26,7 @@ export type DelayedFlagOptions = {
  *
  * @example 직접 만든 로딩 표시에 적용하기
  * ```tsx
- * import { useDelayedFlag } from '@eunsoolib/query-view'
+ * import { useDelayedFlag } from '@cbcruk/query-view'
  *
  * function Panel({ isPending }: { isPending: boolean }) {
  *   const visible = useDelayedFlag(isPending, { delay: 300 })

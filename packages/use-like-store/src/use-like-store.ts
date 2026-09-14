@@ -1,4 +1,4 @@
-import { useStore } from '@eunsoolib/sync-store'
+import { useStore } from '@cbcruk/sync-store'
 import { likeStore } from './like-store'
 import type { Item, LikeItemId } from './like-item'
 

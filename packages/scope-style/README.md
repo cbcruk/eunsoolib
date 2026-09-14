@@ -1,4 +1,4 @@
-# @eunsoolib/scope-style
+# @cbcruk/scope-style
 
 네이티브 CSS `@scope` + `@layer`로 **일반 CSS**를 컴포넌트 서브트리에만 적용합니다.
 
@@ -8,7 +8,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/scope-style react
+pnpm add @cbcruk/scope-style react
 ```
 
 브라우저의 네이티브 CSS `@scope` 지원이 필요합니다(아래 [브라우저 지원](#브라우저-지원) 참고).
@@ -16,7 +16,7 @@ pnpm add @eunsoolib/scope-style react
 ## 사용법
 
 ```tsx
-import { useScopedStyle } from '@eunsoolib/scope-style'
+import { useScopedStyle } from '@cbcruk/scope-style'
 
 function Card({ children }: { children?: React.ReactNode }) {
   const scope = useScopedStyle(
@@ -44,7 +44,7 @@ function Card({ children }: { children?: React.ReactNode }) {
 렌더링에서는 실제 `<style>` 요소를 렌더하고 결정적인 `scopeFor` 헬퍼와 함께 씁니다.
 
 ```tsx
-import { ScopedStyle, scopeFor } from '@eunsoolib/scope-style'
+import { ScopedStyle, scopeFor } from '@cbcruk/scope-style'
 
 const css = `:scope { padding: 16px } p { color: crimson }`
 

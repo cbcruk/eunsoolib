@@ -96,7 +96,7 @@ export type QueryViewProps<T> = {
  *
  * @example 교체 층과 중첩 층을 함께 쓰기
  * ```tsx
- * import { QueryView } from '@eunsoolib/query-view'
+ * import { QueryView } from '@cbcruk/query-view'
  *
  * <QueryView
  *   query={useQuery({ queryKey: ['posts', keyword], queryFn: fetchPosts })}

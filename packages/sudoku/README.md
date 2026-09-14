@@ -1,4 +1,4 @@
-# @eunsoolib/sudoku
+# @cbcruk/sudoku
 
 스도쿠 퍼즐 생성·풀이·게임 엔진입니다.
 
@@ -7,7 +7,7 @@
 ## 설치
 
 ```bash
-pnpm add @eunsoolib/sudoku
+pnpm add @cbcruk/sudoku
 ```
 
 ## 사용법
@@ -15,7 +15,7 @@ pnpm add @eunsoolib/sudoku
 ### 게임 엔진
 
 ```ts
-import { SudokuEngine, generatePuzzle } from '@eunsoolib/sudoku'
+import { SudokuEngine, generatePuzzle } from '@cbcruk/sudoku'
 
 const engine = new SudokuEngine(generatePuzzle('easy')) // 인자 없으면 medium 생성
 
@@ -38,7 +38,7 @@ import {
   hasUniqueSolution,
   parseBoard,
   solve,
-} from '@eunsoolib/sudoku'
+} from '@cbcruk/sudoku'
 
 const board = parseBoard(
   '530070000600195000098000060800060003400803001700020006060000280000419005000080079',

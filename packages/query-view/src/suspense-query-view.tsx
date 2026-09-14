@@ -31,7 +31,7 @@ export type SuspenseQueryViewProps<T> = Omit<
  *
  * @example 경계와 짝지어 쓰기
  * ```tsx
- * import { AsyncBoundary, Delayed, SuspenseQueryView } from '@eunsoolib/query-view'
+ * import { AsyncBoundary, Delayed, SuspenseQueryView } from '@cbcruk/query-view'
  *
  * <AsyncBoundary
  *   placeholder={<Delayed><PostSkeleton /></Delayed>}
