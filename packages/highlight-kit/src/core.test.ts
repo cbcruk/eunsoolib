@@ -80,6 +80,23 @@ describe('rangesFromOffsets', () => {
     const ranges = rangesFromOffsets(el, [{ start: 2, end: 5 }])
     expect(ranges.map((r) => r.toString()).join('')).toBe('oba')
   })
+
+  test('공백만 있는 텍스트 노드도 포함해 textContent 기준으로 offset을 계산해야 함', () => {
+    const el = mount('<p><b>foo</b>\n  <i>bar</i></p>')
+    const text = el.textContent ?? ''
+    const start = text.indexOf('bar')
+    expect(start).toBe(6)
+    const ranges = rangesFromOffsets(el, [{ start, end: start + 3 }])
+    expect(ranges.map((r) => r.toString())).toEqual(['bar'])
+  })
+
+  test('공백 노드를 가로지르는 span은 textContent의 해당 구간과 같아야 함', () => {
+    const el = mount('<p><b>foo</b>\n  <i>bar</i></p>')
+    const ranges = rangesFromOffsets(el, [{ start: 2, end: 7 }])
+    expect(ranges.map((r) => r.toString()).join('')).toBe(
+      (el.textContent ?? '').slice(2, 7),
+    )
+  })
 })
 
 describe('generateHighlightCSS', () => {

@@ -62,6 +62,29 @@ describe('resolveLocale', () => {
     expect(resolveLocale({ acceptLanguage: 'en;q=0.5,ko;q=0.9' })).toBe('ko')
   })
 
+  it('supported가 없으면 locale이 아닌 후보를 건너뛰어야 함', () => {
+    expect(resolveLocale({ urlSegment: 'products', cookie: 'ko-KR' })).toBe(
+      'ko-KR',
+    )
+    expect(resolveLocale({ urlSegment: 'api', acceptLanguage: 'ja' })).toBe(
+      'ja',
+    )
+  })
+
+  it('supported가 없고 형식이 잘못된 후보만 있으면 fallback이어야 함', () => {
+    expect(
+      resolveLocale({
+        urlSegment: 'dashboard',
+        cookie: 'ko_KR',
+        fallback: 'en-US',
+      }),
+    ).toBe('en-US')
+  })
+
+  it('supported가 없으면 통과한 후보를 정규화된 태그로 반환해야 함', () => {
+    expect(resolveLocale({ cookie: 'en-us' })).toBe('en-US')
+  })
+
   it('아무 후보도 없으면 fallback이어야 함', () => {
     expect(resolveLocale({ fallback: 'en-US' })).toBe('en-US')
     expect(resolveLocale({})).toBe('en')

@@ -17,9 +17,9 @@ export interface ResolveLocaleSources {
   cookie?: string | null
   /** `navigator.language` 또는 `Accept-Language` 헤더 값. */
   acceptLanguage?: string | null
-  /** 허용 locale 목록. 주면 협상(negotiation) 후 매칭되는 것만 반환. */
+  /** 허용 locale 목록. 주면 협상(negotiation) 후 매칭되는 것만 반환, 없으면 locale로 검증된 첫 후보를 반환. */
   supported?: string[]
-  /** 아무것도 매칭되지 않을 때의 최종 fallback. @default 'en' */
+  /** 아무것도 매칭되지 않을 때의 최종 fallback. 검증 없이 그대로 반환한다. @default 'en' */
   fallback?: string
 }
 

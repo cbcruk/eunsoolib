@@ -109,12 +109,12 @@ function Toc() {
 
 ### 코어 (`@cbcruk/scroll-spy`)
 
-| 함수                            | 설명                                               |
-| ------------------------------- | -------------------------------------------------- |
-| `createScrollSpy(el, options?)` | scroll-spy 인스턴스 생성 (네이티브/폴백 자동 선택) |
-| `supportsScrollTargetGroup()`   | 네이티브 CSS 지원 여부                             |
-| `generateToc(options?)`         | 헤딩에서 목차 `<nav>` 자동 생성                    |
-| `generateStyles(options?)`      | progressive enhancement용 CSS 문자열 생성          |
+| 함수                            | 설명                                                     |
+| ------------------------------- | -------------------------------------------------------- |
+| `createScrollSpy(el, options?)` | scroll-spy 인스턴스 생성 (네이티브/폴백 자동 선택)       |
+| `supportsScrollTargetGroup()`   | 네이티브 CSS 지원 여부                                   |
+| `generateToc(options?)`         | 헤딩에서 목차 `<nav>` 자동 생성 (id 없는 헤딩에 id 부여) |
+| `generateStyles(options?)`      | progressive enhancement용 CSS 문자열 생성                |
 
 #### `createScrollSpy` 옵션
 
@@ -147,6 +147,14 @@ function Toc() {
 | `useSmoothScroll`      | 앵커 클릭 시 offset 포함 부드러운 스크롤      |
 | `<ScrollSpyNav>`       | 헤딩 목록 렌더링 컴포넌트                     |
 | `<ScrollSpy>`          | 헤딩 수집 + 렌더까지 묶은 컴포넌트            |
+
+### 자동 id 규칙
+
+`generateToc`와 `useScrollSpyHeadings`는 `id`가 없는 헤딩에 텍스트로 만든 id를 붙입니다.
+
+- 글자·숫자는 문자 체계와 관계없이 유지하고(소문자화), 나머지 연속 구간은 `-`로 바꿉니다: `Getting Started` → `getting-started`, `설치 방법` → `설치-방법`
+- 문서에 이미 있는 id와 겹치면 `-2`, `-3`, … 접미사를 붙입니다: `예제`, `예제-2`
+- 글자·숫자가 없는 텍스트는 `section`(겹치면 `section-2`, …)을 씁니다
 
 ## 브라우저 지원
 

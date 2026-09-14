@@ -113,6 +113,24 @@ describe('useScrollSpyHeadings', () => {
     })
     expect(result.current.headings[1]!.id).toBe('second')
   })
+
+  it('같은 텍스트와 한글 제목에 고유한 텍스트 기반 id를 부여해야 함', () => {
+    document.body.innerHTML = `
+      <h2>예제</h2>
+      <h3>예제</h3>
+      <h2>개요</h2>
+    `
+
+    const { result } = renderHook(() =>
+      useScrollSpyHeadings({ container: document.body }),
+    )
+
+    expect(result.current.headings.map((h) => h.id)).toEqual([
+      '예제',
+      '예제-2',
+      '개요',
+    ])
+  })
 })
 
 describe('useSmoothScroll', () => {

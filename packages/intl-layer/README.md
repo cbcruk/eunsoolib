@@ -28,7 +28,9 @@ silent하게 쓴다. 이게 실무에선 함정이다.
 ## locale 결정 (단일 지점)
 
 우선순위 `urlSegment > cookie > Accept-Language > fallback`. `supported`를 주면
-language subtag까지 협상한다.
+language subtag까지 협상한다. `supported`가 없으면 각 후보를 `Intl.getCanonicalLocales`와
+`Intl.DateTimeFormat.supportedLocalesOf`로 검증해, `/products/…`의 `products`처럼 locale이
+아닌 값은 건너뛰고 통과한 첫 후보를 정규화된 태그(`en-us` → `en-US`)로 돌려준다.
 
 ```ts
 import { resolveLocale } from '@cbcruk/intl-layer'
@@ -103,19 +105,19 @@ const locale = useI18nStore(store) // change에 반응해 리렌더
 
 ## API
 
-| 항목                                             | 설명                                                      |
-| ------------------------------------------------ | --------------------------------------------------------- |
-| `resolveLocale(sources)`                         | locale 결정 단일 지점 (우선순위 + supported 협상)         |
-| `maximizeLocale(input)`                          | `"ko"` → `"ko-Kore-KR"` (likely subtags 보강)             |
-| `parseAcceptLanguage(header)`                    | q-값 내림차순 태그 배열                                   |
-| `detectLocaleMismatch(fmt, expected)`            | dev용 silent-fallback 탐지 (불일치 시 해석된 태그)        |
-| `I18nStore` / `createI18nStore`                  | vanilla reactive store (date/number/relativeTime memoize) |
-| `detectInitialLocale` / `detectTimeZone`         | 명시적 환경 탐지 헬퍼                                     |
-| `applyI18n` / `bindI18nSweep`                    | data attribute sweep (패턴 A)                             |
-| `defineFormattedDate`                            | `<fmt-date>` custom element (패턴 B)                      |
-| `LocaleProvider` / `useLocale` / `useFormatters` | React context 바인딩                                      |
-| `useI18nStore(store)`                            | vanilla store ↔ React 연결                                |
-| `stableStringify(opts)`                          | 키 순서 무관 캐시 키 직렬화                               |
+| 항목                                             | 설명                                                                      |
+| ------------------------------------------------ | ------------------------------------------------------------------------- |
+| `resolveLocale(sources)`                         | locale 결정 단일 지점 (우선순위 + supported 협상, 없으면 후보 검증)       |
+| `maximizeLocale(input)`                          | `"ko"` → `"ko-Kore-KR"` (likely subtags 보강)                             |
+| `parseAcceptLanguage(header)`                    | q-값 내림차순 태그 배열                                                   |
+| `detectLocaleMismatch(fmt, expected)`            | dev용 silent-fallback 탐지 (불일치 시 해석된 태그)                        |
+| `I18nStore` / `createI18nStore`                  | vanilla reactive store (date/number/relativeTime memoize)                 |
+| `detectInitialLocale` / `detectTimeZone`         | 명시적 환경 탐지 헬퍼                                                     |
+| `applyI18n` / `bindI18nSweep`                    | data attribute sweep (패턴 A). 해석 불가 값은 원문 유지, 요소별 예외 격리 |
+| `defineFormattedDate`                            | `<fmt-date>` custom element (패턴 B). 해석 불가 `value`는 원문 유지       |
+| `LocaleProvider` / `useLocale` / `useFormatters` | React context 바인딩                                                      |
+| `useI18nStore(store)`                            | vanilla store ↔ React 연결                                                |
+| `stableStringify(opts)`                          | 키 순서 무관 캐시 키 직렬화                                               |
 
 ## Gotchas
 
@@ -126,6 +128,15 @@ const locale = useI18nStore(store) // change에 반응해 리렌더
   `relativeTime`에 넘긴다. 단위 변환(°C, miles)은 하지 않는다.
 - **multi-tab 동기화는 `storage` 이벤트로 거의 공짜.** 한 탭에서
   `localStorage.setItem('locale', tag)`, 다른 탭에서 `storage` → `store.setLocale`.
+
+- **잘못된 값은 원문 유지.** `data-fmt-date` / `<fmt-date value>`가 날짜로, `data-fmt-number`가
+  숫자로 해석되지 않으면 요소를 건드리지 않아 SSR 텍스트가 남는다. 그 밖에 요소 하나에서 난
+  예외(예: 잘못된 `data-fmt-date-style`)는 `reportError`(없으면 `console.error`)로 보고하고
+  나머지 요소는 계속 갱신한다.
+- **후보 검증은 런타임 locale 데이터에 의존.** `supported` 없이 `resolveLocale`을 쓰면
+  `Intl.DateTimeFormat.supportedLocalesOf`로 후보를 거르므로, ICU 데이터가 일부만 있는
+  런타임(small-icu 빌드 등)에서는 실제 locale도 탈락해 `fallback`이 될 수 있다. 허용 목록이
+  정해져 있다면 `supported`를 넘기는 편이 확실하다.
 
 ## 컨벤션 / 가드레일
 
