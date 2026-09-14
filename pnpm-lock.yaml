@@ -276,9 +276,6 @@ importers:
 
   packages/is-overflowing:
     dependencies:
-      ahooks:
-        specifier: ^3.9.5
-        version: 3.9.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: ^19.2.0
         version: 19.3.0

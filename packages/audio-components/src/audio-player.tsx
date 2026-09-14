@@ -13,18 +13,24 @@ type CastAudioPlayerProps = {
  *
  * 상태는 공유 `audioStore`에서 읽는다. 지금 store에 걸린 `src`와 같으면
  * 재생 버튼이 재생/일시정지를 토글하고, 다르면 이 `src`로 바꿔 재생한다.
+ * 재생 상태·현재 시간·길이는 지금 store에 걸린 `src`의 플레이어에만 표시되고,
+ * 나머지 플레이어는 정지 상태(`0`)로 보이며 진행 바를 끌어도 이동하지 않는다.
+ * 볼륨과 반복 여부는 모든 플레이어가 공유한다.
  * 동작하려면 `AudioManager`가 먼저 마운트되어 있어야 한다.
  * 이전/다음 버튼은 항상 비활성이다.
  */
 export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
   const volume = useAudioStore((state) => state.volume)
   const currentSrc = useAudioStore((state) => state.src)
-  const isPlaying = useAudioStore((state) => state.isPlaying)
-  const currentTime = useAudioStore((state) => state.currentTime)
-  const duration = useAudioStore((state) => state.duration)
+  const storeIsPlaying = useAudioStore((state) => state.isPlaying)
+  const storeCurrentTime = useAudioStore((state) => state.currentTime)
+  const storeDuration = useAudioStore((state) => state.duration)
   const isLooping = useAudioStore((state) => state.isLooping)
 
   const isMatchedCast = currentSrc === src
+  const isPlaying = isMatchedCast && storeIsPlaying
+  const currentTime = isMatchedCast ? storeCurrentTime : 0
+  const duration = isMatchedCast ? storeDuration : 0
   const progress = duration > 0 ? currentTime / duration : 0
 
   const handlePlay = () => {
@@ -36,6 +42,10 @@ export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
   }
 
   const handleProgress = (percentage: number) => {
+    if (!isMatchedCast) {
+      return
+    }
+
     const newTime = percentage * duration
     audioActions.seek(newTime)
   }
@@ -93,7 +103,8 @@ export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
           </div>
 
           <button
-            title={isLooping ? '반복 해제' : '반복'}
+            title={isLooping ? '반복 해제' : '반복 재생'}
+            aria-pressed={isLooping}
             onClick={audioActions.toggleLoop}
             className={`px-3 py-1 text-xs rounded transition-colors ${
               isLooping
@@ -101,7 +112,7 @@ export function CastAudioPlayer({ src }: CastAudioPlayerProps) {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            🔁 {isLooping ? '반복' : '반복 해제'}
+            🔁 {isLooping ? '반복 켜짐' : '반복 꺼짐'}
           </button>
         </div>
       </div>

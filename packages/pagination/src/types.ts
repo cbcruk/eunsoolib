@@ -7,7 +7,12 @@ export type PaginationItem = number | '...'
  * 같은 인스턴스를 여러 UI에 props로 넘기면 상태가 공유된다.
  */
 export interface PaginationInstance {
-  /** 현재 페이지 (1-based) */
+  /**
+   * 현재 페이지 (1-based).
+   *
+   * 항상 `1`~`totalPages` 안의 값이다. `total`·`pageSize`가 줄어 기억한 페이지가 범위를
+   * 벗어나면 마지막 페이지로 보정해 보여 주고, 다시 늘어나면 기억한 페이지로 돌아간다.
+   */
   page: number
   /** 페이지당 항목 수 */
   pageSize: number
@@ -46,17 +51,27 @@ export interface UsePaginationOptions {
   /** 양 끝에 표시할 페이지 수 @default 1 */
   boundaryCount?: number
   /**
-   * `goTo`·`next`·`prev`·`setPageSize`를 호출할 때마다 이동한 페이지로 호출된다.
-   * 페이지가 그대로여도 호출되며, `setPageSize`는 `1`을 넘긴다.
+   * `goTo`·`next`·`prev`·`setPageSize`로 페이지가 실제로 바뀌었을 때 새 페이지로 호출된다.
+   *
+   * 마지막 페이지에서 `next()`를 부르는 등 페이지가 그대로면 호출하지 않는다.
+   * `total`·`pageSize` 변화로 표시 페이지가 보정될 때도 호출하지 않는다.
    */
   onChange?: (page: number) => void
   /** 기존 인스턴스 재사용 (Instance Hook Pattern의 핵심) */
   pagination?: PaginationInstance
 }
 
-/** {@link Pagination} 컴포넌트의 props. */
-export interface PaginationProps {
-  /** 외부에서 생성한 인스턴스. 미전달 시 컴포넌트가 자체 생성한다. */
+/**
+ * {@link Pagination} 컴포넌트의 props.
+ *
+ * `pagination`을 넘기지 않으면 나머지 {@link UsePaginationOptions}(`total` 등)로
+ * 컴포넌트가 인스턴스를 직접 만든다. `pagination`을 넘기면 그 옵션들은 무시된다.
+ */
+export interface PaginationProps extends Omit<
+  UsePaginationOptions,
+  'pagination'
+> {
+  /** 외부에서 생성한 인스턴스. 미전달 시 나머지 옵션으로 컴포넌트가 자체 생성한다. */
   pagination?: PaginationInstance
   /** 전체 항목 수와 현재 항목 범위 안내 문구를 표시할지 여부 @default false */
   showInfo?: boolean

@@ -6,8 +6,8 @@ import type { PaginationProps } from './types'
 /**
  * 이전·다음 버튼과 페이지 번호 버튼을 인라인 스타일로 렌더링하는 pagination 컴포넌트.
  *
- * `pagination`을 넘기지 않으면 옵션 없이 {@link usePagination}으로 인스턴스를
- * 만든다.
+ * `pagination`을 넘기지 않으면 `total`·`initialPageSize` 등 나머지 옵션으로
+ * {@link usePagination} 인스턴스를 직접 만든다. `pagination`을 넘기면 그 옵션들은 무시된다.
  *
  * @example
  * ```tsx
@@ -23,14 +23,22 @@ import type { PaginationProps } from './types'
  *   )
  * }
  * ```
+ *
+ * @example 인스턴스 없이 사용
+ * ```tsx
+ * import { Pagination } from '@cbcruk/pagination'
+ *
+ * <Pagination total={247} initialPageSize={8} onChange={(page) => load(page)} />
+ * ```
  */
 export function Pagination({
   pagination,
   showInfo = false,
   size = 'md',
   className = '',
+  ...options
 }: PaginationProps): ReactNode {
-  const p = usePagination({ pagination })
+  const p = usePagination({ ...options, pagination })
 
   const dims =
     size === 'sm'

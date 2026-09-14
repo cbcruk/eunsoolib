@@ -36,7 +36,9 @@ function App() {
 }
 ```
 
-다른 `src`의 플레이어에서 재생하면 공유 오디오의 소스가 교체됩니다.
+다른 `src`의 플레이어에서 재생하면 공유 오디오의 소스가 교체됩니다. 재생 상태·현재 시간·
+길이는 지금 재생 중인 `src`의 플레이어에만 표시되고, 볼륨과 반복 여부는 모든 플레이어가
+공유합니다.
 
 ### 직접 UI 만들기
 
@@ -48,8 +50,11 @@ import {
 } from '@cbcruk/audio-components'
 
 function MiniPlayer({ src }: { src: string }) {
-  const isPlaying = useAudioStore((state) => state.isPlaying)
-  const currentTime = useAudioStore((state) => state.currentTime)
+  const currentSrc = useAudioStore((state) => state.src)
+  const storeIsPlaying = useAudioStore((state) => state.isPlaying)
+  const storeCurrentTime = useAudioStore((state) => state.currentTime)
+  const isPlaying = currentSrc === src && storeIsPlaying
+  const currentTime = currentSrc === src ? storeCurrentTime : 0
 
   return (
     <button
@@ -72,14 +77,19 @@ function MiniPlayer({ src }: { src: string }) {
 
 `new Audio()`(`preload = 'metadata'`)를 만들어 `audioActions.setAudio`로 등록하고,
 `play` / `pause` / `ended` / `timeupdate` / `loadedmetadata` / `loadstart` / `canplay` /
-`error` 이벤트를 store에 반영합니다. 아무것도 렌더링하지 않으며, 언마운트 시 재생을
-멈추고 소스를 비웁니다.
+`error` 이벤트를 store에 반영합니다. store의 `src`가 없을 때 발생한 `error` 이벤트는
+무시합니다. 아무것도 렌더링하지 않으며, 언마운트 시 재생을 멈추고 소스를 비운 뒤
+`setAudio(null)`로 등록을 해제해 재생 상태를 초기화합니다.
 
 ### `<CastAudioPlayer src />`
 
 재생/일시정지, 진행 바, 현재·전체 시간, 볼륨 슬라이더, 반복 토글이 있는 플레이어입니다.
 스타일은 Tailwind 유틸리티 클래스로 작성되어 있습니다. 이전/다음 버튼은 비활성
 상태로만 렌더링됩니다.
+
+재생 상태·진행 바·시간은 store의 `src`가 이 플레이어의 `src`와 같을 때만 반영되며,
+다른 플레이어의 진행 바를 끌어도 재생 위치는 바뀌지 않습니다. 반복 토글은
+`aria-pressed`로 상태를 나타내고 라벨은 `반복 켜짐` / `반복 꺼짐`입니다.
 
 | Prop  | Type     | Default | Description       |
 | ----- | -------- | ------- | ----------------- |
@@ -122,19 +132,20 @@ interface AudioState {
 
 ### `audioActions`
 
-| Action              | 설명                                                                                           |
-| ------------------- | ---------------------------------------------------------------------------------------------- |
-| `setAudio(audio)`   | 오디오 엘리먼트를 등록하고 저장된 `volume` / `isLooping`을 반영                                |
-| `play(src)`         | `src`가 현재와 다르면 소스를 교체해 재생, 같으면 이어서 재생. 로딩 중이면 무시                 |
-| `togglePlay()`      | `isPlaying`에 따라 재생/일시정지                                                               |
-| `pause()`           | 일시정지                                                                                       |
-| `stop()`            | 정지 후 `src`, 재생 위치, 길이, 로딩·에러 상태 초기화                                          |
-| `seek(time)`        | 재생 위치(초) 이동                                                                             |
-| `setVolume(volume)` | 0~1로 clamp해 반영                                                                             |
-| `toggleLoop()`      | 반복 여부 토글                                                                                 |
-| `setIsPlaying` 등   | `setIsPlaying`, `setCurrentTime`, `setDuration`, `setIsLoading`, `setError` — 해당 필드만 갱신 |
+| Action              | 설명                                                                                                                        |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `setAudio(audio)`   | 오디오 엘리먼트를 등록하고 저장된 `volume` / `isLooping`을 반영. `null`이면 등록 해제 후 재생 상태 초기화                   |
+| `play(src)`         | `src`가 현재와 다르면 소스를 교체해 재생, 같으면 이어서 재생. 로딩 중이면 무시. 재생이 시작되거나 실패하면 `isLoading` 해제 |
+| `togglePlay()`      | `isPlaying`에 따라 재생/일시정지. 현재 `src`가 없으면 무시                                                                  |
+| `pause()`           | 일시정지                                                                                                                    |
+| `stop()`            | 정지 후 `src` 속성을 제거하고, `src`, 재생 위치, 길이, 로딩·에러 상태 초기화                                                |
+| `seek(time)`        | 재생 위치(초) 이동                                                                                                          |
+| `setVolume(volume)` | 0~1로 clamp해 반영                                                                                                          |
+| `toggleLoop()`      | 반복 여부 토글                                                                                                              |
+| `setIsPlaying` 등   | `setIsPlaying`, `setCurrentTime`, `setDuration`, `setIsLoading`, `setError` — 해당 필드만 갱신                              |
 
-재생 실패 시 `error`에 한국어 메시지가 들어갑니다.
+재생 실패 시 `error`에 한국어 메시지가 들어갑니다. `pause()`·`stop()`으로 `play()`가 중단된
+경우(`AbortError`)는 실패로 보지 않습니다.
 
 ### `formatDuration(seconds)`
 

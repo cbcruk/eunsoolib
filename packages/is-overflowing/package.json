@@ -20,9 +20,6 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json"
   },
-  "dependencies": {
-    "ahooks": "^3.9.5"
-  },
   "peerDependencies": {
     "react": "^19.1.1"
   },
