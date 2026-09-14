@@ -5,15 +5,31 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
+import { isHighlightSupported } from './core'
 import {
-  HighlightStoreProvider,
-  useHighlightSnapshot,
-  useStore,
-} from './highlight-context'
-import { useHighlightSearch } from './use-highlight-search'
-import { Highlight } from './highlight'
-import { HighlightStyles } from './highlight-styles'
-import { isSupported } from './support'
+  Highlight,
+  HighlightProvider,
+  HighlightStyles,
+  useHighlightController,
+  useHighlightSearch,
+  useHighlightSnapshots,
+  type HighlightStyleMap,
+} from './react'
+
+const DEMO_STYLES: HighlightStyleMap = {
+  search: { backgroundColor: 'rgb(253 224 71)', color: 'rgb(113 63 18)' },
+  'search-current': { backgroundColor: 'rgb(249 115 22)', color: 'white' },
+  'log-error': {
+    backgroundColor: 'rgb(254 202 202)',
+    color: 'rgb(127 29 29)',
+    textDecoration: 'underline wavy rgb(220 38 38)',
+  },
+  'log-warn': { backgroundColor: 'rgb(254 243 199)', color: 'rgb(120 53 15)' },
+  'log-info': { backgroundColor: 'rgb(219 234 254)', color: 'rgb(30 64 175)' },
+  'kw-keyword': { color: 'rgb(192 132 252)', fontWeight: '600' },
+  'kw-number': { color: 'rgb(251 146 60)' },
+  'kw-comment': { color: 'rgb(148 163 184)', fontStyle: 'italic' },
+}
 
 const SAMPLE_PROSE = `The only true wisdom is in knowing you know nothing.
 Wisdom begins in wonder. The journey of a thousand miles begins with a single step.
@@ -47,7 +63,7 @@ interface Rect {
 
 function SupportBanner(): ReactNode {
   const [ok, setOk] = useState(true)
-  useEffect(() => setOk(isSupported()), [])
+  useEffect(() => setOk(isHighlightSupported()), [])
   return (
     <div
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${
@@ -177,8 +193,8 @@ function CodeDemo(): ReactNode {
  * `::highlight()`가 box model을 지원하지 않아 둥근 테두리를 직접 그려야 하는 경우의 예시.
  */
 function RangeOverlay({ name }: { name: string | null }): ReactNode {
-  const store = useStore()
-  const snapshot = useHighlightSnapshot()
+  const controller = useHighlightController()
+  const snapshot = useHighlightSnapshots()
   const [rects, setRects] = useState<Rect[]>([])
 
   useEffect(() => {
@@ -188,7 +204,7 @@ function RangeOverlay({ name }: { name: string | null }): ReactNode {
     }
     const recompute = (): void => {
       const out: Rect[] = []
-      for (const r of store.getRanges(name)) {
+      for (const r of controller.getRanges(name)) {
         for (const rect of r.getClientRects()) {
           out.push({
             top: rect.top,
@@ -207,7 +223,7 @@ function RangeOverlay({ name }: { name: string | null }): ReactNode {
       window.removeEventListener('scroll', recompute, true)
       window.removeEventListener('resize', recompute)
     }
-  }, [name, store, snapshot])
+  }, [name, controller, snapshot])
 
   if (!name) return null
   return (
@@ -231,7 +247,7 @@ function RangeOverlay({ name }: { name: string | null }): ReactNode {
 }
 
 function StoreInspector(): ReactNode {
-  const snapshot = useHighlightSnapshot()
+  const snapshot = useHighlightSnapshots()
   const [selected, setSelected] = useState<string | null>(null)
   const entries = Object.entries(snapshot).sort(([a], [b]) =>
     a.localeCompare(b),
@@ -247,14 +263,14 @@ function StoreInspector(): ReactNode {
         <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
         <h3 className="text-sm font-semibold">store inspector</h3>
         <span className="text-[11px] text-slate-400">
-          (useSyncExternalStore · getRanges)
+          (useHighlightSnapshots · getRanges)
         </span>
       </div>
       {entries.length === 0 ? (
         <p className="text-xs text-slate-400">no active highlights</p>
       ) : (
         <ul className="space-y-1 font-mono text-xs">
-          {entries.map(([name, n]) => {
+          {entries.map(([name, { count }]) => {
             const isSel = selected === name
             return (
               <li key={name}>
@@ -268,7 +284,7 @@ function StoreInspector(): ReactNode {
                 >
                   <span className="text-slate-300">::highlight({name})</span>
                   <span className="tabular-nums text-emerald-300">
-                    {n} ranges
+                    {count} ranges
                   </span>
                 </button>
               </li>
@@ -277,7 +293,7 @@ function StoreInspector(): ReactNode {
         </ul>
       )}
       <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
-        행을 클릭하면 <code>store.getRanges(name)</code> →{' '}
+        행을 클릭하면 <code>controller.getRanges(name)</code> →{' '}
         <code>Range.getClientRects()</code> 로 해당 Range들의 실제 위치를 화면에
         오버레이합니다.
       </p>
@@ -288,13 +304,13 @@ function StoreInspector(): ReactNode {
 
 export function HighlightDemo(): ReactNode {
   return (
-    <HighlightStoreProvider>
+    <HighlightProvider>
       <div className="min-h-screen bg-slate-50 px-6 py-10">
-        <HighlightStyles />
+        <HighlightStyles styles={DEMO_STYLES} />
         <div className="mx-auto max-w-3xl space-y-6">
           <header className="space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-              Highlight store · factory + provider + range overlay
+              highlight-kit · controller + provider + range overlay
             </h1>
             <p className="text-sm text-slate-600">
               sink 분리로 bookkeeping/CSS write 격리 · <code>getRanges</code> 로
@@ -308,6 +324,6 @@ export function HighlightDemo(): ReactNode {
           <StoreInspector />
         </div>
       </div>
-    </HighlightStoreProvider>
+    </HighlightProvider>
   )
 }
