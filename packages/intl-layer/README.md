@@ -3,6 +3,14 @@
 브라우저 `Intl` API를 안전하게 쓰기 위한 **locale layer**. React / vanilla 양쪽을
 지원하며, "암묵적 환경 의존"을 제거하고 locale 결정 지점을 한 곳으로 모은다.
 
+## 설치
+
+```bash
+pnpm add @eunsoolib/intl-layer
+# React 바인딩을 쓸 때만:
+pnpm add react
+```
+
 ## 왜
 
 `Intl.*` 생성자의 `locales` 인자는 optional이라, 안 넘기면 런타임의 default locale을
@@ -16,14 +24,6 @@ silent하게 쓴다. 이게 실무에선 함정이다.
 
 **계약**: 이 라이브러리는 default locale을 절대 쓰지 않고 locale을 반드시 인자로 받는다.
 환경 의존은 단일 결정 지점(`resolveLocale` / `detect*`)에만 둔다.
-
-## 설치
-
-```bash
-pnpm add @eunsoolib/intl-layer
-# React 바인딩을 쓸 때만:
-pnpm add react
-```
 
 ## locale 결정 (단일 지점)
 
@@ -43,7 +43,9 @@ const locale = resolveLocale({
 // → 'ko-KR'  (language 협상)
 ```
 
-## Vanilla — `I18nStore`
+## 사용법
+
+### Vanilla — `I18nStore`
 
 의존성 없는 reactive store. `EventTarget` 기반 `change` 이벤트, 포매터 memoize,
 locale 변경 시 캐시 무효화 + `<html lang>` 동기화.
@@ -75,15 +77,19 @@ import { defineFormattedDate } from '@eunsoolib/intl-layer'
 defineFormattedDate(store) // <fmt-date value="2026-01-15" style-as="long">
 ```
 
-## React — Context + memoize
+### React — Context + memoize
 
 ```tsx
 import { LocaleProvider, useFormatters } from '@eunsoolib/intl-layer'
 
 // 서버에서 결정한 locale 주입 (Next.js App Router라면 [locale] segment → RootLayout)
-;<LocaleProvider locale={resolveLocale(/* ... */)}>
-  <App />
-</LocaleProvider>
+function Root() {
+  return (
+    <LocaleProvider locale={resolveLocale(/* ... */)}>
+      <App />
+    </LocaleProvider>
+  )
+}
 
 function Price({ value }: { value: number }) {
   const { currency } = useFormatters()

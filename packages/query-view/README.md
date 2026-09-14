@@ -49,9 +49,11 @@ degraded ⊃ paused ⊃ refreshing ⊃ provisional ⊃ content
 
 `fallback`과 `degraded`가 **같은 에러에 대한 다른 슬롯**이라는 점이 밀도의 핵심이다. 갈림길 판정은 `data !== undefined` 하나로 끝난다. 검색 결과가 이미 떠 있는데 새로고침이 실패했다면 흰 화면 + 에러 패널이 아니라 기존 내용 + 배너가 맞고, 그 구분을 타입이 강제한다.
 
-## 두 경로
+## 사용법
 
-### `useQuery` → `QueryView`
+### 두 경로
+
+#### `useQuery` → `QueryView`
 
 매트릭스 전체가 컴포넌트 안에 있다. 교체 + 중첩 슬롯을 다 받는다.
 
@@ -95,7 +97,7 @@ function PostsPage({ keyword }: { keyword: string }) {
 
 `children`이 받는 `posts`는 항상 확정된 값이라 `?? []`가 필요 없다.
 
-### `useSuspenseQuery` → `AsyncBoundary` + `SuspenseQueryView`
+#### `useSuspenseQuery` → `AsyncBoundary` + `SuspenseQueryView`
 
 `useSuspenseQuery`는 `pending`도 `error`도 반환하지 않는다. 둘 다 경계로 올라간다. 그래서:
 

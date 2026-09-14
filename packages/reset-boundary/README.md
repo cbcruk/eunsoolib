@@ -55,7 +55,3 @@ deps 비교는 길이가 다르거나 한 원소라도 `Object.is`로 다르면 
 | `children` | `(state: T, setState: Dispatch<SetStateAction<T>>) => ReactNode` | render prop                                  |
 
 `<ResetBoundary>` 밖에서 렌더하면 에러를 던집니다.
-
-## 라이선스
-
-MIT

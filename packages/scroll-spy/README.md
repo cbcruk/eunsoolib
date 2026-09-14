@@ -163,7 +163,3 @@ function Toc() {
 ## 참고
 
 [Una Kravets의 CSS scroll-spy 글](https://una.im/scroll-target-group/)에서 영감을 받았습니다.
-
-## 라이선스
-
-MIT

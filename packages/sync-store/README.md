@@ -2,6 +2,14 @@
 
 프레임워크에 의존하지 않는 싱글턴 store core와, 그 위에 얇게 얹는 React `useSyncExternalStore` 레이어.
 
+## 설치
+
+```bash
+pnpm add @eunsoolib/sync-store
+```
+
+core(`createStore`, `persist`)는 의존성이 없고, `useStore`를 쓸 때만 `react`(peer dependency)가 필요합니다.
+
 ## 배경
 
 최근 라이브러리들은 `react-*`로 core를 설계하지 않고, UI 프레임워크를 모르는 순수한 core(싱글턴 store)를 먼저 만든 뒤 `useSyncExternalStore` 같은 얇은 어댑터로 React에 연결하는 경우가 많습니다. 이렇게 하면:
