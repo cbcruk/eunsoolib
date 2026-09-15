@@ -80,13 +80,15 @@ jobs:
         with:
           publish-plan-artifact-id: ${{ needs.select-mode.outputs.publish-plan-artifact-id }}
 
-  # npm 토큰(NPM_TOKEN secret)으로 배포한다. 토큰은 @cbcruk 스코프 쓰기 권한과 2FA 우회가 필요하다.
+  # npm Trusted Publishing(OIDC)으로 배포한다. 패키지마다 npm에 이 워크플로가 신뢰 게시자로 등록돼 있어야 한다.
+  # (2FA를 우회하는 쓰기 토큰은 npm이 삭제·무효화하므로 토큰 방식은 쓰지 않는다.)
   publish:
     needs: pack
     runs-on: ubuntu-latest
     environment: npm
     permissions:
       contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -95,17 +97,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          # NODE_AUTH_TOKEN을 읽는 .npmrc를 만든다.
-          registry-url: https://registry.npmjs.org/
           package-manager-cache: false
       - run: pnpm install --frozen-lockfile
-      # 토큰이 없거나 잘못되면 35개 패키지를 모두 404로 실패하기 전에 멈추고, 인증된 계정을 로그에 남긴다.
-      - name: npm 인증 확인
-        run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - uses: changesets/action/publish@v2
         with:
           pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

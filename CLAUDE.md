@@ -71,8 +71,9 @@ Packages are published to npm under `@cbcruk/*`, except `lab` packages which are
 Versions and CHANGELOGs are managed with changesets (`.changeset/`), published by `.github/workflows/release.yml`.
 
 - Add a changeset (`pnpm changeset`) only for user-facing package changes; tests/docs/build-only PRs don't need one. In `0.x`, breaking changes bump `minor`.
-- On `main`, the Release workflow either opens/updates the "Version Packages" PR (changesets present) or packs and publishes unpublished versions to npm (`publish` job, `npm` environment). It can also be started manually (`workflow_dispatch`).
-- Publishing authenticates with the `NPM_TOKEN` repository secret (npm token with write access to `@cbcruk` and 2FA bypass), so brand-new packages need no manual first publish. The token expires; rotate the secret before it does.
+- On `main`, the Release workflow either opens/updates the "Version Packages" PR (changesets present) or packs and publishes unpublished versions via npm Trusted Publishing (OIDC, `npm` environment). It can also be started manually (`workflow_dispatch`).
+- Don't switch to npm tokens: npm deletes/invalidates write-capable granular tokens that bypass 2FA.
+- npm only allows registering a trusted publisher for packages that already exist. A brand-new package must be published once locally (`npm login`, then `pnpm build && pnpm check:packages && pnpm changeset publish`, then `git push --follow-tags`) and registered with `./scripts/setup-npm-trust.sh <folder>` before CI can publish it.
 
 ### Notable Packages
 
