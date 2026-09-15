@@ -1,0 +1,12 @@
+# @cbcruk/audio-components
+
+## 0.0.2
+
+### Patch Changes
+
+- d90540e: `formatCount`를 `@cbcruk/utils`로 옮기고 deprecated 재내보내기로 남겼으며, 이제 `999999`를 `'1000.0K'` 대신 `'1.0M'`으로 표시합니다. README에 `CastAudioPlayer`를 쓰려면 Tailwind v4 `@source` 설정이 필요하다는 안내를 추가했습니다. (#19)
+- b337a6a: 같은 소스를 다시 재생해도 `isLoading`이 풀리지 않아 이후 재생이 무시되던 문제와, 플레이어가 여러 개일 때 재생하지 않는 플레이어에도 재생 상태·진행률이 표시되던 문제를 고쳤습니다. `stop()` 뒤 에러 메시지가 다시 채워지던 문제, 반복 버튼 라벨, 소스 없는 `togglePlay()`, 언마운트 후 store 정리도 함께 바로잡았습니다. (#14)
+- Updated dependencies [d90540e]
+- Updated dependencies [d90540e]
+  - @cbcruk/sync-store@0.0.2
+  - @cbcruk/utils@0.1.0

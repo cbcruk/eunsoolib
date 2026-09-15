@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/web-identity",
   "description": "Passkeys·FedCM·Digital Credentials·DBSC 등 Web Identity API 통합",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

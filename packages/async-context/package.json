@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/async-context",
   "description": "AsyncLocalStorage 기반 타입 안전 컨텍스트와 Next.js route 래퍼",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {

@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/dayjs-utils",
   "description": "dayjs 기반 시간대 판정(TimeRange)과 날짜 커서(DateNavigator)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

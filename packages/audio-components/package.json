@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/audio-components",
   "description": "sync-store 기반 오디오 플레이어 컴포넌트와 상태",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {

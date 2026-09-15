@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/cors-image-proxy",
   "description": "open proxy를 막는 cross-origin 이미지 CORS 프록시 핸들러",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {

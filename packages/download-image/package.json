@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/download-image",
   "description": "Effect 기반 이미지 다운로드 후 형식을 판별해 저장",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

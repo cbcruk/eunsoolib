@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/iterate-paginated",
   "description": "페이지네이션 API를 아이템 단위 async iterable로 평탄화",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {
