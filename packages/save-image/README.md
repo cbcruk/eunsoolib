@@ -1,4 +1,4 @@
-# @cbcruk/download-image
+# @cbcruk/save-image
 
 URL에서 이미지를 내려받아 매직 넘버로 형식을 판별한 뒤 알맞은 확장자로 저장하는 Node
 유틸리티입니다.
@@ -10,7 +10,7 @@ URL에서 이미지를 내려받아 매직 넘버로 형식을 판별한 뒤 알
 ## 설치
 
 ```bash
-pnpm add @cbcruk/download-image
+pnpm add @cbcruk/save-image
 ```
 
 `effect`, `@effect/platform`, `@effect/platform-node`, `@cbcruk/get-file-type-from-buffer`는
@@ -20,7 +20,7 @@ pnpm add @cbcruk/download-image
 ## 사용법
 
 ```ts
-import { downloadImage, DownloadImageError } from '@cbcruk/download-image'
+import { downloadImage, DownloadImageError } from '@cbcruk/save-image'
 
 try {
   const filePath = await downloadImage({
@@ -48,7 +48,7 @@ try {
 import { Effect } from 'effect'
 import { FetchHttpClient } from '@effect/platform'
 import { NodeContext } from '@effect/platform-node'
-import { downloadImageEffect } from '@cbcruk/download-image'
+import { downloadImageEffect } from '@cbcruk/save-image'
 
 const program = downloadImageEffect({ url, dest: './assets' }).pipe(
   Effect.retry({ times: 2 }),

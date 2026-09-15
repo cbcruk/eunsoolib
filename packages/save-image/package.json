@@ -1,5 +1,5 @@
 {
-  "name": "@cbcruk/download-image",
+  "name": "@cbcruk/save-image",
   "description": "Effect 기반 이미지 다운로드 후 형식을 판별해 저장",
   "version": "0.1.0",
   "type": "module",
@@ -7,9 +7,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cbcruk/eunsoolib.git",
-    "directory": "packages/download-image"
+    "directory": "packages/save-image"
   },
-  "homepage": "https://cbcruk.github.io/eunsoolib/docs/media/download-image/",
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/media/save-image/",
   "files": [
     "dist"
   ],
