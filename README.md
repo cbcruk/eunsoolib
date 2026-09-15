@@ -52,9 +52,11 @@ pnpm changeset         # 릴리스할 변경 기록
 
 1. 사용자에게 영향이 있는 변경이면 PR에 `pnpm changeset`으로 changeset을 추가합니다.
 2. PR이 `main`에 머지되면 Release 워크플로가 버전을 올린 "Version Packages" PR을 만듭니다.
-3. 그 PR을 머지하면 Release 워크플로가 npm에 배포하고 git 태그와 GitHub Release를 만듭니다.
+3. 그 PR을 머지하면 Release 워크플로가 npm Trusted Publishing(OIDC)으로 배포하고 git 태그와 GitHub Release를 만듭니다.
 
-배포에는 저장소 secret `NPM_TOKEN`(`@cbcruk` 스코프 쓰기 권한, 2FA 우회를 켠 npm 토큰)을 씁니다. 새 패키지도 별도 준비 없이 CI가 처음 배포합니다. npm 토큰은 만료 기한이 있으니 만료 전에 새 토큰으로 secret을 갱신해야 합니다.
+npm 토큰은 쓰지 않습니다. 2FA를 우회하는 쓰기 토큰은 npm이 삭제·무효화합니다.
+
+새 패키지는 CI가 처음 배포할 수 없어서(npm에 있어야 신뢰 게시자를 등록할 수 있음) 로컬에서 `npm login` 후 한 번 배포(`pnpm build && pnpm check:packages && pnpm changeset publish`, `git push --follow-tags`)하고 `./scripts/setup-npm-trust.sh <name>`으로 등록합니다.
 
 ## 구조
 
