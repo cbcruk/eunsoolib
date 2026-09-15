@@ -1,5 +1,9 @@
 import type { ComponentPropsWithRef, ElementType } from 'react'
-import type { Defaults, WithDefaults } from './with-defaults.types'
+import type {
+  Defaults,
+  NoExtraDefaults,
+  WithDefaults,
+} from './with-defaults.types'
 
 /**
  * Wraps a component with preset default props. Props that receive a default
@@ -9,9 +13,16 @@ import type { Defaults, WithDefaults } from './with-defaults.types'
  * `ref` is forwarded as an ordinary prop (React 19), so no `forwardRef` wrapper
  * is needed — it flows through `props` like any other.
  *
+ * Only keys that are props of `Component` are accepted in `defaults` (plus
+ * `data-*` attributes); anything else is a type error, even when `defaults` is
+ * a pre-declared object. Union props are transformed per member, so
+ * discriminated unions keep their shape.
+ *
  * When `displayName` is omitted, it becomes `withDefaults(<name>)` using the
  * wrapped component's `displayName`, its `name`, or the tag string.
  *
+ * @template C - Component or tag name being wrapped
+ * @template D - Type of the defaults object, inferred with literal types kept
  * @param displayName - Display name for the wrapper in React DevTools
  *
  * @example
@@ -22,9 +33,12 @@ import type { Defaults, WithDefaults } from './with-defaults.types'
  * <Body2Gray>{name}</Body2Gray>
  * ```
  */
-export function withDefaults<C extends ElementType, D extends Defaults<C>>(
+export function withDefaults<
+  C extends ElementType,
+  const D extends Defaults<C>,
+>(
   Component: C,
-  defaults: D,
+  defaults: D & NoInfer<NoExtraDefaults<C, D>>,
   displayName?: string,
 ) {
   type P = ComponentPropsWithRef<C>

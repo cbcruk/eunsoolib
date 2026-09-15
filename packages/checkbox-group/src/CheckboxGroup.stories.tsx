@@ -42,6 +42,14 @@ export const AllSelected: Story = {
   },
 }
 
+export const CustomSubmitLabel: Story = {
+  args: {
+    list: frameworkList,
+    defaultSelected: ['1'],
+    submitLabel: '적용',
+  },
+}
+
 const longList = Array.from({ length: 20 }, (_, i) => ({
   key: String(i + 1),
   label: `Option ${i + 1}`,

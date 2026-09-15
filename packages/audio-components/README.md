@@ -13,7 +13,24 @@ localStorage에 저장됩니다.
 pnpm add @cbcruk/audio-components react
 ```
 
-브라우저 전용입니다. 내부적으로 `@cbcruk/sync-store`와 `@use-gesture/react`를 사용합니다.
+브라우저 전용입니다. 내부적으로 `@cbcruk/sync-store`, `@cbcruk/utils`, `@use-gesture/react`를
+사용합니다.
+
+### Tailwind CSS 설정
+
+`CastAudioPlayer`는 CSS 파일 없이 Tailwind 유틸리티 클래스(`bg-blue-600`, `min-w-[3rem]` 등)로만
+스타일을 입힙니다. Tailwind는 이 패키지의 의존성이 아니므로, 앱에 Tailwind v4를 설정하고 패키지
+빌드 결과물을 스캔 대상에 넣어야 스타일이 생성됩니다. Tailwind v4의 자동 소스 감지는
+`node_modules`를 건너뛰므로 `@source`로 직접 지정합니다.
+
+```css
+/* app.css — 경로는 이 CSS 파일 기준 상대 경로 */
+@import 'tailwindcss';
+@source '../node_modules/@cbcruk/audio-components/dist';
+```
+
+Tailwind를 쓰지 않는 앱에서는 `CastAudioPlayer`가 스타일 없이 렌더링됩니다. 이 경우
+`AudioPlayerSlider`와 `useAudioStore` / `audioActions`로 UI를 직접 만드세요.
 
 ## 사용법
 
@@ -84,8 +101,8 @@ function MiniPlayer({ src }: { src: string }) {
 ### `<CastAudioPlayer src />`
 
 재생/일시정지, 진행 바, 현재·전체 시간, 볼륨 슬라이더, 반복 토글이 있는 플레이어입니다.
-스타일은 Tailwind 유틸리티 클래스로 작성되어 있습니다. 이전/다음 버튼은 비활성
-상태로만 렌더링됩니다.
+스타일은 Tailwind 유틸리티 클래스로 작성되어 있어 위의 "Tailwind CSS 설정"이
+필요합니다. 이전/다음 버튼은 비활성 상태로만 렌더링됩니다.
 
 재생 상태·진행 바·시간은 store의 `src`가 이 플레이어의 `src`와 같을 때만 반영되며,
 다른 플레이어의 진행 바를 끌어도 재생 위치는 바뀌지 않습니다. 반복 토글은
@@ -151,7 +168,9 @@ interface AudioState {
 
 초를 `mm:ss` 문자열로 바꿉니다. 시간 단위로 올리지 않습니다(`3665` → `'61:05'`).
 
-### `formatCount(count)`
+### `formatCount(count)` (deprecated)
 
-1,000 이상은 `K`, 1,000,000 이상은 `M`을 붙여 소수 첫째 자리까지 표시합니다
-(`1500` → `'1.5K'`).
+오디오와 관계없는 범용 포맷터라 `@cbcruk/utils`로 옮겼습니다. 기존 코드가 깨지지 않도록
+`@cbcruk/utils`의 `formatCount`를 그대로 다시 내보내며, 새 코드에서는
+`import { formatCount } from '@cbcruk/utils'`를 사용하세요. 반올림 결과가 다음 단위에 닿으면
+단위를 올립니다(`1500` → `'1.5K'`, `999999` → `'1.0M'`).

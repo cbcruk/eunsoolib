@@ -41,7 +41,7 @@ export class Stack {
   /**
    * 완성된 스택을 한 번에 생성하는 편의 메서드 (`gh stack init a b c`).
    *
-   * @throws 브랜치 추가가 실패하면(예: 이름 중복) `Error`를 던진다.
+   * @throws 브랜치 추가가 실패하면(예: 이름 중복, trunk와 같은 이름) `Error`를 던진다.
    */
   static from(trunk: string, branches: readonly string[]): Stack {
     const s = new Stack(trunk)
@@ -71,10 +71,11 @@ export class Stack {
   /**
    * 모든 layer를 아래 → 위 순서로 반환한다.
    *
-   * 복사본이 아니라 내부 배열을 그대로 반환하므로, 이후 stack 조작 결과가 반영된다.
+   * 호출 시점의 스냅샷 배열(복사본)이라, 반환값을 바꿔도 스택에 영향이 없고 이후 stack
+   * 조작도 이미 받은 배열에 반영되지 않는다.
    */
   view(): readonly Layer[] {
-    return this.layers
+    return [...this.layers]
   }
 
   /** `branch`의 0-기반 layer 인덱스. layer가 아니면 `-1`. */
@@ -99,11 +100,19 @@ export class Stack {
     return this.isEmpty ? this.trunk : this.layers[0].branch
   }
 
-  /** `gh stack add` — 스택 맨 위에 새 브랜치를 추가. */
+  /**
+   * `gh stack add` — 스택 맨 위에 새 브랜치를 추가.
+   *
+   * 커서가 top이 아니면 `NotOnTop`, trunk와 같은 이름이면 `BranchIsTrunk`, 이미 있는
+   * 브랜치면 `BranchExists` 에러를 반환한다.
+   */
   add(branch: string): Result<Layer, StackError> {
     const top = this.topBranch()
     if (this.cursor !== top) {
       return err({ type: 'NotOnTop', current: this.cursor, top })
+    }
+    if (branch === this.trunk) {
+      return err({ type: 'BranchIsTrunk', branch })
     }
     if (this.has(branch)) {
       return err({ type: 'BranchExists', branch })
@@ -129,6 +138,8 @@ export class Stack {
    *
    * 병합 후 남은 layer는 rebase되어 새 layers[0].base가 trunk가 된다. 커서도
    * 따라간다: 병합된 브랜치 위에 있었다면 새 맨 아래로(스택이 비면 trunk로) 내려간다.
+   *
+   * `merged`와 `remaining`은 병합 직후의 스냅샷 배열이라, 바꿔도 스택에 영향이 없다.
    */
   mergeUpTo(
     branch: string,
@@ -151,7 +162,7 @@ export class Stack {
       this.cursor = this.isEmpty ? this.trunk : this.bottomBranch()
     }
 
-    return ok({ merged, remaining: this.layers })
+    return ok({ merged, remaining: [...this.layers] })
   }
 
   /** `gh stack up` — trunk에서 멀어지는 방향으로 `n`칸 이동. top에서 멈춤. */

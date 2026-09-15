@@ -1,22 +1,18 @@
+import { formatCount as formatCountFromUtils } from '@cbcruk/utils'
+
 /**
- * 숫자를 `K`/`M` 단위의 짧은 문자열로 바꾼다.
+ * 개수를 `K`(천)·`M`(백만) 단위의 짧은 문자열로 바꾼다.
  *
- * `1000` 미만은 그대로, 그 이상은 소수점 첫째 자리까지 반올림해 `K`(천)나
- * `M`(백만)을 붙인다. 반올림 뒤 단위를 올리지 않으므로 `999999`는 `'1000.0K'`가 된다.
+ * 오디오와 관계없는 범용 포맷터라 `@cbcruk/utils`로 옮겼다. 기존 import가 깨지지
+ * 않도록 같은 함수를 다시 내보낸다.
  *
+ * @deprecated `@cbcruk/utils`의 `formatCount`를 사용한다.
  * @example
  * ```ts
- * import { formatCount } from '@cbcruk/audio-components'
+ * import { formatCount } from '@cbcruk/utils'
  *
  * formatCount(1500) // '1.5K'
+ * formatCount(999999) // '1.0M'
  * ```
  */
-export function formatCount(count: number): string {
-  if (count >= 1_000_000) {
-    return `${(count / 1_000_000).toFixed(1)}M`
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`
-  }
-  return String(count)
-}
+export const formatCount: (count: number) => string = formatCountFromUtils

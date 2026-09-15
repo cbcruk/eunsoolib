@@ -7,175 +7,210 @@ const mockList = [
   { key: '3', label: '옵션 3' },
 ]
 
+function checkbox(label: string) {
+  return screen.getByLabelText(label)
+}
+
+function submit() {
+  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+}
+
+function renderGroup(defaultSelected?: string[]) {
+  const onChange = vi.fn()
+  const onSubmit = vi.fn()
+
+  render(
+    <CheckboxGroup
+      list={mockList}
+      defaultSelected={defaultSelected}
+      onChange={onChange}
+      onSubmit={onSubmit}
+    />,
+  )
+
+  return { onChange, onSubmit }
+}
+
 describe('CheckboxGroup', () => {
   describe('초기 상태', () => {
-    it('defaultSelected가 없을 때 아무것도 선택되지 않은 상태여야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={[]} />)
+    it('defaultSelected가 없을 때 아무 체크박스도 체크되지 않아야 함', () => {
+      renderGroup()
 
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.selected).toEqual([])
-      expect(selectedData.noneSelected).toBe(true)
-      expect(selectedData.allSelected).toBe(false)
-      expect(selectedData.partiallySelected).toBe(false)
-    })
-
-    it('defaultSelected가 있을 때 해당 항목들이 선택된 상태여야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={['1', '2']} />)
-
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.selected).toHaveLength(2)
-      expect(selectedData.selected.map((item: any) => item.key)).toEqual([
-        '1',
-        '2',
-      ])
-      expect(selectedData.noneSelected).toBe(false)
-      expect(selectedData.allSelected).toBe(false)
-      expect(selectedData.partiallySelected).toBe(true)
-    })
-
-    it('모든 항목이 선택된 상태일 때 allSelected가 true여야 함', () => {
-      render(
-        <CheckboxGroup list={mockList} defaultSelected={['1', '2', '3']} />,
-      )
-
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.allSelected).toBe(true)
-      expect(selectedData.noneSelected).toBe(false)
-      expect(selectedData.partiallySelected).toBe(false)
-    })
-  })
-
-  describe('CheckboxForm 상호작용', () => {
-    it('체크박스 클릭 시 폼 내부 상태만 변경되고 상위 상태는 변경되지 않아야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={[]} />)
-
-      const checkbox1 = screen.getByLabelText('옵션 1')
-      fireEvent.click(checkbox1)
-
-      // CheckboxGroup의 상태는 변경되지 않아야 함
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.selected).toEqual([])
-      expect(selectedData.noneSelected).toBe(true)
-    })
-
-    it('저장 버튼 클릭 시에만 CheckboxGroup 상태가 동기화되어야 함 (Draft/Commit 패턴)', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={[]} />)
-
-      // 체크박스 선택
-      const checkbox1 = screen.getByLabelText('옵션 1')
-      const checkbox2 = screen.getByLabelText('옵션 2')
-      fireEvent.click(checkbox1)
-      fireEvent.click(checkbox2)
-
-      // 아직 CheckboxGroup 상태는 변경되지 않음
-      let selectedData = JSON.parse(screen.getByTestId('selected').textContent!)
-      expect(selectedData.selected).toEqual([])
-
-      // 저장 버튼 클릭
-      const submitButton = screen.getByRole('button', { name: 'Submit' })
-      fireEvent.click(submitButton)
-
-      // 이제 CheckboxGroup 상태가 동기화됨
-      selectedData = JSON.parse(screen.getByTestId('selected').textContent!)
-      expect(selectedData.selected).toHaveLength(2)
-      expect(selectedData.selected.map((item: any) => item.key)).toEqual([
-        '1',
-        '2',
-      ])
-      expect(selectedData.partiallySelected).toBe(true)
-    })
-
-    it('일부 선택 후 저장하면 partiallySelected 상태가 되어야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={[]} />)
-
-      const checkbox1 = screen.getByLabelText('옵션 1')
-      fireEvent.click(checkbox1)
-
-      const submitButton = screen.getByRole('button', { name: 'Submit' })
-      fireEvent.click(submitButton)
-
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.partiallySelected).toBe(true)
-      expect(selectedData.noneSelected).toBe(false)
-      expect(selectedData.allSelected).toBe(false)
-    })
-
-    it('모든 항목 선택 후 저장하면 allSelected 상태가 되어야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={[]} />)
-
-      // 모든 체크박스 선택
       mockList.forEach((item) => {
-        const checkbox = screen.getByLabelText(item.label)
-        fireEvent.click(checkbox)
+        expect(checkbox(item.label)).not.toBeChecked()
       })
-
-      const submitButton = screen.getByRole('button', { name: 'Submit' })
-      fireEvent.click(submitButton)
-
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.allSelected).toBe(true)
-      expect(selectedData.noneSelected).toBe(false)
-      expect(selectedData.partiallySelected).toBe(false)
     })
 
-    it('선택된 상태에서 모두 해제 후 저장하면 noneSelected 상태가 되어야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={['1', '2']} />)
+    it('defaultSelected에 있는 항목만 체크되어야 함', () => {
+      renderGroup(['1', '2'])
 
-      // 모든 체크박스 해제
-      const checkbox1 = screen.getByLabelText('옵션 1')
-      const checkbox2 = screen.getByLabelText('옵션 2')
-      fireEvent.click(checkbox1)
-      fireEvent.click(checkbox2)
+      expect(checkbox('옵션 1')).toBeChecked()
+      expect(checkbox('옵션 2')).toBeChecked()
+      expect(checkbox('옵션 3')).not.toBeChecked()
+    })
 
-      const submitButton = screen.getByRole('button', { name: 'Submit' })
-      fireEvent.click(submitButton)
+    it('list에 없는 defaultSelected key는 무시해야 함', () => {
+      const { onSubmit } = renderGroup(['1', 'missing'])
 
-      const selectedData = JSON.parse(
-        screen.getByTestId('selected').textContent!,
-      )
-      expect(selectedData.noneSelected).toBe(true)
-      expect(selectedData.allSelected).toBe(false)
-      expect(selectedData.partiallySelected).toBe(false)
+      submit()
+
+      expect(onSubmit).toHaveBeenCalledWith([mockList[0]])
+    })
+
+    it('렌더링만으로는 콜백이 호출되지 않아야 함', () => {
+      const { onChange, onSubmit } = renderGroup(['1'])
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(onSubmit).not.toHaveBeenCalled()
     })
   })
 
-  describe('상태 관리 검증', () => {
-    it('두 개의 useSelections가 독립적으로 동작해야 함', () => {
-      render(<CheckboxGroup list={mockList} defaultSelected={['1']} />)
+  describe('체크 중 (draft)', () => {
+    it('체크박스 클릭 시 체크 상태만 바뀌고 콜백은 호출되지 않아야 함', () => {
+      const { onChange, onSubmit } = renderGroup()
 
-      // 초기 상태 확인
-      let selectedData = JSON.parse(screen.getByTestId('selected').textContent!)
-      expect(selectedData.selected.map((item: any) => item.key)).toEqual(['1'])
+      fireEvent.click(checkbox('옵션 1'))
 
-      // 폼에서 추가 선택
-      const checkbox2 = screen.getByLabelText('옵션 2')
-      fireEvent.click(checkbox2)
-
-      // CheckboxGroup 상태는 여전히 이전 상태
-      selectedData = JSON.parse(screen.getByTestId('selected').textContent!)
-      expect(selectedData.selected.map((item: any) => item.key)).toEqual(['1'])
-
-      // 저장 후에만 동기화
-      const submitButton = screen.getByRole('button', { name: 'Submit' })
-      fireEvent.click(submitButton)
-
-      selectedData = JSON.parse(screen.getByTestId('selected').textContent!)
-      expect(selectedData.selected.map((item: any) => item.key)).toEqual([
-        '1',
-        '2',
-      ])
+      expect(checkbox('옵션 1')).toBeChecked()
+      expect(onChange).not.toHaveBeenCalled()
+      expect(onSubmit).not.toHaveBeenCalled()
     })
+  })
+
+  describe('제출 (commit)', () => {
+    it('제출 시 선택이 바뀌었으면 onChange와 onSubmit에 선택 항목을 넘겨야 함', () => {
+      const { onChange, onSubmit } = renderGroup()
+
+      fireEvent.click(checkbox('옵션 1'))
+      fireEvent.click(checkbox('옵션 2'))
+      submit()
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenCalledWith([mockList[0], mockList[1]])
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit).toHaveBeenCalledWith([mockList[0], mockList[1]])
+    })
+
+    it('onChange가 onSubmit보다 먼저 호출되어야 함', () => {
+      const { onChange, onSubmit } = renderGroup()
+
+      fireEvent.click(checkbox('옵션 1'))
+      submit()
+
+      expect(onChange.mock.invocationCallOrder[0]).toBeLessThan(
+        onSubmit.mock.invocationCallOrder[0],
+      )
+    })
+
+    it('선택 항목은 클릭 순서와 관계없이 list 순서로 전달되어야 함', () => {
+      const { onSubmit } = renderGroup()
+
+      fireEvent.click(checkbox('옵션 3'))
+      fireEvent.click(checkbox('옵션 1'))
+      submit()
+
+      expect(onSubmit).toHaveBeenCalledWith([mockList[0], mockList[2]])
+    })
+
+    it('선택이 defaultSelected와 같으면 onSubmit만 호출되어야 함', () => {
+      const { onChange, onSubmit } = renderGroup(['1'])
+
+      submit()
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(onSubmit).toHaveBeenCalledWith([mockList[0]])
+    })
+
+    it('체크했다가 되돌린 뒤 제출하면 onChange가 호출되지 않아야 함', () => {
+      const { onChange, onSubmit } = renderGroup(['1'])
+
+      fireEvent.click(checkbox('옵션 2'))
+      fireEvent.click(checkbox('옵션 2'))
+      submit()
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+    })
+
+    it('같은 선택으로 다시 제출하면 onChange는 호출되지 않고 onSubmit만 호출되어야 함', () => {
+      const { onChange, onSubmit } = renderGroup()
+
+      fireEvent.click(checkbox('옵션 1'))
+      submit()
+      submit()
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onSubmit).toHaveBeenCalledTimes(2)
+    })
+
+    it('직전에 확정된 선택과 비교해 onChange를 호출해야 함', () => {
+      const { onChange } = renderGroup()
+
+      fireEvent.click(checkbox('옵션 1'))
+      submit()
+      fireEvent.click(checkbox('옵션 2'))
+      submit()
+
+      expect(onChange).toHaveBeenCalledTimes(2)
+      expect(onChange).toHaveBeenLastCalledWith([mockList[0], mockList[1]])
+    })
+
+    it('모두 해제한 뒤 제출하면 빈 배열을 넘겨야 함', () => {
+      const { onChange, onSubmit } = renderGroup(['1', '2'])
+
+      fireEvent.click(checkbox('옵션 1'))
+      fireEvent.click(checkbox('옵션 2'))
+      submit()
+
+      expect(onChange).toHaveBeenCalledWith([])
+      expect(onSubmit).toHaveBeenCalledWith([])
+    })
+
+    it('제출 후에도 체크 상태가 유지되어야 함', () => {
+      renderGroup()
+
+      fireEvent.click(checkbox('옵션 2'))
+      submit()
+
+      expect(checkbox('옵션 2')).toBeChecked()
+      expect(checkbox('옵션 1')).not.toBeChecked()
+    })
+
+    it('콜백 없이도 제출할 수 있어야 함', () => {
+      render(<CheckboxGroup list={mockList} />)
+
+      fireEvent.click(checkbox('옵션 1'))
+
+      expect(() => submit()).not.toThrow()
+    })
+  })
+
+  describe('submitLabel', () => {
+    it('submitLabel을 넘기지 않으면 Submit을 표시해야 함', () => {
+      renderGroup()
+
+      expect(screen.getByRole('button')).toHaveTextContent('Submit')
+    })
+
+    it('submitLabel로 제출 버튼 내용을 바꿀 수 있어야 함', () => {
+      const onSubmit = vi.fn()
+      render(
+        <CheckboxGroup
+          list={mockList}
+          submitLabel="적용"
+          onSubmit={onSubmit}
+        />,
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: '적용' }))
+
+      expect(onSubmit).toHaveBeenCalledWith([])
+    })
+  })
+
+  it('디버그용 선택 상태 출력을 렌더링하지 않아야 함', () => {
+    renderGroup(['1'])
+
+    expect(screen.queryByTestId('selected')).not.toBeInTheDocument()
   })
 })

@@ -112,6 +112,29 @@ describe('persist', () => {
     expect(store.getState()).toEqual({ count: 5 })
   })
 
+  it('removeItem 없이 getItem·setItem만 구현한 저장소로도 동작한다', () => {
+    const map = new Map<string, string>([
+      ['app', JSON.stringify({ version: 0, state: { count: 1 } })],
+    ])
+    const minimalStorage: PersistStorage = {
+      getItem: (key) => map.get(key) ?? null,
+      setItem: (key, value) => {
+        map.set(key, value)
+      },
+    }
+
+    const store = persist(
+      { count: 0 },
+      { name: 'app', storage: minimalStorage },
+    )
+    store.setState({ count: 2 })
+
+    expect(JSON.parse(map.get('app')!)).toEqual({
+      version: 0,
+      state: { count: 2 },
+    })
+  })
+
   it('저장된 값이 손상되어도 초기 상태로 안전하게 시작한다', () => {
     storage.setItem('app', '{ not valid json')
 

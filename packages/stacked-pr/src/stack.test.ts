@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Stack } from './index'
-import type { PullRequest, Result, StackError } from './index'
+import type { Layer, PullRequest, Result, StackError } from './index'
 
 function expectOk<T>(r: Result<T, StackError>): T {
   if (!r.ok) throw new Error(`expected ok, got error: ${r.error.type}`)
@@ -39,6 +39,10 @@ describe('Stack 생성', () => {
 
   it('from()은 중복 브랜치를 만나면 예외를 던짐', () => {
     expect(() => Stack.from('main', ['a', 'a'])).toThrow(/BranchExists/)
+  })
+
+  it('from()은 trunk와 같은 이름의 브랜치를 만나면 예외를 던짐', () => {
+    expect(() => Stack.from('main', ['a', 'main'])).toThrow(/BranchIsTrunk/)
   })
 })
 
@@ -84,6 +88,25 @@ describe('add', () => {
 
     expect(error).toEqual({ type: 'BranchExists', branch: 'a' })
   })
+
+  it('trunk와 같은 이름의 브랜치는 BranchIsTrunk 에러', () => {
+    const s = new Stack('main')
+
+    const error = expectErr(s.add('main'))
+
+    expect(error).toEqual({ type: 'BranchIsTrunk', branch: 'main' })
+    expect(s.size).toBe(0)
+    expect(s.current).toBe('main')
+  })
+
+  it('레이어가 있어도 trunk와 같은 이름은 BranchIsTrunk 에러', () => {
+    const s = Stack.from('main', ['a'])
+
+    const error = expectErr(s.add('main'))
+
+    expect(error).toEqual({ type: 'BranchIsTrunk', branch: 'main' })
+    expect(s.view().map((l) => l.branch)).toEqual(['a'])
+  })
 })
 
 describe('attachPR', () => {
@@ -106,6 +129,17 @@ describe('attachPR', () => {
 })
 
 describe('mergeUpTo', () => {
+  it('remaining은 내부 배열이 아닌 스냅샷이라 이후 조작이 반영되지 않음', () => {
+    const s = Stack.from('main', ['a', 'b'])
+
+    const { remaining } = expectOk(s.mergeUpTo('a'))
+    s.add('c')
+    ;(remaining as Layer[]).push({ branch: 'x', base: 'b' })
+
+    expect(remaining.map((l) => l.branch)).toEqual(['b', 'x'])
+    expect(s.view().map((l) => l.branch)).toEqual(['b', 'c'])
+  })
+
   it('맨 아래 브랜치만 병합하면 나머지는 trunk로 rebase', () => {
     const s = Stack.from('main', ['a', 'b', 'c'])
 
@@ -255,6 +289,22 @@ describe('네비게이션', () => {
 })
 
 describe('조회', () => {
+  it('view는 내부 배열이 아닌 스냅샷을 반환', () => {
+    const s = Stack.from('main', ['a'])
+
+    const snapshot = s.view()
+    ;(snapshot as Layer[]).push({ branch: 'x', base: 'a' })
+    ;(snapshot as Layer[]).splice(0, 1)
+
+    expect(s.view().map((l) => l.branch)).toEqual(['a'])
+    expect(s.view()).not.toBe(s.view())
+
+    s.add('b')
+
+    expect(snapshot.map((l) => l.branch)).toEqual(['x'])
+    expect(s.size).toBe(2)
+  })
+
   it('indexOf는 레이어 인덱스를, 없으면 -1을 반환', () => {
     const s = Stack.from('main', ['a', 'b'])
 
