@@ -222,24 +222,6 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
 
-  packages/download-image:
-    dependencies:
-      '@cbcruk/get-file-type-from-buffer':
-        specifier: workspace:*
-        version: link:../get-file-type-from-buffer
-      '@effect/platform':
-        specifier: ^0.80.18
-        version: 0.80.18(effect@3.14.18)
-      '@effect/platform-node':
-        specifier: ^0.77.6
-        version: 0.77.6(@effect/cluster@0.30.6(@effect/platform@0.80.18(effect@3.14.18))(@effect/rpc@0.56.6(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/sql@0.33.18(@effect/experimental@0.44.18(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(@effect/rpc@0.56.6(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/sql@0.33.18(@effect/experimental@0.44.18(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(effect@3.14.18)
-      effect:
-        specifier: ^3.14.18
-        version: 3.14.18
-      file-type:
-        specifier: ^20.5.0
-        version: 20.5.0(supports-color@7.2.0)
-
   packages/fast-draw-image: {}
 
   packages/get-file-type-from-buffer:
@@ -322,6 +304,24 @@ importers:
         version: 19.3.0
 
   packages/rw-lock: {}
+
+  packages/save-image:
+    dependencies:
+      '@cbcruk/get-file-type-from-buffer':
+        specifier: workspace:*
+        version: link:../get-file-type-from-buffer
+      '@effect/platform':
+        specifier: ^0.80.18
+        version: 0.80.18(effect@3.14.18)
+      '@effect/platform-node':
+        specifier: ^0.77.6
+        version: 0.77.6(@effect/cluster@0.30.6(@effect/platform@0.80.18(effect@3.14.18))(@effect/rpc@0.56.6(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/sql@0.33.18(@effect/experimental@0.44.18(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(@effect/rpc@0.56.6(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/sql@0.33.18(@effect/experimental@0.44.18(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(@effect/platform@0.80.18(effect@3.14.18))(effect@3.14.18))(effect@3.14.18)
+      effect:
+        specifier: ^3.14.18
+        version: 3.14.18
+      file-type:
+        specifier: ^20.5.0
+        version: 20.5.0(supports-color@7.2.0)
 
   packages/scope-style:
     dependencies:
@@ -5838,7 +5838,7 @@ snapshots:
       effect: 3.14.18
       mime: 3.0.0
       undici: 7.8.0
-      ws: 8.18.1
+      ws: 8.18.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -9390,7 +9390,7 @@ snapshots:
 
   node-gyp-build-optional-packages@5.2.2:
     dependencies:
-      detect-libc: 2.0.4
+      detect-libc: 2.1.2
     optional: true
 
   node-releases@2.0.27: {}

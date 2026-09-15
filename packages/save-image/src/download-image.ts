@@ -51,7 +51,7 @@ export interface DownloadImageParams {
  * import { Effect } from 'effect'
  * import { FetchHttpClient } from '@effect/platform'
  * import { NodeContext } from '@effect/platform-node'
- * import { downloadImageEffect } from '@cbcruk/download-image'
+ * import { downloadImageEffect } from '@cbcruk/save-image'
  *
  * const filePath = await downloadImageEffect({
  *   url: 'https://example.com/avatar',
@@ -140,7 +140,7 @@ export const downloadImageEffect = ({
  * @throws 어느 단계에서든 실패하면 {@link DownloadImageError}로 reject한다
  * @example
  * ```ts
- * import { downloadImage, DownloadImageError } from '@cbcruk/download-image'
+ * import { downloadImage, DownloadImageError } from '@cbcruk/save-image'
  *
  * try {
  *   const filePath = await downloadImage({
