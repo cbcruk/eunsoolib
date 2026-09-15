@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/is-overflowing",
   "description": "엘리먼트 내용의 가로/세로 오버플로우 감지 훅",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

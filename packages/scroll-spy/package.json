@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/scroll-spy",
   "description": "scroll-target-group과 IntersectionObserver 폴백 기반 scroll-spy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

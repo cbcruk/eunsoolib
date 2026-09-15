@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/in-view",
   "description": "IntersectionObserver 기반 뷰포트 진입 감지 컴포넌트와 훅",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {

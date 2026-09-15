@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/fast-draw-image",
   "description": "Canvas용 논블로킹 크로스브라우저 이미지 렌더링",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {
