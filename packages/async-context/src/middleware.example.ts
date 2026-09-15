@@ -227,7 +227,7 @@ export const conditionalAuth = conditionalMiddleware(
 // 사용 예제
 // ============================================================================
 
-async function main() {
+export async function main() {
   // 테스트 요청
   const request = new Request('https://api.example.com/appointments', {
     method: 'POST',

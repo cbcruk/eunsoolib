@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: 타입 검사
+        run: pnpm typecheck
+
       - name: README 형식
         run: pnpm check:readme
 

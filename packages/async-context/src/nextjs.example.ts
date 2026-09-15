@@ -10,7 +10,6 @@ import {
   createRouteWrapper,
   createMultiRouteWrapper,
   composeContexts,
-  getContextValues,
 } from './index'
 
 // ============================================================================
@@ -222,7 +221,7 @@ export async function POST(request: Request) {
   }
 
   const db: DbConnection = {
-    query: async () => [],
+    query: async <T>() => [] as T,
     transaction: async (cb) => cb({} as DbConnection),
   }
 
@@ -273,7 +272,10 @@ async function createNotificationForDoctor(
   await db.query(
     `INSERT INTO notifications (user_id, message)
      VALUES ($1, $2)`,
-    [doctorId, `새 예약이 등록되었습니다. 환자: ${user.name}`],
+    [
+      doctorId,
+      `새 예약(${appointment.id})이 등록되었습니다. 환자: ${user.name}`,
+    ],
   )
 }
 

@@ -130,6 +130,10 @@ export function visualizeLanes(
 
 /**
  * 주별 레인 할당 결과를 ASCII로 시각화
+ *
+ * @param events - `assignLanesWeekly`로 레인을 할당한 이벤트
+ * @param weekStartsOn - 레인을 할당할 때 쓴 주 시작일
+ * @param options - `showTitle`이 `true`면 각 레인 아래에 그 레인에서 시작하는 이벤트 제목을 표시한다
  */
 export function visualizeWeeklyLanes(
   events: EventWithWeeklyLane[],
@@ -222,6 +226,19 @@ export function visualizeWeeklyLanes(
     })
 
     lines.push(line)
+
+    // 시작일에 이 레인에 놓인 이벤트의 제목 표시
+    if (showTitle) {
+      events.forEach((event) => {
+        const start = dayjs(event.start)
+        if (getLaneForDate(event, start, weekStartsOn) !== laneIndex) return
+
+        const title = event.title || `Event ${event.eventId.slice(-4)}`
+        const startIdx = dates.findIndex((d) => d.isSame(start, 'day'))
+        const padding = 9 + startIdx * cellWidth
+        lines.push(''.padStart(padding) + `↳ ${title}`)
+      })
+    }
   }
 
   lines.push('')

@@ -8,6 +8,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "typecheck": "tsc --noEmit -p .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build": "pnpm -r --filter \"./packages/*\" --workspace-concurrency 4 build",

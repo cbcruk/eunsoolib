@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import {
-  render,
-  screen,
-  fireEvent,
-  renderHook,
-  act,
-} from '@testing-library/react'
+import { render, screen, renderHook, act } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { useScrollSpy, useScrollSpyHeadings, useSmoothScroll } from './react'
 

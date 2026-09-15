@@ -141,10 +141,12 @@ interface WeeklyLaneAssignmentResult {
 }
 
 interface EventWithWeeklyLane extends CalendarEvent {
-  weeklyLanes: Map<string, number> // key: 'YYYY-Ww'
+  weeklyLanes: Map<string, number> // key: 'YYYY-Www' (주 식별자)
   eventId: string
 }
 ```
+
+주 식별자는 ISO 주차 형식(`2025-W02`)입니다. `weekStartsOn: 'Monday'`면 그 주의 ISO 주차이고, `'Sunday'`면 일요일~토요일 주의 월요일이 속한 ISO 주차입니다. 연말·연초에 걸친 주도 하나의 식별자를 가집니다.
 
 ### 유틸리티 함수
 

@@ -41,6 +41,17 @@ export interface SerializedAssertion {
   }
 }
 
+/**
+ * WebCrypto·WebAuthn API가 받는 `ArrayBuffer` 기반 바이트 배열.
+ * TypeScript 5.7부터 `Uint8Array`의 기본 버퍼 타입은 `ArrayBufferLike`라 `BufferSource`에 바로 넘길 수 없다.
+ */
+type Bytes = Uint8Array<ArrayBuffer>
+
+/** 공개 API `fromBase64URL`의 결과를 `ArrayBuffer` 기반 배열로 복사한다. */
+function toBytes(bytes: Uint8Array): Bytes {
+  return new Uint8Array(bytes)
+}
+
 interface ClientData {
   type: string
   challenge: string
@@ -48,7 +59,7 @@ interface ClientData {
 }
 
 export class PasskeyServer {
-  private readonly challenges = new Map<string, Uint8Array>()
+  private readonly challenges = new Map<string, Bytes>()
   private readonly credentials = new Map<string, StoredCredential>()
 
   constructor(
@@ -57,7 +68,7 @@ export class PasskeyServer {
   ) {}
 
   /** 등록 챌린지를 발급하고 세션에 저장한다. */
-  startRegistration(sessionId: string): Uint8Array {
+  startRegistration(sessionId: string): Bytes {
     const challenge = crypto.getRandomValues(new Uint8Array(32))
     this.challenges.set(sessionId, challenge)
     return challenge
@@ -81,7 +92,7 @@ export class PasskeyServer {
 
     const publicKey = await crypto.subtle.importKey(
       'spki',
-      fromBase64URL(registration.response.publicKey),
+      toBytes(fromBase64URL(registration.response.publicKey)),
       { name: 'ECDSA', namedCurve: 'P-256' },
       false,
       ['verify'],
@@ -98,7 +109,7 @@ export class PasskeyServer {
   }
 
   /** 인증 챌린지를 발급하고 세션에 저장한다. */
-  startAuthentication(sessionId: string): Uint8Array {
+  startAuthentication(sessionId: string): Bytes {
     const challenge = crypto.getRandomValues(new Uint8Array(32))
     this.challenges.set(sessionId, challenge)
     return challenge
@@ -142,7 +153,7 @@ export class PasskeyServer {
     const clientDataHash = new Uint8Array(
       await crypto.subtle.digest(
         'SHA-256',
-        fromBase64URL(assertion.response.clientDataJSON),
+        toBytes(fromBase64URL(assertion.response.clientDataJSON)),
       ),
     )
     const signedData = concat(authenticatorData, clientDataHash)
@@ -200,7 +211,7 @@ function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   return true
 }
 
-function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
+function concat(a: Uint8Array, b: Uint8Array): Bytes {
   const out = new Uint8Array(a.length + b.length)
   out.set(a, 0)
   out.set(b, a.length)
@@ -211,7 +222,7 @@ function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
  * WebAuthn ECDSA 서명은 ASN.1 DER 인코딩이지만 WebCrypto `verify`는
  * raw r||s(IEEE P1363) 형식을 요구하므로 변환한다.
  */
-function derToRawEcdsaSignature(der: Uint8Array): Uint8Array {
+function derToRawEcdsaSignature(der: Uint8Array): Bytes {
   if (der[0] !== 0x30) throw new Error('Invalid DER signature.')
 
   let index = der[1]! & 0x80 ? 2 + (der[1]! & 0x7f) : 2
@@ -231,7 +242,7 @@ function derToRawEcdsaSignature(der: Uint8Array): Uint8Array {
   return out
 }
 
-function toFixed32(integer: Uint8Array): Uint8Array {
+function toFixed32(integer: Uint8Array): Bytes {
   let start = 0
   while (start < integer.length - 1 && integer[start] === 0) start++
   const trimmed = integer.subarray(start)
