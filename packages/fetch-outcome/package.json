@@ -1,0 +1,52 @@
+{
+  "name": "@cbcruk/fetch-outcome",
+  "description": "실패한 fetch를 재시도 판단이 담긴 데이터로 바꾸는 FetchOutcome 모델",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/fetch-outcome"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/async/fetch-outcome/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts",
+    "cert": "openssl req -x509 -newkey rsa:2048 -nodes -keyout src/key.pem -out src/cert.pem -days 3650 -subj /CN=localhost -addext subjectAltName=DNS:localhost,IP:127.0.0.1",
+    "conformance": "[ -f src/cert.pem ] || pnpm run cert; pnpm run build && node src/conformance.mjs"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./neverthrow": "./src/neverthrow.ts",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "neverthrow": ">=6"
+  },
+  "peerDependenciesMeta": {
+    "neverthrow": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "neverthrow": "^8.2.0",
+    "undici": "^8.7.0"
+  },
+  "eunsoolib": {
+    "category": "async",
+    "runtime": [
+      "universal"
+    ]
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./neverthrow": "./dist/neverthrow.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  }
+}
