@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/pagination",
   "description": "Instance Hook 패턴 기반 React 페이지네이션",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
