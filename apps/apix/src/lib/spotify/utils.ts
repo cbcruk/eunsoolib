@@ -1,7 +1,7 @@
+import { safeFetch, safeJson, type FetchOutcome } from '@cbcruk/fetch-outcome'
 import { spotifyEnv } from '@/lib/env'
-import {
+import type {
   AccessToken,
-  Album,
   PlaybackState,
   RecentlyPlayedTracksPage,
   Track,
@@ -17,9 +17,39 @@ export function getBasicCredentials() {
   ).toString('base64')
 }
 
-export async function getAccessToken() {
+/**
+ * 요청부터 JSON 파싱까지를 하나의 결과로 묶는다.
+ *
+ * 상태 코드가 2xx가 아니면 `indeterminate`로 돌려준다. fetch는 4xx·5xx를 실패로
+ * 보지 않으므로(그건 성공적으로 받은 응답이다) 이 판단은 호출자 몫이다.
+ */
+async function request<T>(
+  input: string,
+  init?: RequestInit,
+): Promise<FetchOutcome<T>> {
+  const method = init?.method ?? 'GET'
+  const response = await safeFetch(input, init, { redactCrossOrigin: false })
+
+  if (response.kind !== 'ok') {
+    return response
+  }
+
+  if (!response.value.ok) {
+    return {
+      kind: 'indeterminate',
+      retry: 'unknown',
+      reason: `Spotify가 ${response.value.status}로 응답했습니다`,
+      raw: response.value,
+    }
+  }
+
+  return safeJson<T>(response.value, { method })
+}
+
+export async function getAccessToken(): Promise<FetchOutcome<AccessToken>> {
   const env = spotifyEnv()
-  const response = await fetch(env.SPOTIFY_TOKEN_ENDPOINT, {
+
+  return request<AccessToken>(env.SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${getBasicCredentials()}`,
@@ -30,51 +60,44 @@ export async function getAccessToken() {
       refresh_token: env.SPOTIFY_REFRESH_TOKEN,
     }),
   })
-  const data = (await response.json()) as AccessToken
-
-  return data
 }
 
-export async function getCurrentTrack() {
+/** 액세스 토큰을 받아 Spotify Web API의 한 엔드포인트를 호출한다. */
+async function withToken<T>(url: string): Promise<FetchOutcome<T>> {
   const token = await getAccessToken()
-  const response = await fetch(
+
+  if (token.kind !== 'ok') {
+    return token
+  }
+
+  return request<T>(url, {
+    headers: {
+      Authorization: `Bearer ${token.value.access_token}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+}
+
+export async function getCurrentTrack(): Promise<FetchOutcome<Track | null>> {
+  const state = await withToken<PlaybackState>(
     'https://api.spotify.com/v1/me/player/currently-playing',
-    {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    },
   )
 
-  if (response.status !== 200) {
-    return null
+  if (state.kind !== 'ok') {
+    return state
   }
 
-  const data = (await response.json()) as PlaybackState
-  const item = data.item as TrackItem as Track
-
-  return item
+  return { kind: 'ok', value: (state.value.item as TrackItem as Track) ?? null }
 }
 
-export async function getRecentlyPlayed() {
-  const token = await getAccessToken()
-  const response = await fetch(
+export async function getRecentlyPlayed(): Promise<FetchOutcome<Track | null>> {
+  const page = await withToken<RecentlyPlayedTracksPage>(
     'https://api.spotify.com/v1/me/player/recently-played',
-    {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    },
   )
 
-  if (response.status !== 200) {
-    return null
+  if (page.kind !== 'ok') {
+    return page
   }
 
-  const data = (await response.json()) as RecentlyPlayedTracksPage
-  const item = data.items[0]?.track
-
-  return item ?? null
+  return { kind: 'ok', value: page.value.items[0]?.track ?? null }
 }

@@ -172,3 +172,55 @@ export async function safeText(
     return failureFromError(err, method)
   }
 }
+
+/**
+ * Read a response body as JSON as an outcome.
+ *
+ * Two failures live here and they are not the same thing:
+ *
+ *  - The body stream broke — a reset, a truncation. That is a transport
+ *    failure and goes through the same path as {@link safeText}, carrying
+ *    whatever protocol evidence was recoverable.
+ *  - The bytes arrived but were not JSON. The server *did* process the
+ *    request, so this is not a network failure at all. It becomes
+ *    `indeterminate` with a plain reason, and the retry verdict says what the
+ *    method semantics allow: replaying a non-idempotent request that the
+ *    server already processed is unsound, whatever the body looked like.
+ *
+ * The return type is not validated against `T`. Parse the value with a schema
+ * if the shape matters.
+ *
+ * @example
+ * ```ts
+ * import { safeFetch, safeJson } from '@cbcruk/fetch-outcome'
+ *
+ * const response = await safeFetch(url)
+ * if (response.kind !== 'ok') return response
+ *
+ * const body = await safeJson<{ items: string[] }>(response.value)
+ * if (body.kind !== 'ok') return body
+ *
+ * return body.value.items
+ * ```
+ */
+export async function safeJson<T>(
+  response: Response,
+  opts: { method?: string } = {},
+): Promise<FetchOutcome<T>> {
+  const method = opts.method ?? 'GET'
+
+  try {
+    return { kind: 'ok', value: (await response.json()) as T }
+  } catch (err) {
+    if (inspect(err)) {
+      return failureFromError(err, method)
+    }
+
+    return {
+      kind: 'indeterminate',
+      retry: isIdempotentMethod(method) ? 'safe' : 'unsafe',
+      reason: 'response body is not valid JSON',
+      raw: err,
+    }
+  }
+}

@@ -21,7 +21,7 @@ open http://localhost:3000
 | `GET /api/emoji`                    | 인라인 SVG 이모지                                         | —             |
 | `GET /api/smc?input=`               | 상태 머신 텍스트를 SVG 다이어그램으로 렌더 (생략 시 예시) | —             |
 | `GET /api/i18n?name=&lang=&format=` | 구글 시트의 번역을 JSON 또는 PO로 변환                    | `SHEET_ID`    |
-| `GET /api/spotify/playing`          | 최근 재생한 곡을 HTML 카드로                              | Spotify 5종   |
+| `GET /api/spotify/playing`          | 최근 재생한 곡을 HTML 카드로 (없으면 404, 실패는 502)     | Spotify 5종   |
 | `GET /api/spotify/auth`             | refresh token 발급 플로우 (최초 1회)                      | Spotify 5종   |
 | `GET /api/auth/page`                | Basic 인증 데모                                           | `APIX_AUTH_*` |
 
@@ -40,6 +40,29 @@ open http://localhost:3000
 | `SPOTIFY_TOKEN_ENDPOINT` | `/api/spotify` | 토큰 엔드포인트 URL                       |
 | `APIX_AUTH_USERNAME`     | `/api/auth`    | Basic 인증 사용자명                       |
 | `APIX_AUTH_PASSWORD`     | `/api/auth`    | Basic 인증 비밀번호                       |
+
+## 워크스페이스 패키지 사용
+
+이 앱은 `packages/*`를 `workspace:*`로 당겨 쓰는 자리이기도 하다. 자기 라이브러리를
+직접 쓰면 API의 어색한 부분이 드러난다 — `safeJson`은 이 앱을 옮기다 없다는 걸
+발견해서 추가했다.
+
+| 패키지                  | 쓰는 곳                     | 하는 일                                                   |
+| ----------------------- | --------------------------- | --------------------------------------------------------- |
+| `@cbcruk/fetch-outcome` | `/api/spotify`, `/api/i18n` | 외부 API 호출 실패를 이유와 재시도 판단이 담긴 결과로     |
+| `@cbcruk/authorization` | `/api/auth`                 | 표준 `Request` 기반 Basic 인증 (상수 시간 비교, RFC 7617) |
+
+외부 호출이 실패하면 `502`와 함께 무엇이 잘못됐는지 돌려준다.
+
+```
+GET /api/spotify/playing   (토큰 엔드포인트에 도달 불가)
+502 {"error":"ERR_HTTP_DNS_RESOLUTION: no request was ever transmitted","retry":"safe"}
+
+GET /api/i18n              (Apps Script가 JSON 대신 HTML 오류 페이지)
+502 {"error":"response body is not valid JSON"}
+```
+
+## 환경변수 검증
 
 검증은 `src/lib/env.ts`에서 **라우트 단위로** 한다. Spotify 자격 증명이 없다고
 `/api/now`까지 죽지 않도록 한 앱 스키마로 묶지 않았다. 값이 없으면 어떤 변수가

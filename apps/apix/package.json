@@ -9,6 +9,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@cbcruk/authorization": "workspace:*",
+    "@cbcruk/fetch-outcome": "workspace:*",
     "@date-fns/tz": "^1.4.1",
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "date-fns": "^4.1.0",

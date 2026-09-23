@@ -10,7 +10,7 @@ import {
   hasNativeErrorCode,
 } from './attach'
 import { assessRetry } from './retry'
-import { safeFetch, safeText, isOk, isFailure } from './index'
+import { safeFetch, safeJson, safeText, isOk, isFailure } from './index'
 import { toResult } from './neverthrow'
 
 /** undici가 h2 스트림 리셋에서 실제로 던지는 에러 모양. */
@@ -408,6 +408,49 @@ describe('safeText', () => {
     if (outcome.kind === 'failed') {
       expect(outcome.code).toBe(C.REQUEST_CANCELLED)
     }
+  })
+})
+
+describe('safeJson', () => {
+  it('JSON 본문을 파싱해 ok로 돌려줘야 함', async () => {
+    const response = new Response(JSON.stringify({ items: ['a'] }))
+
+    const outcome = await safeJson<{ items: string[] }>(response)
+
+    expect(outcome).toEqual({ kind: 'ok', value: { items: ['a'] } })
+  })
+
+  it('본문 스트림이 끊기면 증거를 담은 failed여야 함', async () => {
+    const response = {
+      json: async () => {
+        throw undiciWrap(h2StreamError('REFUSED_STREAM'))
+      },
+    } as unknown as Response
+
+    const outcome = await safeJson(response, { method: 'POST' })
+
+    expect(outcome.kind).toBe('failed')
+    if (outcome.kind === 'failed') {
+      expect(outcome.code).toBe(C.REQUEST_REJECTED)
+    }
+  })
+
+  it('JSON이 아닌 본문은 이유를 밝힌 indeterminate여야 함', async () => {
+    const outcome = await safeJson(new Response('<html>nope</html>'))
+
+    expect(outcome.kind).toBe('indeterminate')
+    if (outcome.kind === 'indeterminate') {
+      expect(outcome.reason).toBe('response body is not valid JSON')
+    }
+  })
+
+  it('이미 처리된 POST의 깨진 JSON은 재시도 대상이 아니어야 함', async () => {
+    // 본문이 왔다는 것은 서버가 요청을 처리했다는 뜻이다. 다시 보내면 중복이다.
+    const post = await safeJson(new Response('nope'), { method: 'POST' })
+    const get = await safeJson(new Response('nope'), { method: 'GET' })
+
+    expect(post.kind === 'indeterminate' && post.retry).toBe('unsafe')
+    expect(get.kind === 'indeterminate' && get.retry).toBe('safe')
   })
 })
 
