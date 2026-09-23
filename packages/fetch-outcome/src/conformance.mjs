@@ -24,7 +24,7 @@ const PORT = 8443
 const TIMEOUT_MS = 3000
 
 /**
- * The observable truth through undici 8.11 / Node 24, keyed by route. `stage`
+ * The observable truth through undici 8.10.2 / Node 24, keyed by route. `stage`
  * is where the outcome is decided: `head` (safeFetch rejected), `body`
  * (safeText), or `hang` (the promise never settled and a timeout stood in).
  *
@@ -51,7 +51,7 @@ const EXPECT = {
     retry: 'unknown',
     attested: false,
     peerCode: false,
-    note: 'undici >= 8.11 settles instead of hanging, but drops the numeric code',
+    note: 'undici >= 8.10 settles instead of hanging (8.7 did not), but drops the numeric code',
   },
   '/reset/internal': {
     stage: 'head',
@@ -89,11 +89,14 @@ const EXPECT = {
   '/mid/cancel-with-length': {
     stage: 'body',
     kind: 'failed',
-    code: 'ERR_HTTP_STREAM_RESET',
+    code: 'ERR_HTTP_PROTOCOL_ERROR',
     retry: 'unknown',
     attested: false,
-    peerCode: false,
-    note: 'content-length mismatch: truncation is detected, the peer code is not',
+    peerCode: true,
+    // undici 8.11 changes this one: the reset is reported as a content-length
+    // mismatch instead, which detects the truncation but loses the peer code.
+    // normalize.ts handles both shapes; this baseline pins the version the
+    // package is developed against.
   },
   '/ok': { stage: 'body', kind: 'ok' },
 }

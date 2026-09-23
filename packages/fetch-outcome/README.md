@@ -45,7 +45,7 @@ pnpm add @cbcruk/fetch-outcome
 
 "정보는 프로토콜 계층에 있는데 Fetch가 버릴 뿐"이라는 기대는 절반만 맞다. 분류가
 구분한다고 주장하는 각 `RST_STREAM` 조건을 내는 HTTP/2 서버를 세우고 Node 24 / undici
-8.11로 측정한 결과다 (`pnpm --filter @cbcruk/fetch-outcome conformance`).
+8.10.2로 측정한 결과다 (`pnpm --filter @cbcruk/fetch-outcome conformance`).
 
 | 경로                      | 분류가 말하는 것    | 실제로 얻는 것                     | 피어 코드 |
 | ------------------------- | ------------------- | ---------------------------------- | --------- |
@@ -53,13 +53,13 @@ pnpm add @cbcruk/fetch-outcome
 | `/reset/internal`         | `INTERNAL_ERROR`    | `INTERNAL_ERROR` / retry `unsafe`  | ✅        |
 | `/reset/protocol`         | `PROTOCOL_ERROR`    | `PROTOCOL_ERROR` / retry `unknown` | ✅        |
 | `/reset/enhance`          | `STREAM_RESET`      | `STREAM_RESET` / retry `unknown`   | ✅        |
+| `/mid/cancel-with-length` | `REQUEST_CANCELLED` | `PROTOCOL_ERROR` / retry `unknown` | ✅        |
 | `/reset/cancel`           | `REQUEST_CANCELLED` | `STREAM_RESET`(코드 유실)          | ❌        |
-| `/mid/cancel-with-length` | `REQUEST_CANCELLED` | `STREAM_RESET`(본문 절단만 감지)   | ❌        |
 | `/mid/cancel`             | `REQUEST_CANCELLED` | **`200` + 조용히 잘린 본문**       | ❌        |
 | `/mid/internal`           | `INTERNAL_ERROR`    | **`200` + 조용히 잘린 본문**       | ❌        |
 | `/ok`                     | (성공)              | `200`                              | —         |
 
-9개 중 6개가 코드를 가진 실패로 나오고, 그중 **피어가 실제로 보낸 코드는 4개**다.
+9개 중 6개가 코드를 가진 실패로 나오고, 그중 **피어가 실제로 보낸 코드는 5개**다.
 나머지는 감추지 않고 그대로 드러낸다.
 
 여기서 나오는 세 가지 사실:
@@ -73,11 +73,12 @@ pnpm add @cbcruk/fetch-outcome
    남는다 (`"Stream closed with error code NGHTTP2_REFUSED_STREAM"`).
    `src/mapping.ts`가 이 문자열을 정규식으로 긁는다. 명세가 아니라 Node 내부 구현에
    묶인 코드이고, Fetch가 `.code`를 내보내면 가장 먼저 지울 부분이다.
-3. **측정값은 런타임 버전을 따라 움직인다.** 원본 측정(Node 22 / undici 8.7) 이후
-   두 가지가 바뀌었다. `CANCEL`(0x08)은 더 이상 **프라미스를 영원히 멈추지 않고**
-   settle된다(개선). 대신 숫자 코드를 잃어 `STREAM_RESET`으로만 보인다.
-   `content-length`가 있는 본문 중간 리셋은 프로토콜 에러 대신 길이 불일치로
-   보고된다 — 절단은 감지하지만 피어 코드는 잃는다.
+3. **측정값은 런타임 버전을 따라 움직인다.** 원본 측정(Node 22 / undici 8.7)에서
+   `CANCEL`(0x08)은 **프라미스를 영원히 멈춰** 같은 h2 세션의 이후 요청까지 막았다.
+   undici 8.10에서는 settle된다(개선). 대신 숫자 코드를 잃어 `STREAM_RESET`으로만
+   보인다. undici 8.11은 `content-length`가 있는 본문 중간 리셋을 프로토콜 에러
+   대신 길이 불일치로 보고한다 — 절단은 감지하지만 피어 코드는 잃는다. 두 형태
+   모두 `src/normalize.ts`가 처리하고, 기준선은 개발 기준 버전(8.10.2)에 맞춰 둔다.
 
 적합성 스크립트는 이 표를 **기준선으로 고정한 게이트**다. undici가 더 복구해 주거나
 반대로 메시지 포맷이 바뀌면 이 테스트가 깨진다. 그게 목적이다.
