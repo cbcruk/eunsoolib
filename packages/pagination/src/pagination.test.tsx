@@ -5,7 +5,11 @@ import {
   renderHook,
   act,
 } from '@testing-library/react'
-import { getPaginationRange, DOTS } from './pagination.utils'
+import {
+  getPaginationBlock,
+  getPaginationRange,
+  DOTS,
+} from './pagination.utils'
 import { usePagination } from './use-pagination'
 import { Pagination } from './pagination'
 
@@ -56,6 +60,41 @@ describe('getPaginationRange', () => {
     expect(
       getPaginationRange({ page: 6, totalPages: 12, siblingCount: 2 }),
     ).toEqual([1, DOTS, 4, 5, 6, 7, 8, DOTS, 12])
+  })
+})
+
+describe('getPaginationBlock', () => {
+  it('현재 페이지가 속한 구간만 반환해야 함', () => {
+    expect(getPaginationBlock({ page: 1, totalPages: 12 })).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    ])
+  })
+
+  it('마지막 구간은 totalPages에서 끊어야 함', () => {
+    expect(getPaginationBlock({ page: 12, totalPages: 12 })).toEqual([11, 12])
+  })
+
+  it('구간 경계에서 다음 구간으로 넘어가야 함', () => {
+    expect(getPaginationBlock({ page: 10, totalPages: 30 })).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    ])
+    expect(getPaginationBlock({ page: 11, totalPages: 30 })).toEqual([
+      11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    ])
+  })
+
+  it('blockSize로 구간 크기를 바꿔야 함', () => {
+    expect(
+      getPaginationBlock({ page: 7, totalPages: 20, blockSize: 5 }),
+    ).toEqual([6, 7, 8, 9, 10])
+  })
+
+  it('DOTS를 넣지 않아야 함', () => {
+    expect(getPaginationBlock({ page: 5, totalPages: 100 })).not.toContain(DOTS)
+  })
+
+  it('totalPages가 1이면 첫 페이지만 반환해야 함', () => {
+    expect(getPaginationBlock({ page: 1, totalPages: 1 })).toEqual([1])
   })
 })
 
@@ -200,6 +239,53 @@ describe('usePagination', () => {
     expect(result.current.page).toBe(5)
   })
 
+  it('goToFirst/goToLast로 양 끝으로 이동해야 함', () => {
+    const { result } = renderHook(() =>
+      usePagination({ total: 120, initialPageSize: 10 }),
+    )
+
+    act(() => result.current.goToLast())
+    expect(result.current.page).toBe(12)
+    expect(result.current.isLast).toBe(true)
+
+    act(() => result.current.goToFirst())
+    expect(result.current.page).toBe(1)
+    expect(result.current.isFirst).toBe(true)
+  })
+
+  it("mode가 'block'이면 items에 DOTS 없이 구간만 담아야 함", () => {
+    const { result } = renderHook(() =>
+      usePagination({ total: 120, initialPageSize: 10, mode: 'block' }),
+    )
+
+    expect(result.current.items).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+    act(() => result.current.goToLast())
+    expect(result.current.items).toEqual([11, 12])
+  })
+
+  it("mode가 'block'일 때 blockSize를 따라야 함", () => {
+    const { result } = renderHook(() =>
+      usePagination({
+        total: 200,
+        initialPageSize: 10,
+        mode: 'block',
+        blockSize: 5,
+      }),
+    )
+
+    act(() => result.current.goTo(7))
+    expect(result.current.items).toEqual([6, 7, 8, 9, 10])
+  })
+
+  it("mode가 'window'면 기존처럼 DOTS를 써야 함", () => {
+    const { result } = renderHook(() =>
+      usePagination({ total: 120, initialPageSize: 10 }),
+    )
+
+    expect(result.current.items).toContain(DOTS)
+  })
+
   it('범위를 벗어난 initialPage도 clamp해야 함', () => {
     const { result } = renderHook(() =>
       usePagination({ total: 30, initialPage: 7 }),
@@ -245,6 +331,42 @@ describe('Pagination 컴포넌트', () => {
   it('showInfo가 켜지면 항목 범위를 표시해야 함', () => {
     render(<Harness />)
     expect(screen.getByText(/1–10/)).toBeInTheDocument()
+  })
+
+  it('showEdges가 꺼져 있으면 첫·마지막 버튼을 렌더링하지 않아야 함', () => {
+    render(<Harness />)
+    expect(screen.queryByLabelText('첫 페이지')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('마지막 페이지')).not.toBeInTheDocument()
+  })
+
+  it('showEdges가 켜지면 첫·마지막 페이지로 이동해야 함', () => {
+    render(
+      <Pagination
+        total={120}
+        initialPageSize={10}
+        mode="block"
+        showEdges
+        showInfo
+      />,
+    )
+
+    expect(screen.getByLabelText('첫 페이지')).toBeDisabled()
+
+    fireEvent.click(screen.getByLabelText('마지막 페이지'))
+
+    expect(screen.getByRole('button', { name: '12' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.queryByRole('button', { name: '1' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('마지막 페이지')).toBeDisabled()
+
+    fireEvent.click(screen.getByLabelText('첫 페이지'))
+
+    expect(screen.getByRole('button', { name: '1' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
   })
 
   it('pagination 없이 total을 넘기면 자체 인스턴스로 여러 페이지를 표시해야 함', () => {
