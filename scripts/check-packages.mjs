@@ -20,13 +20,16 @@ const packagesDir = path.join(repoDir, 'packages')
 const bin = (name) => path.join(repoDir, 'node_modules/.bin', name)
 
 const only = process.argv.slice(2)
-const packages = readdirSync(packagesDir)
+const packages = readdirSync(packagesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
   .filter((dir) => only.length === 0 || only.includes(dir))
+  .map((dir) => path.join(packagesDir, dir))
+  // 삭제된 패키지의 node_modules만 남은 폴더는 건너뛴다.
+  .filter((dir) => existsSync(path.join(dir, 'package.json')))
   .map((dir) => ({
-    dir: path.join(packagesDir, dir),
-    pkg: JSON.parse(
-      readFileSync(path.join(packagesDir, dir, 'package.json'), 'utf8'),
-    ),
+    dir,
+    pkg: JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8')),
   }))
   .filter(({ pkg }) => !pkg.private)
 
