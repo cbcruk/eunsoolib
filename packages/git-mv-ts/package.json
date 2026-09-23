@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/git-mv-ts",
   "description": "git mv로 .js/.jsx 파일을 JSX 유무에 따라 .ts/.tsx로 옮기는 도구",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
