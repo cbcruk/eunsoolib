@@ -121,6 +121,12 @@ importers:
 
   apps/apix:
     dependencies:
+      '@cbcruk/authorization':
+        specifier: workspace:*
+        version: link:../../packages/authorization
+      '@cbcruk/fetch-outcome':
+        specifier: workspace:*
+        version: link:../../packages/fetch-outcome
       '@date-fns/tz':
         specifier: ^1.4.1
         version: 1.5.0

@@ -168,6 +168,18 @@ const result = toResult(await safeFetch(url))
 스트림을 정상 종료로 처리해 잘린 본문이 `ok`로 나온다. 이 계층 아래의 문제라서
 해결하지 못하고 문서화한다.
 
+### `safeJson<T>(response, options?)`
+
+본문을 JSON으로 읽어 `FetchOutcome<T>`로 돌려준다. 두 실패를 구분한다.
+
+- **본문 스트림이 끊긴 경우** — 전송 실패다. `safeText`와 같은 경로를 타고 복구한
+  프로토콜 증거를 싣는다.
+- **바이트는 왔는데 JSON이 아닌 경우** — 서버가 요청을 **처리했다**는 뜻이므로
+  네트워크 실패가 아니다. `indeterminate`에 `response body is not valid JSON`을
+  이유로 싣고, 재시도 판단은 메서드 의미를 따른다(이미 처리된 `POST`는 `unsafe`).
+
+반환 타입 `T`는 검증하지 않는다. 모양이 중요하면 스키마로 파싱한다.
+
 ### `FetchOutcome<T>`
 
 ```ts

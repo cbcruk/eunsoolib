@@ -1,3 +1,4 @@
+import { safeFetch, safeJson } from '@cbcruk/fetch-outcome'
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { i18nEnv } from '@/lib/env'
@@ -49,7 +50,23 @@ i18n.get('/', async (c) => {
   url.searchParams.append('name', name)
   url.searchParams.append('lang', lang)
 
-  const data = (await fetch(url.toString()).then((r) => r.json())) as Data
+  const response = await safeFetch(url.toString(), undefined, {
+    redactCrossOrigin: false,
+  })
+
+  if (response.kind !== 'ok') {
+    return c.json({ error: response.reason, retry: response.retry }, 502)
+  }
+
+  const body = await safeJson<Data>(response.value)
+
+  if (body.kind !== 'ok') {
+    // Apps Script는 오류 시 JSON이 아니라 HTML 오류 페이지를 돌려준다.
+    // 예전에는 여기서 파싱 에러가 그대로 500이 됐다.
+    return c.json({ error: body.reason }, 502)
+  }
+
+  const data = body.value
 
   if (format === 'po') {
     const po = convertToPo({ data, lang })
