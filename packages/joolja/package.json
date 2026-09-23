@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/joolja",
   "description": "이미지 크기를 재서 JSON·SCSS 변수·스프라이트 클래스를 만드는 줄자",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
