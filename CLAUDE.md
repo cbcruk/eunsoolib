@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Test**: `pnpm test` - Run all tests with Vitest
 - **Test UI**: `pnpm test:ui` - Run tests with Vitest UI interface
 - **Test Run**: `pnpm test:run` - Run tests once without watch mode
-- **Typecheck**: `pnpm typecheck` - `tsc --noEmit` over `packages/` (must stay at 0 errors; runs in CI). `apps/docs` is type-checked by `next build`
+- **Typecheck**: `pnpm typecheck` - `tsc --noEmit` over `packages/` (must stay at 0 errors; runs in CI). Apps under `apps/` are type-checked by their own `next build`
 - **Build**: `pnpm build` - Build publishable packages to `dist/` with tsdown (one process per package)
 - **Check Packages**: `pnpm check:packages [name...]` - `pnpm pack` each built package and lint the tarball (metadata, d.ts, publint, attw)
 - **Check README**: `pnpm check:readme` - Validate package READMEs against the template
@@ -75,6 +75,13 @@ Versions and CHANGELOGs are managed with changesets (`.changeset/`), published b
 - On `main`, the Release workflow either opens/updates the "Version Packages" PR (changesets present) or packs and publishes unpublished versions via npm Trusted Publishing (OIDC, `npm` environment). It can also be started manually (`workflow_dispatch`).
 - Don't switch to npm tokens: npm deletes/invalidates write-capable granular tokens that bypass 2FA.
 - npm only allows registering a trusted publisher for packages that already exist. A brand-new package must be published once locally (`npm login`, then `pnpm build && pnpm check:packages && pnpm changeset publish`, then `git push --follow-tags`) and registered with `./scripts/setup-npm-trust.sh <folder>` before CI can publish it.
+
+### Apps
+
+`apps/*` are runnable applications, not published packages. They are in the pnpm workspace but excluded from `pnpm build`, `pnpm typecheck`, and `pnpm check:packages`, which only cover `packages/*`.
+
+- **docs/**: Fumadocs site generated from package READMEs, deployed to GitHub Pages by `.github/workflows/docs.yml`
+- **apix/**: Hono routes on Next.js App Router, deployed to Vercel (project root directory `apps/apix`). Secrets live in Vercel, never in the repo; `src/lib/env.ts` validates them per route so a missing Spotify credential doesn't take down `/api/now`
 
 ### Notable Packages
 
