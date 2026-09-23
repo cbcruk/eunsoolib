@@ -1,7 +1,7 @@
 {
   "name": "@cbcruk/fetch-outcome",
   "description": "실패한 fetch를 재시도 판단이 담긴 데이터로 바꾸는 FetchOutcome 모델",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "repository": {
