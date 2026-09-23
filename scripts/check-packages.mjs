@@ -112,6 +112,21 @@ for (const { dir, pkg } of packages) {
       }
     }
 
+    // bin은 npm이 설치 시 심볼릭 링크를 걸기 때문에, 파일이 없거나 셰뱅이 빠지면 설치 후에야 드러난다.
+    for (const [command, target] of Object.entries(packed.bin ?? {})) {
+      const entry = `package/${target.replace(/^\.\//, '')}`
+      if (!files.includes(entry)) {
+        problems.push(`bin["${command}"]의 실행 파일 ${entry}이 없습니다.`)
+        continue
+      }
+      const source = execFileSync('tar', ['-xzOf', tarball, entry], {
+        encoding: 'utf8',
+      })
+      if (!source.startsWith('#!')) {
+        problems.push(`bin["${command}"]의 ${entry}에 셰뱅이 없습니다.`)
+      }
+    }
+
     const publint = run(bin('publint'), ['run', tarball, '--strict'], repoDir)
     if (publint) problems.push(`publint\n${publint}`)
 
