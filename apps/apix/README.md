@@ -81,7 +81,12 @@ Vercel 프로젝트의 Root Directory를 `apps/apix`로 설정한다. 모노레�
 폴더만 바뀐 커밋에서 빌드하지 않도록 Ignored Build Step을 걸어 두는 것이 좋다.
 
 ```bash
-git diff --quiet HEAD^ HEAD -- apps/apix packages pnpm-lock.yaml
+git diff --quiet HEAD^ HEAD -- :/apps/apix :/packages :/pnpm-lock.yaml
 ```
 
 종료 코드가 `0`(변경 없음)이면 빌드를 건너뛴다.
+
+경로 앞의 `:/`가 중요하다. 이 명령은 **Root Directory(`apps/apix`) 안에서**
+실행되므로, `apps/apix` 같은 저장소 루트 기준 경로를 그대로 쓰면 아무것도
+매칭되지 않아 항상 "변경 없음"이 되고 빌드가 영영 건너뛰어진다. `:/`는
+pathspec을 저장소 루트 기준으로 해석하게 한다.
