@@ -1,0 +1,46 @@
+{
+  "name": "@cbcruk/git-mv-ts",
+  "description": "git mv로 .js/.jsx 파일을 JSX 유무에 따라 .ts/.tsx로 옮기는 도구",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/git-mv-ts"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/devtools/git-mv-ts/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "git-mv-ts": "./src/cli.ts"
+  },
+  "dependencies": {
+    "acorn": "^8.15.0",
+    "acorn-jsx": "^5.3.2"
+  },
+  "eunsoolib": {
+    "category": "devtools",
+    "runtime": [
+      "node"
+    ]
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    },
+    "bin": {
+      "git-mv-ts": "./dist/cli.mjs"
+    },
+    "access": "public"
+  }
+}
