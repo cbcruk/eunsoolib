@@ -14,6 +14,41 @@ export interface PaginationRangeParams {
   boundaryCount?: number
 }
 
+export interface PaginationBlockParams {
+  page: number
+  totalPages: number
+  blockSize?: number
+}
+
+/**
+ * 현재 페이지가 속한 구간의 페이지 번호만 반환한다. DOTS를 쓰지 않는다.
+ *
+ * 페이지를 `blockSize`개씩 끊어 1~10, 11~20처럼 보여 주는 게시판형 UI용이다.
+ * 첫·마지막 페이지가 목록에 없을 수 있으므로 `goToFirst`·`goToLast` 버튼과 함께 쓴다.
+ *
+ * @param params - 현재 페이지, 전체 페이지 수, 구간 크기
+ * @returns 현재 구간의 페이지 번호 배열
+ *
+ * @example
+ * ```ts
+ * import { getPaginationBlock } from '@cbcruk/pagination'
+ *
+ * getPaginationBlock({ page: 12, totalPages: 12 })
+ * // [11, 12]
+ * ```
+ */
+export function getPaginationBlock({
+  page,
+  totalPages,
+  blockSize = 10,
+}: PaginationBlockParams): number[] {
+  const lastPage = Math.max(1, totalPages)
+  const size = Math.max(1, blockSize)
+  const start = Math.floor((page - 1) / size) * size + 1
+
+  return range(start, Math.min(start + size - 1, lastPage))
+}
+
 /**
  * 표시할 페이지 번호 배열을 계산한다. gap이 생기면 DOTS("...")를 삽입한다.
  *

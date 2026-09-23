@@ -34,6 +34,7 @@ import type { PaginationProps } from './types'
 export function Pagination({
   pagination,
   showInfo = false,
+  showEdges = false,
   size = 'md',
   className = '',
   ...options
@@ -92,6 +93,17 @@ export function Pagination({
       )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: dims.gap }}>
+        {showEdges && (
+          <button
+            onClick={p.goToFirst}
+            disabled={p.isFirst}
+            style={arrow(p.isFirst)}
+            aria-label="첫 페이지"
+          >
+            «
+          </button>
+        )}
+
         <button
           onClick={p.prev}
           disabled={p.isFirst}
@@ -146,6 +158,17 @@ export function Pagination({
         >
           ›
         </button>
+
+        {showEdges && (
+          <button
+            onClick={p.goToLast}
+            disabled={p.isLast}
+            style={arrow(p.isLast)}
+            aria-label="마지막 페이지"
+          >
+            »
+          </button>
+        )}
       </div>
     </div>
   )
