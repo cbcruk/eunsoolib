@@ -1,0 +1,49 @@
+{
+  "name": "@cbcruk/naver-map-markers",
+  "description": "네이버 지도 v3 마커 레이어의 diff 동기화와 0·1·N 카메라 맞춤",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/eunsoolib.git",
+    "directory": "packages/naver-map-markers"
+  },
+  "homepage": "https://cbcruk.github.io/eunsoolib/docs/dom/naver-map-markers/",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config ../../tsdown.config.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./react": "./src/react.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@types/navermaps": "^3.9.2"
+  },
+  "peerDependencies": {
+    "react": "^19.1.1"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "eunsoolib": {
+    "category": "dom",
+    "runtime": [
+      "browser"
+    ]
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./react": "./dist/react.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  }
+}
