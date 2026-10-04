@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react'
 import { isHighlightSupported } from './core'
+import type { TokenRule } from './tokenize'
 import {
   Highlight,
   HighlightProvider,
@@ -13,6 +14,8 @@ import {
   useHighlightController,
   useHighlightSearch,
   useHighlightSnapshots,
+  useValueHighlightSearch,
+  useValueTokens,
   type HighlightStyleMap,
 } from './react'
 
@@ -26,9 +29,21 @@ const DEMO_STYLES: HighlightStyleMap = {
   },
   'log-warn': { backgroundColor: 'rgb(254 243 199)', color: 'rgb(120 53 15)' },
   'log-info': { backgroundColor: 'rgb(219 234 254)', color: 'rgb(30 64 175)' },
-  'kw-keyword': { color: 'rgb(192 132 252)', fontWeight: '600' },
+  'kw-keyword': { color: 'rgb(192 132 252)' },
   'kw-number': { color: 'rgb(251 146 60)' },
-  'kw-comment': { color: 'rgb(148 163 184)', fontStyle: 'italic' },
+  'kw-comment': { color: 'rgb(148 163 184)' },
+  'val-keyword': { color: 'rgb(192 132 252)' },
+  'val-string': { color: 'rgb(134 239 172)' },
+  'val-number': { color: 'rgb(251 146 60)' },
+  'val-comment': { color: 'rgb(148 163 184)' },
+  'note-match': {
+    backgroundColor: 'rgb(254 240 138)',
+    color: 'rgb(113 63 18)',
+  },
+  'note-current': {
+    backgroundColor: 'rgb(249 115 22)',
+    color: 'white',
+  },
 }
 
 const SAMPLE_PROSE = `The only true wisdom is in knowing you know nothing.
@@ -53,6 +68,29 @@ function quicksort(arr, lo = 0, hi = arr.length - 1) {
     return quicksort(arr, lo, p - 1);
   }
 }`
+
+const EDITABLE_CODE = `// drag the caret and keep typing
+function partition(arr, lo, hi) {
+  const pivot = arr[hi];
+  let i = lo - 1;
+  return i; // comments stay grey, even with keywords: const return
+}`
+
+const SAMPLE_NOTE = `Wisdom begins in wonder, and wonder begins in attention.
+Attention is the rarest form of generosity.
+Keep your attention on what is in front of you.
+Attention, taken far enough, becomes devotion.`
+
+/**
+ * Rules for the editable code demo. Order is precedence: comment and string
+ * rules come first so a keyword inside either is left alone.
+ */
+const CODE_RULES: TokenRule[] = [
+  { name: 'val-comment', pattern: /\/\/[^\n]*/ },
+  { name: 'val-string', pattern: /'[^']*'|"[^"]*"/ },
+  { name: 'val-keyword', pattern: /\b(?:function|const|let|return)\b/ },
+  { name: 'val-number', pattern: /\b\d+\b/ },
+]
 
 interface Rect {
   top: number
@@ -184,6 +222,122 @@ function CodeDemo(): ReactNode {
         <Highlight.Match name="kw-number" pattern={/\b\d+\b/} />
         <Highlight.Match name="kw-comment" pattern={/\/\/[^\n]*/} />
       </Highlight.Root>
+    </section>
+  )
+}
+
+/**
+ * `<pre>` 대신 편집 가능한 `<textarea>`를 토큰화한다. DOM Range로는 불가능한
+ * 영역이라 `OpaqueRange`가 필요하다.
+ */
+function ValueTokenDemo(): ReactNode {
+  const { ref, supported, counts } = useValueTokens<HTMLTextAreaElement>(
+    CODE_RULES,
+  )
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-3 flex items-baseline justify-between">
+        <h3 className="text-sm font-semibold text-slate-900">
+          4. Editable textarea (OpaqueRange)
+        </h3>
+        <code className="text-xs text-slate-500">createValueRange</code>
+      </div>
+      {!supported && (
+        <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          이 브라우저는 <code>OpaqueRange</code>를 지원하지 않습니다 (Chromium
+          152+ 필요). textarea는 평소대로 동작하고 하이라이트만 빠집니다.
+        </p>
+      )}
+      <textarea
+        ref={ref}
+        defaultValue={EDITABLE_CODE}
+        spellCheck={false}
+        rows={6}
+        className="w-full resize-y rounded-lg bg-slate-950 p-4 font-mono text-[13px] leading-relaxed text-slate-100 caret-white outline-none focus:ring-2 focus:ring-violet-400"
+      />
+      <dl className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+        {CODE_RULES.map((rule) => (
+          <div key={rule.name} className="flex gap-1">
+            <dt>
+              <code>{rule.name}</code>
+            </dt>
+            <dd className="font-medium text-slate-700">
+              {counts[rule.name] ?? 0}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 text-xs text-slate-500">
+        규칙 순서가 우선순위다. 주석 안에 <code>const</code>를 써도 keyword 규칙이
+        이기지 못하고 주석 색으로 남는다.
+      </p>
+    </section>
+  )
+}
+
+/** textarea 안에서 next/prev 네비게이션. 캐럿과 선택 영역은 건드리지 않는다. */
+function ValueSearchDemo(): ReactNode {
+  const [query, setQuery] = useState('attention')
+  const { ref, count, active, next, prev, supported } =
+    useValueHighlightSearch<HTMLTextAreaElement>(query, {
+      name: 'note',
+    })
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    if (event.shiftKey) prev()
+    else next()
+  }
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-3 flex items-baseline justify-between">
+        <h3 className="text-sm font-semibold text-slate-900">
+          5. Search inside a textarea
+        </h3>
+        <code className="text-xs text-slate-500">scrollTop, not selection</code>
+      </div>
+      <div className="mb-3 flex items-center gap-2">
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder="검색어 (Enter / Shift+Enter)"
+          className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-violet-400"
+        />
+        <span className="w-14 text-center text-xs tabular-nums text-slate-500">
+          {count === 0 ? '0/0' : `${active + 1}/${count}`}
+        </span>
+        <button
+          type="button"
+          onClick={prev}
+          disabled={count === 0}
+          className="rounded-lg border border-slate-300 px-2 py-1 text-sm disabled:opacity-40"
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          onClick={next}
+          disabled={count === 0}
+          className="rounded-lg border border-slate-300 px-2 py-1 text-sm disabled:opacity-40"
+        >
+          ↓
+        </button>
+      </div>
+      {!supported && (
+        <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <code>OpaqueRange</code> 미지원 — 입력은 되지만 하이라이트는 없습니다.
+        </p>
+      )}
+      <textarea
+        ref={ref}
+        defaultValue={SAMPLE_NOTE}
+        rows={4}
+        className="w-full resize-y rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-[13px] leading-relaxed text-slate-800 outline-none focus:ring-2 focus:ring-violet-400"
+      />
     </section>
   )
 }
@@ -321,6 +475,8 @@ export function HighlightDemo(): ReactNode {
           <SearchDemo />
           <LogLevelDemo />
           <CodeDemo />
+          <ValueTokenDemo />
+          <ValueSearchDemo />
           <StoreInspector />
         </div>
       </div>
