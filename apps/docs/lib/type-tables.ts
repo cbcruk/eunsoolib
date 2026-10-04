@@ -20,7 +20,20 @@ export const typeTables: Record<string, TypeTableEntry[]> = {
       file: 'packages/highlight-kit/src/react.tsx',
       name: 'UseHighlightSearchOptions',
     },
+    {
+      file: 'packages/highlight-kit/src/react.tsx',
+      name: 'UseValueTokensOptions',
+    },
+    {
+      file: 'packages/highlight-kit/src/react.tsx',
+      name: 'UseValueHighlightOptions',
+    },
     { file: 'packages/highlight-kit/src/core.ts', name: 'HighlightSink' },
+    { file: 'packages/highlight-kit/src/tokenize.ts', name: 'TokenRule' },
+    {
+      file: 'packages/highlight-kit/src/value-range.ts',
+      name: 'ValueHighlighterOptions',
+    },
   ],
   'react/pagination': [
     { file: 'packages/pagination/src/types.ts', name: 'UsePaginationOptions' },

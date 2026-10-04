@@ -12,6 +12,19 @@
  * (`subscribe` + `getSnapshot`) so framework adapters can stay thin.
  */
 
+import type { ValueRange } from './value-range'
+import { literalSource } from './pattern'
+
+/**
+ * Either kind of range a highlight can hold.
+ *
+ * `Highlight` is setlike over `AbstractRange`, so DOM ranges and value ranges
+ * may share one highlight name. Only a value range lacks
+ * `startContainer`/`endContainer`; narrow with `isValueRange` before reading
+ * them.
+ */
+export type HighlightRange = Range | ValueRange
+
 /** Options controlling how a string pattern is matched against text. */
 export interface MatchOptions {
   /**
@@ -49,7 +62,7 @@ export type SourceId = string | symbol
  */
 export interface HighlightSink {
   /** Replace the registered highlight for `name` with `ranges`. */
-  commit(name: string, ranges: Range[], priority: number): void
+  commit(name: string, ranges: HighlightRange[], priority: number): void
   /** Drop the registered highlight for `name`. */
   remove(name: string): void
   /**
@@ -103,9 +116,10 @@ function toRegExp(pattern: string | RegExp, options: MatchOptions): RegExp {
       ? pattern
       : new RegExp(pattern.source, pattern.flags + 'g')
   }
-  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const body = options.wholeWord ? `\\b${escaped}\\b` : escaped
-  return new RegExp(body, options.caseSensitive ? 'g' : 'gi')
+  return new RegExp(
+    literalSource(pattern, options.wholeWord),
+    options.caseSensitive ? 'g' : 'gi',
+  )
 }
 
 /**
@@ -212,7 +226,8 @@ export function createCssHighlightSink(): HighlightSink {
   return {
     commit(name, ranges, priority): void {
       if (!isHighlightSupported()) return
-      const highlight = new Highlight(...ranges)
+      // A value range is an AbstractRange at runtime; see HighlightRange.
+      const highlight = new Highlight(...(ranges as AbstractRange[]))
       highlight.priority = priority
       CSS.highlights.set(name, highlight)
     },
@@ -235,7 +250,7 @@ export function createNoopSink(): HighlightSink {
 
 interface HighlightEntry {
   priority: number
-  sources: Map<SourceId, Range[]>
+  sources: Map<SourceId, HighlightRange[]>
 }
 
 const EMPTY_SNAPSHOTS: Readonly<Record<string, HighlightSnapshot>> =
@@ -308,7 +323,7 @@ class HighlightController {
     EMPTY_SNAPSHOTS
 
   /** Union of every source's ranges currently registered under `name`. */
-  getRanges(name: string): Range[] {
+  getRanges(name: string): HighlightRange[] {
     const entry = this.#entries.get(name)
     return entry ? this.#merge(entry) : []
   }
@@ -317,7 +332,12 @@ class HighlightController {
    * Register/replace a source's ranges under a name, then reconcile.
    * `priority` applies to the whole name; the most recent call wins.
    */
-  set(name: string, sourceId: SourceId, ranges: Range[], priority = 0): void {
+  set(
+    name: string,
+    sourceId: SourceId,
+    ranges: HighlightRange[],
+    priority = 0,
+  ): void {
     if (!this.supported) return
     let entry = this.#entries.get(name)
     if (!entry) {
@@ -356,8 +376,8 @@ class HighlightController {
     this.#emit()
   }
 
-  #merge(entry: HighlightEntry): Range[] {
-    const all: Range[] = []
+  #merge(entry: HighlightEntry): HighlightRange[] {
+    const all: HighlightRange[] = []
     for (const ranges of entry.sources.values()) all.push(...ranges)
     return all
   }
@@ -365,7 +385,7 @@ class HighlightController {
   /** Union all sources for `name` into one highlight and update the snapshot. */
   #reconcile(name: string): void {
     const entry = this.#entries.get(name)
-    const all = entry ? this.#merge(entry) : []
+    const all: HighlightRange[] = entry ? this.#merge(entry) : []
 
     if (!entry || all.length === 0) {
       this.#sink.remove(name)

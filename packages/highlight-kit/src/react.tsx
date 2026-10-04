@@ -38,6 +38,17 @@ import {
   type HighlightSnapshot,
   type MatchOptions,
 } from './core'
+import { tokenizeValue, type OverlapStrategy, type TokenRule } from './tokenize'
+import {
+  createValueHighlighter,
+  createValueRangeRegistry,
+  createValueRanges,
+  disconnectValueRanges,
+  scrollValueRangeIntoView,
+  type ValueHighlighter,
+  type ValueRangeElement,
+  type ValueRangeRegistry,
+} from './value-range'
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
@@ -582,3 +593,440 @@ export function HighlightStyles({
 }
 
 export { highlights } from './core'
+
+/**
+ * Stable identity for a rule list.
+ *
+ * Rule arrays are almost always written inline, so a new reference arrives on
+ * every render. Keying effects on the rules' *content* instead keeps a fresh
+ * array from tearing down and rebuilding the highlighter each render, which
+ * would discard and recreate every live range.
+ */
+function useRulesKey(rules: readonly TokenRule[]): string {
+  return useMemo(
+    () =>
+      JSON.stringify(
+        rules.map((rule) => [
+          rule.name,
+          String(rule.pattern),
+          rule.caseSensitive ?? false,
+          rule.wholeWord ?? false,
+          rule.priority ?? 0,
+        ]),
+      ),
+    [rules],
+  )
+}
+
+/** Options shared by the form-control hooks. */
+export interface ValueHighlightOptions {
+  /**
+   * The control's current value, for a controlled component.
+   *
+   * Assigning `value` collapses every live range and fires no `input` event, so
+   * without this the highlight would go stale on a programmatic change (a reset
+   * button, loading a template). Omit it for an uncontrolled control: typing is
+   * tracked through `input` either way.
+   */
+  value?: string
+  /**
+   * Re-tokenize on the control's `input` events.
+   * @default true
+   */
+  observe?: boolean
+}
+
+/** Options for {@link useValueTokens}. */
+export interface UseValueTokensOptions extends ValueHighlightOptions {
+  /**
+   * How matches covering the same characters resolve.
+   * @default 'first'
+   */
+  overlap?: OverlapStrategy
+}
+
+/**
+ * Return value of {@link useValueTokens}.
+ *
+ * @template T - The form control element type
+ */
+export interface UseValueTokensResult<T extends ValueRangeElement> {
+  /** Attach to the `<input>` or `<textarea>` to tokenize. */
+  ref: RefObject<T | null>
+  /** Whether this browser and this element support value ranges. */
+  supported: boolean
+  /** Match count per highlight name, with an entry for every rule name. */
+  counts: Readonly<Record<string, number>>
+}
+
+/**
+ * Tokenize a form control's value and highlight each rule's matches.
+ *
+ * The control's text is re-tokenized on every `input` event, with one highlight
+ * name per rule name, and the previous generation of live ranges is released.
+ * Rules are compared by content, so an inline rule array is fine.
+ *
+ * Needs `OpaqueRange` (Chromium 152+). Everywhere else `supported` is false and
+ * the hook does nothing, leaving the control to render normally.
+ *
+ * @template T - The form control element type
+ * @param rules - Ordered rules; earlier ones win, see {@link TokenRule}
+ * @returns The control ref, support flag, and per-name match counts
+ *
+ * @example A textarea highlighted like a code editor
+ * ```tsx
+ * import { HighlightStyles, useValueTokens } from '@cbcruk/highlight-kit/react'
+ *
+ * const RULES = [
+ *   { name: 'comment', pattern: /\/\/[^\n]*|\/\*[\s\S]*?\*\// },
+ *   { name: 'string', pattern: /'[^']*'|"[^"]*"/ },
+ *   { name: 'keyword', pattern: /\b(?:const|function|return)\b/ },
+ * ]
+ *
+ * function CodeArea() {
+ *   const { ref, supported, counts } = useValueTokens<HTMLTextAreaElement>(RULES)
+ *   return (
+ *     <>
+ *       <HighlightStyles
+ *         styles={{
+ *           comment: { color: '#6b7280' },
+ *           string: { color: '#16a34a' },
+ *           keyword: { color: '#7c3aed' },
+ *         }}
+ *       />
+ *       <textarea ref={ref} defaultValue="const x = 1 // note" />
+ *       {!supported && <p>This browser cannot highlight inside a textarea.</p>}
+ *       <small>{counts.keyword ?? 0} keywords</small>
+ *     </>
+ *   )
+ * }
+ * ```
+ */
+export function useValueTokens<T extends ValueRangeElement = HTMLTextAreaElement>(
+  rules: readonly TokenRule[],
+  options: UseValueTokensOptions = {},
+): UseValueTokensResult<T> {
+  const { overlap, value, observe = true } = options
+  const controller = useHighlightController()
+  const sourceId = useId()
+  const ref = useRef<T>(null)
+  const rulesKey = useRulesKey(rules)
+  const rulesRef = useRef(rules)
+  rulesRef.current = rules
+  const highlighterRef = useRef<ValueHighlighter | null>(null)
+  const [supported, setSupported] = useState(false)
+
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const highlighter = createValueHighlighter({
+      element,
+      rules: rulesRef.current,
+      overlap,
+      controller,
+      sourceId,
+      observe,
+    })
+    highlighterRef.current = highlighter
+    setSupported(highlighter.supported)
+
+    return () => {
+      highlighterRef.current = null
+      highlighter.dispose()
+    }
+  }, [controller, sourceId, rulesKey, overlap, observe])
+
+  // The highlighter already tokenized the value it was built with, so only
+  // later changes need a refresh.
+  const seenFirstValue = useRef(false)
+  useIsomorphicLayoutEffect(() => {
+    if (!seenFirstValue.current) {
+      seenFirstValue.current = true
+      return
+    }
+    highlighterRef.current?.refresh()
+  }, [value])
+
+  const snapshots = useHighlightSnapshots()
+  const counts = useMemo(() => {
+    const result: Record<string, number> = {}
+    for (const rule of rulesRef.current) {
+      result[rule.name] = snapshots[rule.name]?.count ?? 0
+    }
+    return result
+    // rulesKey stands in for rulesRef.current's content.
+  }, [snapshots, rulesKey])
+
+  return { ref, supported, counts }
+}
+
+/** Options for {@link useValueHighlight}. */
+export interface UseValueHighlightOptions
+  extends MatchOptions,
+    ValueHighlightOptions {
+  /** Text or expression to highlight. Falsy clears this source. */
+  query: string | RegExp
+  /** CSS `::highlight()` name. Defaults to a unique per-instance name. */
+  name?: string
+  /**
+   * Stacking order against other highlight names.
+   * @default 0
+   */
+  priority?: number
+}
+
+/**
+ * Return value of {@link useValueHighlight}.
+ *
+ * @template T - The form control element type
+ */
+export interface UseValueHighlightResult<T extends ValueRangeElement>
+  extends HighlightSnapshot {
+  /** Attach to the `<input>` or `<textarea>` to scan. */
+  ref: RefObject<T | null>
+  /** The resolved highlight name (auto-generated if not provided). */
+  name: string
+  /** Whether this browser and this element support value ranges. */
+  supported: boolean
+}
+
+/**
+ * Highlight one pattern inside an `<input>` or `<textarea>`.
+ *
+ * The single-pattern form of {@link useValueTokens} — the counterpart to
+ * {@link useHighlight}, which cannot reach into a form control's value.
+ *
+ * @template T - The form control element type
+ *
+ * @example Flagging a word as it is typed
+ * ```tsx
+ * import { useValueHighlight } from '@cbcruk/highlight-kit/react'
+ *
+ * function Composer() {
+ *   const { ref, count, supported } = useValueHighlight<HTMLTextAreaElement>({
+ *     query: /\bexample\b/gi,
+ *     name: 'flagged',
+ *   })
+ *   return (
+ *     <>
+ *       <style>{'::highlight(flagged) { background: #fde68a }'}</style>
+ *       <textarea ref={ref} />
+ *       {supported && <small>{count} occurrences</small>}
+ *     </>
+ *   )
+ * }
+ * ```
+ */
+export function useValueHighlight<
+  T extends ValueRangeElement = HTMLInputElement,
+>(options: UseValueHighlightOptions): UseValueHighlightResult<T> {
+  const {
+    query,
+    priority = 0,
+    caseSensitive,
+    wholeWord,
+    value,
+    observe,
+  } = options
+  const autoId = useId()
+  const name = options.name ?? `hk-value-${autoId}`
+
+  const rules = useMemo<TokenRule[]>(
+    () =>
+      query ? [{ name, pattern: query, caseSensitive, wholeWord, priority }] : [],
+    [name, query, caseSensitive, wholeWord, priority],
+  )
+
+  const { ref, supported, counts } = useValueTokens<T>(rules, {
+    value,
+    observe,
+  })
+  const count = counts[name] ?? 0
+
+  return { ref, name, supported, count, active: count > 0 }
+}
+
+/** Options for {@link useValueHighlightSearch}. */
+export interface UseValueHighlightSearchOptions
+  extends MatchOptions,
+    ValueHighlightOptions {
+  /**
+   * Base highlight name. The active match is registered under
+   * `${name}-current` with a higher priority.
+   * @default 'search'
+   */
+  name?: string
+}
+
+/**
+ * Return value of {@link useValueHighlightSearch}.
+ *
+ * @template T - The form control element type
+ */
+export interface UseValueHighlightSearchResult<T extends ValueRangeElement> {
+  /** Attach to the `<input>` or `<textarea>` to search. */
+  ref: RefObject<T | null>
+  /** Number of matches in the control's value. */
+  count: number
+  /** Index of the active match, or -1 when there are no matches. */
+  active: number
+  /** Move to the next match, wrapping to the first after the last. */
+  next(): void
+  /** Move to the previous match, wrapping to the last before the first. */
+  prev(): void
+  /** Whether this browser and this element support value ranges. */
+  supported: boolean
+}
+
+/**
+ * Search inside an `<input>` or `<textarea>` with next/prev navigation.
+ *
+ * All matches go to `name`, the active one to `${name}-current` at a higher
+ * priority, and the control is scrolled just far enough to reveal the active
+ * match. Scrolling adjusts the control's own `scrollTop`/`scrollLeft` rather
+ * than calling `setSelectionRange()`, so the caret and the user's selection are
+ * left untouched.
+ *
+ * @template T - The form control element type
+ * @param query - Text or expression to find. Falsy clears the highlight
+ *
+ * @example
+ * ```tsx
+ * import { useState } from 'react'
+ * import {
+ *   HighlightStyles,
+ *   useValueHighlightSearch,
+ * } from '@cbcruk/highlight-kit/react'
+ *
+ * function NoteSearch() {
+ *   const [query, setQuery] = useState('')
+ *   const { ref, count, active, next, prev } =
+ *     useValueHighlightSearch<HTMLTextAreaElement>(query)
+ *
+ *   return (
+ *     <>
+ *       <HighlightStyles />
+ *       <input value={query} onChange={(e) => setQuery(e.target.value)} />
+ *       <span>{count === 0 ? '0/0' : `${active + 1}/${count}`}</span>
+ *       <button onClick={prev}>Prev</button>
+ *       <button onClick={next}>Next</button>
+ *       <textarea ref={ref} rows={10} />
+ *     </>
+ *   )
+ * }
+ * ```
+ */
+export function useValueHighlightSearch<
+  T extends ValueRangeElement = HTMLTextAreaElement,
+>(
+  query: string | RegExp,
+  options: UseValueHighlightSearchOptions = {},
+): UseValueHighlightSearchResult<T> {
+  const {
+    name = 'search',
+    caseSensitive,
+    wholeWord,
+    value,
+    observe = true,
+  } = options
+  const controller = useHighlightController()
+  const sourceId = useId()
+  const ref = useRef<T>(null)
+  const registryRef = useRef<ValueRangeRegistry | null>(null)
+  const [spans, setSpans] = useState<Array<{ start: number; end: number }>>([])
+  const [active, setActive] = useState(0)
+  const [supported, setSupported] = useState(false)
+
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const registry = createValueRangeRegistry({ element, controller, sourceId })
+    registryRef.current = registry
+    setSupported(registry.supported)
+
+    return () => {
+      registryRef.current = null
+      registry.dispose()
+    }
+  }, [controller, sourceId])
+
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const recompute = (): void => {
+      const next = query
+        ? tokenizeValue(element.value, [
+            { name, pattern: query, caseSensitive, wholeWord },
+          ]).map(({ start, end }) => ({ start, end }))
+        : []
+      // Keep the previous array when nothing moved, so typing between matches
+      // does not re-register ranges or re-render.
+      setSpans((previous) =>
+        previous.length === next.length &&
+        previous.every(
+          (span, i) => span.start === next[i].start && span.end === next[i].end,
+        )
+          ? previous
+          : next,
+      )
+    }
+
+    recompute()
+    if (!observe) return
+    element.addEventListener('input', recompute)
+    return () => element.removeEventListener('input', recompute)
+  }, [name, query, caseSensitive, wholeWord, value, observe])
+
+  useIsomorphicLayoutEffect(() => {
+    setActive((a) => (spans.length === 0 ? 0 : Math.min(a, spans.length - 1)))
+  }, [spans])
+
+  useIsomorphicLayoutEffect(() => {
+    const registry = registryRef.current
+    if (!registry) return
+
+    const current = spans[active]
+    registry.commit([
+      { name, priority: 0, spans },
+      ...(current
+        ? [{ name: `${name}-current`, priority: 1, spans: [current] }]
+        : []),
+    ])
+  }, [name, spans, active])
+
+  useEffect(() => {
+    const element = ref.current
+    const current = spans[active]
+    if (!element || !current) return
+
+    // A throwaway range purely for geometry: a value range has no node to call
+    // scrollIntoView() on. Released immediately so the control stops tracking it.
+    const ranges = createValueRanges(element, [current])
+    if (ranges[0]) scrollValueRangeIntoView(element, ranges[0])
+    disconnectValueRanges(ranges)
+  }, [spans, active])
+
+  const next = useCallback(
+    () => setActive((a) => (spans.length ? (a + 1) % spans.length : 0)),
+    [spans.length],
+  )
+  const prev = useCallback(
+    () =>
+      setActive((a) =>
+        spans.length ? (a - 1 + spans.length) % spans.length : 0,
+      ),
+    [spans.length],
+  )
+
+  return {
+    ref,
+    count: spans.length,
+    active: spans.length ? active : -1,
+    next,
+    prev,
+    supported,
+  }
+}
