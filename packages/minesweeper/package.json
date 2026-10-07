@@ -1,0 +1,16 @@
+{
+  "name": "@cbcruk/minesweeper",
+  "description": "지뢰찾기 게임 엔진 (지뢰 배치·연쇄 열기·깃발·타이머)",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "eunsoolib": {
+    "category": "lab",
+    "runtime": [
+      "universal"
+    ]
+  }
+}

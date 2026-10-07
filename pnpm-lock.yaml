@@ -353,6 +353,8 @@ importers:
 
   packages/logo-soup-utils: {}
 
+  packages/minesweeper: {}
+
   packages/mole: {}
 
   packages/msw-devtools:
